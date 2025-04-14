@@ -54,7 +54,7 @@ function injectJobPageNotification() {
       </svg>
     </div>
     <div>
-      <div style="font-weight: 600; margin-bottom: 4px;">Job Application Detected</div>
+      <div style="font-weight: 600; margin-bottom: 4px;"></div>
       <div style="font-size: 12px;">Click to generate a cover letter</div>
     </div>
   `;

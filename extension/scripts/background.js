@@ -100,40 +100,68 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       function: () => {
         // This function runs in the context of the page
         function findJobDescription() {
-          // Try various common selectors for job descriptions
-          const possibleSelectors = [
-            '.job-description',
-            '[data-testid="job-description"]',
-            '.description',
-            '#job-description',
-            '[class*="job-description"]',
-            '[class*="jobDescription"]',
-            'section[class*="description"]',
-            '[role="main"]',
-            'main'
-          ];
-          
-          for (const selector of possibleSelectors) {
-            const element = document.querySelector(selector);
-            if (element && element.textContent.trim().length > 100) {
-              return element.textContent.trim();
-            }
-          }
-          
-          // Fallback: try to find by heading
-          const headings = Array.from(document.querySelectorAll('h1, h2, h3'));
-          for (const heading of headings) {
-            if (/job description|description|requirements/i.test(heading.textContent)) {
-              const section = heading.nextElementSibling;
-              if (section && section.textContent.trim().length > 100) {
-                return section.textContent.trim();
+            console.log("Attempting to find 'Additional Information' or 'Cover Letter' sections...");
+            
+            // Look for headings or labels containing the target phrases
+            const potentialLabels = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6, strong, b, label, dt, .form-label'));
+            let foundText = null;
+  
+            for (const labelElement of potentialLabels) {
+              const labelText = labelElement.textContent.trim();
+              
+              if (/additional information|cover letter/i.test(labelText)) {
+                console.log("Found potential label:", labelText, labelElement);
+                
+                // Try to get text from the next sibling element
+                let nextElement = labelElement.nextElementSibling;
+                if (nextElement && nextElement.textContent.trim().length > 50) {
+                   console.log("Found text in next sibling:", nextElement.textContent.trim());
+                   foundText = nextElement.textContent.trim();
+                   break; // Stop searching once found
+                }
+  
+                // If next sibling didn't work, try the parent's next sibling (common in definition lists dt/dd)
+                if (!foundText && labelElement.parentElement) {
+                  nextElement = labelElement.parentElement.nextElementSibling;
+                   if (nextElement && nextElement.textContent.trim().length > 50) {
+                      console.log("Found text in parent's next sibling:", nextElement.textContent.trim());
+                      foundText = nextElement.textContent.trim();
+                      break; 
+                   }
+                }
+                
+                // If still not found, try finding a nearby textarea or content div
+                // This is more complex and might need refinement based on common structures
+                let parent = labelElement.parentElement;
+                let attempts = 0;
+                while(parent && attempts < 3) {
+                   const nearbyTextarea = parent.querySelector('textarea');
+                   if(nearbyTextarea && nearbyTextarea.value.trim().length > 50) {
+                      console.log("Found text in nearby textarea:", nearbyTextarea.value.trim());
+                      foundText = nearbyTextarea.value.trim();
+                      break;
+                   }
+                   const nearbyDiv = parent.querySelector('div[class*="content"], div[class*="description"], div.ProseMirror'); // Common rich text editor class
+                   if(nearbyDiv && nearbyDiv.textContent.trim().length > 50) {
+                      console.log("Found text in nearby content div:", nearbyDiv.textContent.trim());
+                      foundText = nearbyDiv.textContent.trim();
+                      break;
+                   }
+                   parent = parent.parentElement;
+                   attempts++;
+                }
+                if (foundText) break; 
               }
             }
+  
+            if (foundText) {
+              return foundText;
+            }
+  
+            console.log("Specific sections not found, falling back to body text.");
+            // Fallback: return the body text if specific sections aren't found
+            return document.body.innerText.substring(0, 5000);
           }
-          
-          // Last resort: return the body text with length limit
-          return document.body.innerText.substring(0, 5000);
-        }
         
         return findJobDescription();
       }

@@ -1,103 +1,64 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="extension-container scrollbar-thin">
+      <div className="flex flex-col p-4">
+        <header className="flex items-center mb-6 pb-4 border-b border-gray-200">
+          <Image
+            src="/Neoterik-Genesis.png"
+            alt="Neoterik.ai Logo"
+            width={40}
+            height={40}
+            priority
+            className="mr-3"
+          />
+          <h1 className="text-xl font-semibold text-[#2D3047] dark:text-[#E5E7EB]">AI Cover Letter Assistant</h1>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <main className="flex-1">
+          <div className="bg-white dark:bg-[#374151] rounded-lg shadow-md p-5 mb-5">
+            <h2 className="text-lg font-medium text-[#2D3047] dark:text-[#E5E7EB] mb-4">Generate Your Cover Letter</h2>
+            <div className="mb-4">
+              <label htmlFor="job-description" className="block mb-2 text-sm font-medium">
+                Job Description
+              </label>
+              <textarea
+                id="job-description"
+                className="w-full p-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none"
+                rows={4}
+                placeholder="Paste the job description here..."
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="resume-highlights" className="block mb-2 text-sm font-medium">
+                Key Resume Highlights (optional)
+              </label>
+              <textarea
+                id="resume-highlights"
+                className="w-full p-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none"
+                rows={3}
+                placeholder="List key points from your resume that you'd like to highlight..."
+              />
+            </div>
+            <button className="bg-[#419D78] hover:bg-[#37876A] text-white py-2 px-4 rounded-md font-medium transition-colors">
+              Generate Cover Letter
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-[#374151] rounded-lg shadow-md p-5">
+            <h2 className="text-lg font-medium text-[#2D3047] dark:text-[#E5E7EB] mb-4">Recent Cover Letters</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">Your recently generated cover letters will appear here.</p>
+            <button className="bg-[#E0A458] hover:bg-[#C88F4B] text-white py-2 px-4 rounded-md font-medium transition-colors">
+              View All
+            </button>
+          </div>
+        </main>
+
+        <footer className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          &copy; 2025 Neoterik.ai | AI-powered cover letter assistant
+        </footer>
+      </div>
     </div>
   );
 }

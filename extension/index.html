@@ -2,17 +2,155 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Neoterik.ai</title>
+    <title>Neoterik.ai Cover Letter Assistant</title>
     <style>
+      :root {
+        --primary-color: #2D3047;
+        --secondary-color: #419D78;
+        --accent-color: #E0A458;
+        --text-color: #2D3047;
+        --background-color: #F6F7F9;
+        --card-background: #FFFFFF;
+        --shadow-color: rgba(45, 48, 71, 0.1);
+      }
+
       body {
-        font-family: sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
-        padding: 1rem;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        width: 375px;
+        height: 500px;
+        overflow: auto;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid var(--shadow-color);
+      }
+
+      .logo {
+        height: 40px;
+        margin-right: 10px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .card {
+        background-color: var(--card-background);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px var(--shadow-color);
+      }
+
+      .card h2 {
+        margin-top: 0;
+        font-size: 16px;
+        color: var(--primary-color);
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      textarea, input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .button {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .button:hover {
+        background-color: #37876A;
+      }
+
+      .button.accent {
+        background-color: var(--accent-color);
+      }
+
+      .button.accent:hover {
+        background-color: #C88F4B;
+      }
+
+      .footer {
+        margin-top: 16px;
+        text-align: center;
+        font-size: 12px;
+        color: #888;
       }
     </style>
   </head>
   <body>
-    <h1>Neoterik.ai</h1>
-    <p>Your AI-powered cover letter assistant.</p>
+    <div class="container">
+      <div class="header">
+        <img src="Neoterik-Genesis.png" alt="Neoterik.ai Logo" class="logo">
+        <div class="title">AI Cover Letter Assistant</div>
+      </div>
+
+      <div class="card">
+        <h2>Generate Your Cover Letter</h2>
+        <div class="form-group">
+          <label for="job-description">Job Description</label>
+          <textarea id="job-description" placeholder="Paste the job description here..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="resume-highlights">Key Resume Highlights (optional)</label>
+          <textarea id="resume-highlights" placeholder="List key points from your resume that you'd like to highlight..."></textarea>
+        </div>
+        <button class="button">Generate Cover Letter</button>
+      </div>
+
+      <div class="card">
+        <h2>Recent Cover Letters</h2>
+        <p>Your recently generated cover letters will appear here.</p>
+        <button class="button accent">View All</button>
+      </div>
+
+      <div class="footer">
+        &copy; 2025 Neoterik.ai | AI-powered cover letter assistant
+      </div>
+    </div>
   </body>
 </html>

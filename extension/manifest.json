@@ -1,21 +1,28 @@
 {
     "manifest_version": 3,
-    "name": "Hello world Extension",
+    "name": "Neoterik.ai Cover Letter Assistant",
     "version": "1.0",
-    "description": "Extension that displays hello world.",
+    "description": "AI-powered cover letter generator that helps you craft personalized cover letters based on job descriptions.",
     "action": {
       "default_popup": "index.html",
       "default_icon": {
         "16": "icons/icon16.png",
-        "32": "icons/icon32.png" 
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
       }
     },
     "icons": {
       "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
+    "permissions": [
+      "activeTab",
+      "storage"
+    ],
     "content_security_policy": {
       "extension_pages": "script-src 'self'; object-src 'self';"
     }
-  }
+}

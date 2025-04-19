@@ -6,10 +6,10 @@ from .models import ResumeData
 
 # Define the state for the graph
 class ResumeParsingState(TypedDict):
-    resume_path: str | None
-    parsed_data: dict | None
-    validation_result: dict | None
-    error: str | None
+    resume_path: Annotated[str | None, "Path to the resume file or None"]
+    parsed_data: Annotated[dict | None, "Parsed data extracted from the resume"]
+    validation_result: Annotated[dict | None, "Results from the validation step"]
+    error: Annotated[str | None, "Error message if any step fails"]
 
 # Define the nodes
 async def parse_node(state: ResumeParsingState): # Make the node async

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from pydantic import BaseModel, HttpUrl
 import re
 from pathlib import Path
@@ -6,11 +6,12 @@ import shutil
 import tempfile
 from fastapi.middleware.cors import CORSMiddleware
 from agents.resume_parsing.workflow import create_resume_parsing_workflow
+from agents.repo_parsing.workflow import create_github_parsing_workflow 
 from agents.resume_parsing.agent import SAMPLE_RESUME_PATH
 
 app = FastAPI(
     title="Job URL Detector API",
-    description="API to detect job application URLs using regex pattern matching"
+    description="API to parse resumes and GitHub profiles using AI agents."
 )
 
 # Add CORS middleware to allow extension to call the API
@@ -24,6 +25,9 @@ app.add_middleware(
 
 class URLCheckRequest(BaseModel):
     url: str
+    
+class GitHubParseRequest(BaseModel): # Model for the new endpoint's input
+    github_username: str
 
 # Comprehensive list of job board URL patterns
 KNOWN_JOB_BOARD_PATTERNS = [
@@ -96,6 +100,34 @@ async def parse_resume(file: UploadFile = None):
         "validation_result": validation_result,
         # "enriched_data": result.get("enriched_data", {}) # Add back if you have an enrichment step
     }
+
+
+# --- New Endpoint for GitHub Parsing ---
+@app.post("/parse-github")
+async def parse_github(request: GitHubParseRequest):
+    """Parse GitHub profile using the dedicated GitHub workflow."""
+    workflow = create_github_parsing_workflow()
+    input_data = {"github_username": request.github_username}
+
+    try:
+        print(f"Invoking GitHub workflow with input: {input_data}")
+        result = await workflow.ainvoke(input_data)
+        print(f"GitHub workflow result: {result}")
+
+        error = result.get("error")
+        if error:
+            # Determine appropriate status code based on error type if possible
+            status_code = 404 if "not found" in error.lower() else 500
+            raise HTTPException(status_code=status_code, detail={"error": error, "parsed_github_data": result.get("parsed_github_data")})
+
+        return {
+            "parsed_github_data": result.get("parsed_github_data")
+        }
+    except Exception as e:
+        import traceback
+        print(f"Unhandled exception in /parse-github endpoint: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/")
 async def root():

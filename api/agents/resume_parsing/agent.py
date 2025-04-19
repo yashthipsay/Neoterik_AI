@@ -1,14 +1,11 @@
 from pydantic_ai import Agent, RunContext
-from pathlib import Path
-from PyPDF2 import PdfReader
-import docx2txt
 import json
-import spacy
-from spacy.matcher import PhraseMatcher
 from .models import ResumeData, Education, Experience, Skill
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.deepseek import DeepSeekProvider
 from dotenv import load_dotenv
+from pathlib import Path
+from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
 load_dotenv()
 
 # Define base paths
@@ -22,7 +19,7 @@ model = OpenAIModel(
 
 # Initialize the agent
 resume_agent = Agent(
-    model="google-vertex:gemini-exp-1206",
+    model="groq:deepseek-r1-distill-llama-70b",
     deps_type=str,
     system_prompt=(
         "You are a resume parsing expert. Your role is to extract and structure "
@@ -34,60 +31,52 @@ resume_agent = Agent(
 )
 
 # Initialize spaCy model (load once ideally, or share across calls)
-nlp = spacy.load("en_core_web_sm")
+# nlp = spacy.load("en_core_web_sm")
 
 def extract_text_from_file(file_path):
-    """Extract text from PDF or DOCX file"""
-    file_path = str(file_path)
-    if file_path.endswith('.pdf'):
-        reader = PdfReader(file_path)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text()
-        return text
-    elif file_path.endswith('.docx'):
-        return docx2txt.process(file_path)
+    """
+    Use LangChain document loaders to extract text from PDF or DOCX.
+    """
+    file_str = str(file_path)
+    if file_str.lower().endswith(".pdf"):
+        loader = PyPDFLoader(file_str)
+    elif file_str.lower().endswith(".docx"):
+        loader = Docx2txtLoader(file_str)
     else:
-        raise ValueError(f"Unsupported file format: {file_path}")
+        raise ValueError(f"Unsupported file format: {file_str}")
+
+    docs = loader.load()
+    # concatenate all pages
+    return "\n".join(doc.page_content for doc in docs)
 
 @resume_agent.tool_plain
 async def parse_resume_from_pdf(resume_path: Path = None) -> dict:
     """
     Parse resume from a PDF or DOCX file.
     If no path is provided, uses a sample resume.
-    This version uses spaCy to enhance extraction.
+    This version uses LangChain document loaders.
     """
-    from tempfile import NamedTemporaryFile
-    from pydantic import ValidationError
-
-    # Use sample resume if no path provided
+    # Handle the case where no path is provided, use the sample resume
     if resume_path is None:
-        # Assume SAMPLE_RESUME_PATH is defined globally
-        from .agent import SAMPLE_RESUME_PATH
         resume_path = SAMPLE_RESUME_PATH
+        print(f"No resume path provided, using sample: {resume_path}")
 
-    # Extract raw text from the file
-    resume_text = extract_text_from_file(resume_path)
+    # Ensure resume_path is not None before proceeding
+    if not resume_path:
+         return {"error": "Resume path is missing and sample path could not be determined."}
 
-    # Process the text with spaCy for enhanced extraction
-    doc = nlp(resume_text)
-    
-    # Example: Use spaCy NER to extract the first PERSON entity as the candidate's name
-    name = ""
-    for ent in doc.ents:
-        if ent.label_ == "PERSON":
-            name = ent.text
-            break
+    try:
+        resume_text = extract_text_from_file(resume_path)
+    except ValueError as e:
+        # Catch the specific error from extract_text_from_file if format is still wrong
+        return {"error": str(e)}
+    except Exception as e:
+        # Catch other potential errors during text extraction
+        return {"error": f"Failed to extract text from {resume_path}: {str(e)}"}
 
-    # Example: Use PhraseMatcher to extract skills from the resume
-    skill_list = ["Python", "Django", "React", "Blockchain", "Solidity", "SQL"]
-    matcher = PhraseMatcher(nlp.vocab)
-    patterns = [nlp.make_doc(skill) for skill in skill_list]
-    matcher.add("SKILLS", patterns)
-    matched_skills = set()
-    matches = matcher(doc)
-    for match_id, start, end in matches:
-        matched_skills.add(doc[start:end].text)
+    # You can still pre‑seed name/skills via simple regex or skip
+    name = None
+    matched_skills = []
 
     # Now, create a prompt that includes the resume text (or part of it)
     # This prompt will be sent to your LLM (DeepSeek in your case) for further parsing,
@@ -96,15 +85,15 @@ async def parse_resume_from_pdf(resume_path: Path = None) -> dict:
     Parse the following resume text and extract structured information.
     Use the pre-extracted candidate name and skills if possible.
     If any field is ambiguous, use null or an empty list.
-    
-    Candidate Name (from spaCy NER): {name}
-    Extracted Skills (from spaCy Matcher): {list(matched_skills)}
-    
+
+    Candidate Name (from SpaCy NER): {name}
+    Extracted Skills (from SpaCy Matcher): {list(matched_skills)}
+
     Resume Text (first 4000 characters):
     ---
     {resume_text[:3000]}
     ---
-    
+
     Return a JSON object matching this schema:
     {{
         "name": "Full Name or null",
@@ -128,32 +117,45 @@ async def parse_resume_from_pdf(resume_path: Path = None) -> dict:
         ],
         "summary": "Brief professional summary or null"
     }}
-    Respond ONLY with a valid JSON object matching the structure below. 
+    Respond ONLY with a valid JSON object matching the structure below.
     Do NOT include any other text, explanation, markdown formatting, or comments.
     """
 
     # Call the LLM agent tool to further process the resume text (using DeepSeek)
-    agent_result = await resume_agent.run(prompt)
-    
+    try:
+        agent_result = await resume_agent.run(prompt)
+    except Exception as e:
+        return {"error": f"LLM agent run failed: {str(e)}"}
+
     if not isinstance(agent_result.data, str):
         print(f"Error: LLM returned {type(agent_result.data)} - {agent_result.data}")
         return {"error": f"LLM did not return a string, got type {type(agent_result.data)}"}
-    
-    parsed_data_json_string = agent_result.data
-    
-    try:
-        parsed_data = json.loads(parsed_data_json_string)
-        
-        print("--- RAW LLM OUTPUT START ---")
-        print(agent_result.data)
-        print("--- RAW LLM OUTPUT END ---")
 
-        # Merge spaCy extracted fields (if present) with LLM output
-        # For instance, ensure that the candidate name and skills include what spaCy found
-        if not parsed_data.get("name"):
+    parsed_data_json_string = agent_result.data
+
+    try:
+        
+                # Clean the string: remove markdown code fences and strip whitespace
+        cleaned_json_string = parsed_data_json_string.strip()
+        if cleaned_json_string.startswith("```json"):
+            cleaned_json_string = cleaned_json_string[len("```json"):].strip()
+        if cleaned_json_string.endswith("```"):
+            cleaned_json_string = cleaned_json_string[:-len("```")].strip()
+            
+        parsed_data = json.loads(parsed_data_json_string)
+
+        print("--- RAW LLM OUTPUT START ---")
+        print(agent_result.data) # Still print the original raw output for debugging
+        print("--- RAW LLM OUTPUT END ---")
+        print("--- CLEANED JSON STRING START ---")
+        print(cleaned_json_string)
+        print("--- CLEANED JSON STRING END ---")
+
+        # Merge any fallback name/skills if LLM left them null/empty
+        if not parsed_data.get("name") and name:
             parsed_data["name"] = name
-        if parsed_data.get("skills") is None or len(parsed_data.get("skills")) == 0:
-            parsed_data["skills"] = list(matched_skills)
+        if (not parsed_data.get("skills")) and matched_skills:
+            parsed_data["skills"] = matched_skills
 
         structured_data = {
             "name": parsed_data.get("name", ""),
@@ -179,11 +181,22 @@ async def parse_resume_from_pdf(resume_path: Path = None) -> dict:
             "summary": parsed_data.get("summary", "")
         }
         return ResumeData(**structured_data).model_dump()
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        # Print the cleaned string that failed to parse
+        print(f"Invalid JSON string received (after cleaning): {cleaned_json_string}")
         return ResumeData(
             name="", email="", phone="",
             skills=[Skill(category="Technical", skills=[])],
-            education=[], experience=[], summary="Error parsing resume"
+            education=[], experience=[], summary="Error parsing LLM JSON response"
+        ).model_dump()
+    except Exception as e:
+        # Catch potential errors during Pydantic model validation
+        print(f"Error creating ResumeData model: {e}")
+        return ResumeData(
+            name="", email="", phone="",
+            skills=[Skill(category="Technical", skills=[])],
+            education=[], experience=[], summary=f"Error processing parsed data: {str(e)}"
         ).model_dump()
 
 @resume_agent.tool_plain

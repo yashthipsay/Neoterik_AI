@@ -1,10 +1,40 @@
+'use client'
 import Image from 'next/image';
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isExtension, setIsExtension] = useState(false);
+
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.protocol === "chrome-extension:") {
+      setIsExtension(true);
+    }
+  }, []);
+
+  const handleSignIn = () => {
+    if(isExtension) {
+      // Open login on localhost when in extension
+      chrome.tabs.create({ url: "http://localhost:3000/auth/signin" });
+    } else {
+      router.push('/auth/signin');
+    }
+  };
+
+    // --- Sign out handler ---
+    const handleSignOut = () => {
+      signOut(); // Call signOut from next-auth/react
+    };
   return (
     <div className="extension-container scrollbar-thin">
-      <div className="flex flex-col p-4">
-        <header className="flex items-center mb-6 pb-4 border-b border-gray-200">
+    <div className="flex flex-col p-4">
+      {/* --- Header Section --- */}
+      <header className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+        <div className="flex items-center">
           <Image
             src="/Neoterik-Genesis.png"
             alt="Neoterik.ai Logo"
@@ -14,9 +44,48 @@ export default function Home() {
             className="mr-3"
           />
           <h1 className="text-xl font-semibold text-[#2D3047] dark:text-[#E5E7EB]">AI Cover Letter Assistant</h1>
-        </header>
+        </div>
 
+        {/* --- Dynamic Auth Button --- */}
+        <div>
+          {status === "loading" && (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+          )}
+          {status === "authenticated" && session && (
+            <div className="flex items-center space-x-2">
+               {session.user?.image && (
+                 <Image
+                   src={session.user.image}
+                   alt="Profile"
+                   width={24}
+                   height={24}
+                   className="rounded-full"
+                 />
+               )}
+               <span className="text-sm font-medium hidden sm:inline">{session.user?.name?.split(' ')[0]}</span> {/* Show first name */}
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-sm font-medium transition-colors"
+                onClick={handleSignOut}
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+          {status === "unauthenticated" && (
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-sm font-medium transition-colors"
+              onClick={handleSignIn}
+            >
+              Sign in
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* --- Main Content (Only show if authenticated) --- */}
+      {status === "authenticated" ? (
         <main className="flex-1">
+          {/* Job Description Input */}
           <div className="bg-white dark:bg-[#374151] rounded-lg shadow-md p-5 mb-5">
             <h2 className="text-lg font-medium text-[#2D3047] dark:text-[#E5E7EB] mb-4">Generate Your Cover Letter</h2>
             <div className="mb-4">
@@ -30,6 +99,7 @@ export default function Home() {
                 placeholder="Paste the job description here..."
               />
             </div>
+            {/* Resume Highlights Input */}
             <div className="mb-4">
               <label htmlFor="resume-highlights" className="block mb-2 text-sm font-medium">
                 Key Resume Highlights (optional)
@@ -46,6 +116,7 @@ export default function Home() {
             </button>
           </div>
 
+          {/* Recent Cover Letters Section */}
           <div className="bg-white dark:bg-[#374151] rounded-lg shadow-md p-5">
             <h2 className="text-lg font-medium text-[#2D3047] dark:text-[#E5E7EB] mb-4">Recent Cover Letters</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Your recently generated cover letters will appear here.</p>
@@ -54,11 +125,18 @@ export default function Home() {
             </button>
           </div>
         </main>
+      ) : (
+        // --- Show this message if not authenticated ---
+        <div className="flex-1 flex items-center justify-center text-center">
+          <p className="text-gray-600 dark:text-gray-300">Please sign in to use the AI Cover Letter Assistant.</p>
+        </div>
+      )}
 
-        <footer className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          &copy; 2025 Neoterik.ai | AI-powered cover letter assistant
-        </footer>
-      </div>
+      {/* --- Footer --- */}
+      <footer className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        &copy; 2025 Neoterik.ai | AI-powered cover letter assistant
+      </footer>
     </div>
+  </div>
   );
 }

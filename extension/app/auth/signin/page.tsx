@@ -4,41 +4,31 @@ import { getProviders, signIn } from "next-auth/react"
 import { useState, useEffect } from "react"
 import type { ClientSafeProvider, LiteralUnion } from "next-auth/react"
 import type { BuiltInProviderType } from "next-auth/providers/index"
-import { LucideChrome, LucideIcon } from 'lucide-react'
+import { LucideChrome, Github } from 'lucide-react'
 import Image from "next/image"
-import { Github } from 'lucide-react'
+import { Button } from "../../components/ui/Button"
+import { Card, CardContent } from "../../components/ui/Card"
 
-// Define provider details (can be shared or defined here)
 interface ProviderDetails {
   id: string;
   name: string;
-  icon?: string | LucideIcon;  // Updated to use LucideIcon type
+  icon?: React.ComponentType<any>;
   bgColor?: string;
   textColor?: string;
 }
-
-// Create a monochrome Google icon component
-// const GoogleIcon = () => (
-//   <svg viewBox="0 0 24 24" className="w-5 h-5 mr-3">
-//     <path
-//       fill="currentColor"
-//       d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"
-//     />
-//   </svg>
-// )
 
 const providerDetailsMap: Record<string, ProviderDetails> = {
   google: { 
     id: 'google', 
     name: 'Google',
-    bgColor: 'bg-white', 
+    bgColor: 'bg-white hover:bg-gray-50', 
     textColor: 'text-gray-700',
     icon: LucideChrome
   },
   github: { 
     id: 'github', 
     name: 'GitHub', 
-    bgColor: 'bg-gray-800', 
+    bgColor: 'bg-gray-800 hover:bg-gray-900', 
     textColor: 'text-white',
     icon: Github 
   },
@@ -56,57 +46,133 @@ export default function SignIn() {
   }, [])
 
   if (!providers) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#419D78]"></div>
+      </div>
+    )
   }
 
-  // Filter to only show desired OAuth providers (e.g., Google, GitHub)
   const oauthProviders = Object.values(providers).filter(
-    p => p.type === 'oauth' && (p.id === 'google' || p.id === 'github' || p.id === 'twitter') // Add/remove IDs as needed
+    p => p.type === 'oauth' && (p.id === 'google' || p.id === 'github')
   );
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-       <div className="flex items-center mb-8">
-          <Image
-            src="/Neoterik-Genesis.png"
-            alt="Neoterik.ai Logo"
-            width={50}
-            height={50}
-            priority
-            className="mr-3"
-          />
-          <h1 className="text-2xl font-semibold text-[#2D3047] dark:text-[#E5E7EB]">Sign In</h1>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col items-center justify-center p-4">
+      {/* Background Elements */}
+      <div className="absolute top-20 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 animate-bounce"></div>
+      <div className="absolute top-40 right-20 w-16 h-16 bg-green-200 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute bottom-20 left-20 w-12 h-12 bg-yellow-200 rounded-full opacity-20 animate-bounce" style={{ animationDelay: '2s' }}></div>
 
-      <div className="w-full max-w-sm space-y-4">
-        {oauthProviders.map((provider) => {
-          const details = providerDetailsMap[provider.id] || { 
-            id: provider.id, 
-            name: provider.name, 
-            bgColor: 'bg-blue-500', 
-            textColor: 'text-white' 
-          };
-          return (
-            <button
-              key={details.id}
-              onClick={() => signIn(details.id, { callbackUrl: 'http://localhost:3000/auth/extension-callback/' })}
-              className={`w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${details.bgColor} ${details.textColor} hover:opacity-90`}
-            >
-              {details.icon && (
-                typeof details.icon === 'string' ? (
-                  <Image src={details.icon} alt={`${details.name} logo`} width={20} height={20} className="mr-3" />
-                ) : (
-                  <details.icon />
-                )
-              )}
-              Sign in with {details.name}
-            </button>
-          );
-        })}
-      </div>
-       <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          &copy; 2025 Neoterik.ai
-        </p>
+      <Card className="w-full max-w-md animate-fadeIn">
+        <CardContent className="p-8">
+          {/* Logo and Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <Image
+                src="/Neoterik-Genesis.png"
+                alt="Neoterik.ai Logo"
+                width={60}
+                height={60}
+                priority
+                className="rounded-xl"
+              />
+            </div>
+            <h1 className="text-2xl font-bold text-[#2D3047] mb-2">Welcome to Neoterik.ai</h1>
+            <p className="text-gray-600">Sign in to start creating amazing cover letters</p>
+          </div>
+
+          {/* Social Login Buttons */}
+          <div className="space-y-3">
+            {oauthProviders.map((provider) => {
+              const details = providerDetailsMap[provider.id] || { 
+                id: provider.id, 
+                name: provider.name, 
+                bgColor: 'bg-blue-500 hover:bg-blue-600', 
+                textColor: 'text-white' 
+              };
+              
+              const IconComponent = details.icon;
+              
+              return (
+                <button
+                  key={details.id}
+                  onClick={() => signIn(details.id, { callbackUrl: 'http://localhost:3000/auth/extension-callback/' })}
+                  className={`w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-lg font-medium transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${details.bgColor} ${details.textColor}`}
+                >
+                  {IconComponent && <IconComponent className="w-5 h-5" />}
+                  Continue with {details.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">or</span>
+            </div>
+          </div>
+
+          {/* Email Form */}
+          <form className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none transition-colors"
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              Sign In
+            </Button>
+          </form>
+
+          {/* Footer Links */}
+          <div className="mt-6 text-center space-y-2">
+            <a href="#" className="text-sm text-[#419D78] hover:underline">
+              Forgot your password?
+            </a>
+            <div className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <a href="#" className="text-[#419D78] hover:underline font-medium">
+                Sign up
+              </a>
+            </div>
+          </div>
+
+          {/* Terms */}
+          <div className="mt-6 text-xs text-gray-500 text-center">
+            By signing in, you agree to our{' '}
+            <a href="#" className="text-[#419D78] hover:underline">Terms of Service</a>
+            {' '}and{' '}
+            <a href="#" className="text-[#419D78] hover:underline">Privacy Policy</a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Footer */}
+      <p className="mt-8 text-center text-xs text-gray-500">
+        &copy; 2025 Neoterik.ai. All rights reserved.
+      </p>
     </div>
   )
 }

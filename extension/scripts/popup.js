@@ -1,238 +1,329 @@
-// No changes needed here based on the previous version, but ensure it matches:
+// Enhanced popup script with modern UI interactions
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("Popup DOM loaded.");
+  console.log("Enhanced popup DOM loaded.");
+  
+  // Initialize UI state
+  initializeUI();
+  setupEventListeners();
+  checkAuthState();
+});
+
+function initializeUI() {
+  // Set up tab navigation
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('[id$="-tab"]');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabId = button.dataset.tab;
+      switchTab(tabId);
+    });
+  });
+}
+
+function setupEventListeners() {
+  // Sign in button
   const signinButton = document.getElementById("signin-btn");
-  const signoutButton = document.getElementById("signout-btn");
-  const userInfoDiv = document.getElementById("user-info");
-  const mainContentDiv = document.getElementById("main-content");
-  const authRequiredMessageDiv = document.getElementById(
-    "auth-required-message"
-  );
-
-  // Function to update UI based on login state
-  function updateUI(isLoggedIn, user) {
-    console.log("Updating UI. isLoggedIn:", isLoggedIn, "User:", user);
-
-    // Get fresh references to DOM elements
-    const signinButton = document.getElementById("signin-btn");
-    const signoutButton = document.getElementById("signout-btn");
-    const userInfoDiv = document.getElementById("user-info");
-    const mainContentDiv = document.getElementById("main-content");
-    const authRequiredMessageDiv = document.getElementById(
-      "auth-required-message"
-    );
-
-    if (isLoggedIn && user) {
-      // Signed in state
-      if (signinButton) signinButton.style.display = "none";
-      if (signoutButton) signoutButton.style.display = "block";
-      if (userInfoDiv) {
-        userInfoDiv.style.display = "flex"; // Use flex for aligning user info and avatar
-
-        const displayName = user?.name?.split(" ")[0] || user?.email || "User";
-
-        // Create HTML content with avatar and name
-        let userContent = "";
-
-        // Add avatar if available
-        if (user.image) {
-          userContent += `<img src="${user.image}" alt="Profile" class="user-avatar">`;
-        }
-
-        // Add display name
-        userContent += `Hi, ${displayName}!`;
-
-        // Set the HTML content
-        userInfoDiv.innerHTML = userContent;
-      }
-      if (mainContentDiv) mainContentDiv.style.display = "block";
-      if (authRequiredMessageDiv) authRequiredMessageDiv.style.display = "none";
-    } else {
-      // Signed out state
-      if (signinButton) signinButton.style.display = "block";
-      if (signoutButton) signoutButton.style.display = "none";
-      if (userInfoDiv) {
-        userInfoDiv.style.display = "none";
-        userInfoDiv.innerHTML = "";
-      }
-      if (mainContentDiv) mainContentDiv.style.display = "none";
-      if (authRequiredMessageDiv)
-        authRequiredMessageDiv.style.display = "block";
-    }
+  if (signinButton) {
+    signinButton.addEventListener("click", handleSignIn);
   }
 
-  // Check initial login state from storage on load
-  chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
-    console.log("Popup: Initial auth state from storage:", result);
-    updateUI(result.isLoggedIn, result.user);
-  });
+  // Sign out button
+  const signoutButton = document.getElementById("signout-btn");
+  if (signoutButton) {
+    signoutButton.addEventListener("click", handleSignOut);
+  }
+
+  // Cover letter form
+  const coverLetterForm = document.getElementById("cover-letter-form");
+  if (coverLetterForm) {
+    coverLetterForm.addEventListener("submit", handleGenerateCoverLetter);
+  }
 
   // Listen for storage changes
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && (changes.isLoggedIn || changes.user)) {
-      chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
-        updateUI(result.isLoggedIn, result.user);
-      });
+      checkAuthState();
     }
   });
 
-  // Listener for Sign In button
-  if (signinButton) {
-    signinButton.addEventListener("click", function () {
-      console.log("Popup: Sign in button clicked");
-      const extensionId = chrome.runtime.id;
-      const callbackUrl = encodeURIComponent(
-        `http://localhost:3000/auth/extension-callback`
-      );
-      // Use provider-specific signin if needed (e.g., Google)
-      // const signInUrl = `http://localhost:3000/api/auth/signin/google?callbackUrl=${callbackUrl}`;
-      // Or use the default signin page
-      // Open signin page in new tab
-      chrome.tabs.create({
-        url: `http://localhost:3000/api/auth/signin?callbackUrl=${callbackUrl}`,
-        active: true,
-      });
-    });
-  }
-
-  // Add message listener for the extension callback
-  window.addEventListener("message", function (event) {
-    console.log("Message received:", event);
-
-    // In development, we may need to be more permissive with origins
-    // For production, you should restrict this to trusted origins
-    if (event.origin !== "http://localhost:3000") {
-      console.log("Message from unexpected origin:", event.origin);
-      // Continue processing anyway during development
-      // return; // Uncomment for production
-    }
-
-    if (event.data && event.data.type === "EXTENSION_AUTH_SUCCESS") {
-      console.log("Auth success message received:", event.data);
-      const session = event.data.session;
-
-      if (!session || !session.user) {
-        console.error("Invalid session data received:", session);
-        return;
-      }
-
-      chrome.storage.local.set(
-        { isLoggedIn: true, user: session.user },
-        function () {
-          console.log("User data saved to storage:", session.user);
-          updateUI(true, session.user);
-
-          // Close the auth tab
-          chrome.tabs.query(
-            { url: "*://localhost:3000/auth/extension-callback*" },
-            function (tabs) {
-              if (tabs && tabs.length > 0) {
-                chrome.tabs.remove(tabs[0].id).catch((error) => {
-                  console.log("Error closing tab:", error.message);
-                  // Tab might be already closed, this is fine
-                });
-              } else {
-                console.warn("No callback tab found to close");
-              }
-            }
-          );
-        }
-      );
-    }
-  });
-
-  // Listener for Sign Out button
-  if (signoutButton) {
-    signoutButton.addEventListener("click", function () {
-      console.log("Popup: Sign out button clicked");
-      chrome.storage.local.remove(["isLoggedIn", "user"], () => {
-        console.log("Popup: Cleared local auth state.");
-        updateUI(false, null);
-        // Optional: Clear server session cookie
-        chrome.tabs.create({
-          url: "http://localhost:3000/api/auth/signout",
-          active: false,
-        });
-      });
-    });
-  }
-
-// Listen for changes in chrome.storage.local and update UI if user info changes
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && (changes.isLoggedIn || changes.user)) {
-    chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
-      updateUI(result.isLoggedIn, result.user);
-    });
-  }
-});
-
-  // Listener for messages from background script
+  // Listen for messages from background script
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("Popup: Message received:", message);
     if (message.action === "loginStatusChanged") {
-      console.log(
-        "Popup: loginStatusChanged message received. Re-checking storage..."
-      );
-      // Re-check storage when notified by background script
-      chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
-        console.log(
-          "Popup: Auth state updated from background message:",
-          result
-        );
-        updateUI(result.isLoggedIn, result.user);
-      });
-      // It's good practice to send a response if the message handler might be async in the future
-      // sendResponse({ received: true });
+      checkAuthState();
     }
-    // Return true if you intend to use sendResponse asynchronously, otherwise it's optional
-    // return true;
   });
+}
 
-  // --- Generate Cover Letter Logic ---
-  // Check if we have a stored job description (moved inside DOMContentLoaded)
-  chrome.storage.local.get(
-    ["jobDescription", "currentJobPage"],
-    function (data) {
-      if (data.jobDescription) {
-        const jobDescElement = document.getElementById("job-description");
-        if (jobDescElement) {
-          jobDescElement.value = data.jobDescription;
-        }
-        // Clear it so it's not used again unless updated
-        chrome.storage.local.remove("jobDescription");
+function switchTab(tabId) {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+  // Update tab content
+  document.querySelectorAll('[id$="-tab"]').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  const targetTab = document.getElementById(`${tabId}-tab`);
+  if (targetTab) {
+    targetTab.classList.remove('hidden');
+    targetTab.classList.add('animate-fadeIn');
+  }
+}
+
+function checkAuthState() {
+  chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
+    console.log("Auth state:", result);
+    updateUI(result.isLoggedIn, result.user);
+  });
+}
+
+function updateUI(isLoggedIn, user) {
+  const signinButton = document.getElementById("signin-btn");
+  const signoutButton = document.getElementById("signout-btn");
+  const userInfo = document.getElementById("user-info");
+  const welcomeState = document.getElementById("welcome-state");
+  const generateTab = document.getElementById("generate-tab");
+  const loadingIndicator = document.getElementById("loading-indicator");
+
+  // Hide loading indicator
+  if (loadingIndicator) {
+    loadingIndicator.classList.add('hidden');
+  }
+
+  if (isLoggedIn && user) {
+    // Authenticated state
+    if (signinButton) signinButton.classList.add('hidden');
+    if (signoutButton) signoutButton.classList.remove('hidden');
+    if (welcomeState) welcomeState.classList.add('hidden');
+    if (generateTab) generateTab.classList.remove('hidden');
+    
+    if (userInfo) {
+      userInfo.classList.remove('hidden');
+      const userName = document.getElementById('user-name');
+      const userAvatar = document.getElementById('user-avatar');
+      
+      if (userName) {
+        userName.textContent = user.name?.split(' ')[0] || 'User';
       }
-
-      // Add event listener to the "Generate Cover Letter" button
-      const generateButton = document.querySelector("#generate-btn"); // Use ID selector
-      if (generateButton) {
-        generateButton.addEventListener("click", function () {
-          console.log("Popup: Generate button clicked");
-          const jobDesc =
-            document.getElementById("job-description")?.value || "";
-          const highlights =
-            document.getElementById("resume-highlights")?.value || "";
-          console.log("Popup: Job Description:", jobDesc);
-          console.log("Popup: Highlights:", highlights);
-
-          chrome.storage.local.get(["isLoggedIn"], (result) => {
-            if (result.isLoggedIn) {
-              // Proceed with generation - TODO: Implement actual generation call
-              alert("Generating cover letter... (Implement actual logic)");
-              // Example: Send to background script
-              // chrome.runtime.sendMessage({
-              //   action: 'generateCoverLetter',
-              //   jobDesc: jobDesc,
-              //   highlights: highlights
-              // }, response => { /* handle response */ });
-            } else {
-              alert("Please sign in first.");
-            }
-          });
-        });
-      } else {
-        console.warn("Popup: Generate button not found."); // Add warning if button missing
+      
+      if (userAvatar && user.image) {
+        userAvatar.src = user.image;
+        userAvatar.style.display = 'block';
       }
     }
-  );
-  // --- End Generate Cover Letter Logic ---
-});
+  } else {
+    // Unauthenticated state
+    if (signinButton) signinButton.classList.remove('hidden');
+    if (signoutButton) signoutButton.classList.add('hidden');
+    if (userInfo) userInfo.classList.add('hidden');
+    if (welcomeState) welcomeState.classList.remove('hidden');
+    if (generateTab) generateTab.classList.add('hidden');
+  }
+}
+
+function handleSignIn() {
+  console.log("Sign in button clicked");
+  
+  // Show loading state
+  const loadingIndicator = document.getElementById("loading-indicator");
+  if (loadingIndicator) {
+    loadingIndicator.classList.remove('hidden');
+  }
+
+  // Check if running in extension context
+  if (typeof chrome !== 'undefined' && chrome.windows) {
+    // Extension context - open popup window
+    const width = 600;
+    const height = 700;
+    const left = Math.round((screen.width - width) / 2);
+    const top = Math.round((screen.height - height) / 2);
+
+    chrome.windows.create({
+      url: "http://localhost:3000/auth/signin",
+      type: "popup",
+      width: width,
+      height: height,
+      left: left,
+      top: top
+    });
+  } else {
+    // Web context - redirect
+    window.location.href = "http://localhost:3000/auth/signin";
+  }
+}
+
+function handleSignOut() {
+  console.log("Sign out button clicked");
+  
+  chrome.storage.local.remove(["isLoggedIn", "user"], () => {
+    console.log("Cleared local auth state");
+    updateUI(false, null);
+    
+    // Clear server session
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.create({
+        url: "http://localhost:3000/api/auth/signout",
+        active: false
+      });
+    }
+  });
+}
+
+function handleGenerateCoverLetter(event) {
+  event.preventDefault();
+  
+  console.log("Generate cover letter form submitted");
+  
+  // Get form data
+  const formData = new FormData(event.target);
+  const inputs = event.target.querySelectorAll('input, textarea');
+  const data = {};
+  
+  inputs.forEach(input => {
+    if (input.placeholder.includes('Company')) data.companyName = input.value;
+    if (input.placeholder.includes('Job Title')) data.jobTitle = input.value;
+    if (input.placeholder.includes('job description')) data.jobDescription = input.value;
+    if (input.placeholder.includes('Resume Highlights')) data.resumeHighlights = input.value;
+  });
+  
+  console.log("Form data:", data);
+  
+  // Validate required fields
+  if (!data.companyName || !data.jobTitle || !data.jobDescription) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+  
+  // Show progress
+  showGenerationProgress();
+  
+  // Simulate API call (replace with actual API call)
+  simulateGeneration(data);
+}
+
+function showGenerationProgress() {
+  const progressContainer = document.getElementById("progress-container");
+  const generateBtnText = document.getElementById("generate-btn-text");
+  const generateBtnSpinner = document.getElementById("generate-btn-spinner");
+  const progressFill = document.getElementById("progress-fill");
+  const progressPercent = document.getElementById("progress-percent");
+  
+  if (progressContainer) progressContainer.classList.remove('hidden');
+  if (generateBtnText) generateBtnText.textContent = "Generating...";
+  if (generateBtnSpinner) generateBtnSpinner.classList.remove('hidden');
+  
+  // Animate progress
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 15;
+    if (progress > 90) progress = 90;
+    
+    if (progressFill) progressFill.style.width = `${progress}%`;
+    if (progressPercent) progressPercent.textContent = `${Math.round(progress)}%`;
+    
+    if (progress >= 90) {
+      clearInterval(interval);
+    }
+  }, 200);
+}
+
+function simulateGeneration(data) {
+  // Simulate API delay
+  setTimeout(() => {
+    const mockCoverLetter = generateMockCoverLetter(data);
+    
+    // Complete progress
+    const progressFill = document.getElementById("progress-fill");
+    const progressPercent = document.getElementById("progress-percent");
+    if (progressFill) progressFill.style.width = "100%";
+    if (progressPercent) progressPercent.textContent = "100%";
+    
+    // Hide progress after a moment
+    setTimeout(() => {
+      hideGenerationProgress();
+      showCoverLetterPreview(mockCoverLetter);
+      switchTab('preview');
+    }, 500);
+    
+  }, 3000);
+}
+
+function hideGenerationProgress() {
+  const progressContainer = document.getElementById("progress-container");
+  const generateBtnText = document.getElementById("generate-btn-text");
+  const generateBtnSpinner = document.getElementById("generate-btn-spinner");
+  
+  if (progressContainer) progressContainer.classList.add('hidden');
+  if (generateBtnText) generateBtnText.textContent = "Generate Cover Letter";
+  if (generateBtnSpinner) generateBtnSpinner.classList.add('hidden');
+}
+
+function generateMockCoverLetter(data) {
+  return `Dear Hiring Manager,
+
+I am writing to express my strong interest in the ${data.jobTitle} position at ${data.companyName}. With my background in software development and passion for innovative technology solutions, I am excited about the opportunity to contribute to your team.
+
+In my previous roles, I have successfully delivered high-quality software solutions that align perfectly with the requirements outlined in your job description. My experience includes:
+
+• Developing scalable web applications using modern frameworks
+• Collaborating with cross-functional teams to deliver projects on time
+• Implementing best practices for code quality and testing
+• Contributing to open-source projects and staying current with industry trends
+
+${data.resumeHighlights ? `Key highlights from my experience include:\n${data.resumeHighlights}\n\n` : ''}I am particularly drawn to ${data.companyName} because of your commitment to innovation and excellence in the technology space. I believe my skills and enthusiasm would make me a valuable addition to your team.
+
+Thank you for considering my application. I look forward to the opportunity to discuss how I can contribute to ${data.companyName}'s continued success.
+
+Best regards,
+[Your Name]`;
+}
+
+function showCoverLetterPreview(coverLetter) {
+  const previewElement = document.getElementById("cover-letter-preview");
+  if (previewElement) {
+    previewElement.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${coverLetter}</div>`;
+  }
+}
+
+// Utility functions
+function copyToClipboard() {
+  const previewElement = document.getElementById("cover-letter-preview");
+  if (previewElement) {
+    const text = previewElement.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      // Show temporary success message
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<span>✓</span> Copied!';
+      button.style.background = 'var(--success-color)';
+      button.style.color = 'white';
+      
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.style.background = '';
+        button.style.color = '';
+      }, 2000);
+    });
+  }
+}
+
+function editCoverLetter() {
+  switchTab('generate');
+}
+
+function saveCoverLetter() {
+  // Implement save functionality
+  alert("Cover letter saved to your library!");
+}
+
+// Global function for welcome state button
+function handleSignIn() {
+  const signinButton = document.getElementById("signin-btn");
+  if (signinButton) {
+    signinButton.click();
+  }
+}

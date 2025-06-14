@@ -1,2 +1,113 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# VS Code
+.vscode/
+
+# Pytest
+.cache/
+
+# dotenv environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+Thumbs.db
+
+# Next.js build output
+extension/.next/
+extension/out/
+
+# Node modules
+extension/node_modules/
+
+# Build artifacts
+extension/.turbo/
+
+# Credentials and secrets
+**/credentials.json
+**/client_secret*.json
+**/*.pem
+**/*.key
+**/imp_cred.txt
+**/*.secret
+**/*config.json
+**/secrets.json
+
+# Coverage reports
+coverage/
+.coverage
+htmlcov/
+
+# Local development files
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*~
+
+# Ignore sample resumes and test files (optional, comment out if you want to keep them in git)
+# api/sample_resume/*.pdf
+# api/sample_resume/*.md
+# resume_samples/*.pdf
+
+# Ignore patch scripts (optional)
+api/patches/
+
+# Chrome extension specific
+extension/*.zip
+extension/*.crx
+extension/*.pem
+
+# Local Vercel directory
+.vercel
 node_modules/
 .env

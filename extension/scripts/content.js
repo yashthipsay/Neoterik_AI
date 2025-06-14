@@ -1,7 +1,16 @@
 console.log("Neoterik Cover Letter Assistant: Content script loaded");
 
-// Check URL with background script
-function checkCurrentUrl() {
+// Debounce function to limit how often a function can be called
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// Check URL with background script - debounced version
+const checkCurrentUrlDebounced = debounce(function() {
   const url = window.location.href;
   
   chrome.runtime.sendMessage({
@@ -22,7 +31,7 @@ function checkCurrentUrl() {
       }
     }
   });
-}
+}, 1000); // Wait 1 second before checking
 
 // Inject notification banner
 function injectJobPageNotification() {
@@ -109,8 +118,10 @@ function injectJobPageNotification() {
   }, 10000);
 }
 
-// Run on page load
-checkCurrentUrl();
+// Run on page load - with slight delay to prevent jamming during page load
+setTimeout(() => {
+  checkCurrentUrlDebounced();
+}, 2000);
 
 // Also listen for SPA navigation
 let lastUrl = location.href;
@@ -118,9 +129,9 @@ new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    checkCurrentUrl();
+    checkCurrentUrlDebounced();
   }
 }).observe(document, {subtree: true, childList: true});
 
 // Listen for popstate events (history navigation)
-window.addEventListener('popstate', checkCurrentUrl);
+window.addEventListener('popstate', checkCurrentUrlDebounced);

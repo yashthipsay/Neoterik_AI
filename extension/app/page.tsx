@@ -18,8 +18,23 @@ export default function Home() {
 
   const handleSignIn = () => {
     if(isExtension) {
-      // Open login on localhost when in extension
-      chrome.tabs.create({ url: "http://localhost:3000/auth/signin" });
+
+          // Open login in a popup window for better UX and message passing
+          const width = 600;
+          const height = 700; // Increased height slightly for better view
+          // Calculate position to center the popup
+          const left = Math.round((window.screen.width - width) / 2);
+          const top = Math.round((window.screen.height - height) / 2);
+    
+          // Use chrome.windows.create for a dedicated popup
+          chrome.windows.create({
+            url: "http://localhost:3000/auth/signin",
+            type: "popup", // Specify the window type as popup
+            width: width,
+            height: height,
+            left: left,
+            top: top
+          });
     } else {
       router.push('/auth/signin');
     }

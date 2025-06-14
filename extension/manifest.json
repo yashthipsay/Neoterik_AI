@@ -37,6 +37,11 @@
       "matches": ["<all_urls>"],
       "js": ["scripts/content.js"],
       "run_at": "document_end"
+    },
+    {
+      "matches": ["http://localhost:3000/auth/extension-callback*"],
+      "js": ["scripts/auth-bridge.js"],
+      "run_at": "document_end"
     }
   ],
   "content_security_policy": {

@@ -67,6 +67,15 @@ document.addEventListener("DOMContentLoaded", function () {
     updateUI(result.isLoggedIn, result.user);
   });
 
+  // Listen for storage changes
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && (changes.isLoggedIn || changes.user)) {
+      chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
+        updateUI(result.isLoggedIn, result.user);
+      });
+    }
+  });
+
   // Listener for Sign In button
   if (signinButton) {
     signinButton.addEventListener("click", function () {
@@ -147,6 +156,15 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+// Listen for changes in chrome.storage.local and update UI if user info changes
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && (changes.isLoggedIn || changes.user)) {
+    chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
+      updateUI(result.isLoggedIn, result.user);
+    });
+  }
+});
 
   // Listener for messages from background script
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

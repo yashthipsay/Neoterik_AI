@@ -1,8 +1,5 @@
-from ast import Dict, List
-from dataclasses import Field
-from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Dict, List
 from pydantic_ai import Agent, RunContext
 from .models import (
     StyleSelectionInput,

@@ -128,6 +128,15 @@ async def cover_letter_node(state):
             print("Error parsing github JSON:", e)
             github = {}
 
+    # FIX: Ensure github is a proper dictionary, not just the username string
+    if not isinstance(github, dict):
+        print(f"Warning: github data is not a dict, got {type(github)}: {github}")
+        github = {}
+
+    # FIX: Extract GitHub username properly and create github info dict
+    github_username = github.get("username", context.get("github_username", ""))
+    github_info_dict = github if isinstance(github, dict) and github else {}
+
     cover_letter_input_model = CoverLetterInput(
         job_title=context.get("job_title", ""),
         hiring_company=context.get("hiring_company", ""),
@@ -144,33 +153,19 @@ async def cover_letter_node(state):
         ) if resume.get("education") else "",
         skillsets=", ".join(resume.get("skills", [])) if resume.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),
-        github_username=context.get("github_username", ""), # Part of CoverLetterInput model
+        github_username=github_username, # Use extracted username
         applicant_experience_level=context.get("applicant_experience_level", "mid"),  # Default to mid-level
         desired_tone=context.get("desired_tone", "professional"), 
     )
     
-    github_info_str = str(github) if github else "" # Convert github dict to string for the prompt
+    # FIX: Convert github dict to string properly for the prompt
+    github_info_str = json.dumps(github_info_dict, indent=2) if github_info_dict else ""
     resume_highlights_str = context.get("resume_highlights", "")
     prompt_str = build_prompt(
         cover_letter_input_model, 
         github_info=github_info_str, 
         resume_highlights=resume_highlights_str
     )
-    
-    # Call the agent to get direct text generation.
-    # For an agent with no tools, .run() returns an AgentRunResult.
-    # agent_response = await cover_letter_agent.run(prompt_str) 
-    
-    # # Extract the generated text from AgentRunResult.data
-    # generated_text = agent_response.data if hasattr(agent_response, "data") and isinstance(agent_response.data, str) else str(agent_response)
-    
-    # Create the CoverLetterOutput object
-    # output_data = CoverLetterOutput(
-    #     cover_letter=generated_text,
-    #     summary=None,  # The LLM would need to be specifically prompted for a summary
-    #     used_highlights=resume_highlights_str.split(";") if resume_highlights_str else None, 
-    #     used_github_info=github # Store the parsed github dictionary
-    # )
     
     try:
         # Call the agent with the properly structured input
@@ -191,7 +186,7 @@ async def cover_letter_node(state):
                 "cover_letter": str(output_data),
                 "summary": None,
                 "used_highlights": None,
-                "used_github_info": github if isinstance(github, dict) else None
+                "used_github_info": github_info_dict  # FIX: Use the github dict
             }
     
     except Exception as e:
@@ -201,7 +196,7 @@ async def cover_letter_node(state):
             "cover_letter": f"Error generating cover letter: {str(e)}",
             "summary": None,
             "used_highlights": None,
-            "used_github_info": None
+            "used_github_info": github_info_dict  # FIX: Use the github dict
         }
     
     return {"context": context}

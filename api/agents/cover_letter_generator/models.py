@@ -5,8 +5,8 @@ Defines the Pydantic models used for input, output, and validation in the cover 
 These models ensure structured data exchange between the agent, workflow, and any external consumers.
 """
 
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
 
 class CoverLetterInput(BaseModel):
     """
@@ -27,14 +27,10 @@ class CoverLetterInput(BaseModel):
     desired_tone: Optional[str] = "formal"  # e.g., "formal", "friendly"
 
 class CoverLetterOutput(BaseModel):
-    """
-    Output schema for a generated cover letter.
-    Includes the letter, optional summary, and metadata about used highlights and GitHub info.
-    """
-    cover_letter: str
-    summary: Optional[str] = None
-    used_highlights: Optional[List[str]] = None
-    used_github_info: Optional[dict] = None
+    cover_letter: str = Field(description="Generated cover letter text")
+    summary: Optional[str] = Field(description="Summary of the generation process")
+    used_highlights: Optional[List[str]] = Field(description="Resume highlights used in generation")
+    used_github_info: Optional[Dict[str, Any]] = Field(description="GitHub information used in generation")  # Change to Dict
 
 class CoverLetterValidationResult(BaseModel):
     """

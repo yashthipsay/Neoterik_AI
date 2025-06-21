@@ -268,6 +268,7 @@ async def generate_with_style(
         
         # If RAG is available, perform similarity search for templates
         retrieved_texts = []
+        retrieved_docs = []
         if retriever:
             try:
                 docs = retriever.similarity_search(
@@ -276,9 +277,11 @@ async def generate_with_style(
                     filter={"type": "template"}
                 )
                 retrieved_texts = [d.page_content for d in docs]
+                retrieved_docs = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
             except Exception as e:
                 print(f"RAG search error: {e}")
                 retrieved_texts = []
+                retrieved_docs = []
 
         # Create style selection input
         style_input = StyleSelectionInput(
@@ -289,7 +292,7 @@ async def generate_with_style(
             company_culture_notes=input_data.company_culture_notes or "",
             applicant_experience_level=getattr(input_data, 'applicant_experience_level', 'mid'),
             desired_tone=getattr(input_data, 'desired_tone', 'professional'),
-            retrieved_documents=retrieved_texts,
+            retrieved_documents=retrieved_docs,  # Use retrieved_docs instead of retrieved_texts
         )
 
         # If we have retrieved documents, use style agent for selection
@@ -297,7 +300,7 @@ async def generate_with_style(
         if retrieved_texts:
             try:
                 style_agent = Agent(
-                    model="groq:deepseek-r1-distill-llama-70b",  # Use the same model as the cover letter agent
+                    model="google-gla:gemini-2.0-flash",
                     deps_type=StyleSelectionInput,
                     system_prompt=STYLE_SYSTEM_PROMPT,
                 )
@@ -315,9 +318,20 @@ async def generate_with_style(
                         structured = {
                             "selected_template": {"style": "professional", "content": ""},
                             "tone": "professional",
+                            "style": "professional",  # Add required field
                             "industry": "general",
-                            "level": "mid"
+                            "level": "mid",
+                            "retrieved_documents": retrieved_docs  # Add required field
                         }
+                
+                # Ensure all required fields are present
+                if isinstance(structured, dict):
+                    structured.setdefault("style", "professional")
+                    structured.setdefault("retrieved_documents", retrieved_docs)
+                    structured.setdefault("selected_template", {"style": "professional", "content": ""})
+                    structured.setdefault("tone", "professional")
+                    structured.setdefault("industry", "general")
+                    structured.setdefault("level", "mid")
                 
                 selected_style = StyleSelectionOutput(**structured) if isinstance(structured, dict) else None
             except Exception as e:
@@ -363,11 +377,16 @@ async def generate_with_style(
         llm_result = await generation_agent.run(deps=prompt)
         text = llm_result.data if hasattr(llm_result, "data") else str(llm_result)
 
+        # FIX: Ensure used_github_info is always a dictionary
+        github_info_dict = {}
+        if hasattr(input_data, 'github_username') and input_data.github_username:
+            github_info_dict = {"username": input_data.github_username}
+
         return CoverLetterOutput(
             cover_letter=text,
             summary=f"Generated cover letter for {input_data.job_title} at {input_data.hiring_company}",
             used_highlights=input_data.working_experience.split("; ") if input_data.working_experience else [],
-            used_github_info=input_data.github_username if input_data.github_username else None
+            used_github_info=github_info_dict  # Always pass a dictionary
         )
 
     except Exception as e:
@@ -384,9 +403,14 @@ async def generate_with_style(
             f"Sincerely,\n{input_data.applicant_name or 'Applicant'}"
         )
         
+        # FIX: Ensure fallback also uses dictionary for used_github_info
+        github_info_dict = {}
+        if hasattr(input_data, 'github_username') and input_data.github_username:
+            github_info_dict = {"username": input_data.github_username}
+        
         return CoverLetterOutput(
             cover_letter=fallback_text,
             summary="Fallback cover letter generated due to processing error",
             used_highlights=[],
-            used_github_info=None
+            used_github_info=github_info_dict  # Always pass a dictionary
         )

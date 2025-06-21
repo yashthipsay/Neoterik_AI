@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 class StyleSelectionInput(BaseModel):
     job_title: str
@@ -11,12 +11,12 @@ class StyleSelectionInput(BaseModel):
     desired_tone: Optional[str]  # e.g., "formal", "friendly"
 
 class StyleSelectionOutput(BaseModel):
-    selected_template: Dict
-    tone: str
-    style: str
-    industry: str
-    level: str
-    retrieved_documents: List[Dict]
+    selected_template: Dict[str, Any] = Field(description="Selected template details")
+    tone: str = Field(description="Selected tone")
+    style: str = Field(description="Selected style")  # Make sure this is required
+    industry: str = Field(description="Selected industry")
+    level: str = Field(description="Selected level")
+    retrieved_documents: List[Dict[str, Any]] = Field(description="Documents retrieved from RAG")  # Make sure this is required
 
 class CoverLetterTemplate(BaseModel):
     tone: str  # e.g., "formal", "friendly"

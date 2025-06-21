@@ -23,6 +23,8 @@ class CoverLetterInput(BaseModel):
     skillsets: Optional[str] = None           # e.g., "Python, TensorFlow, PyTorch, cloud deployment (AWS, GCP), computer vision, NLP, MLOps, scalable model deployment, data-driven decision making"
     company_culture_notes: Optional[str] = None  # e.g., "Innovative, collaborative, mission-driven"
     github_username: Optional[str] = None        # For enrichment if needed
+    applicant_experience_level: Optional[str] = None
+    desired_tone: Optional[str] = "formal"  # e.g., "formal", "friendly"
 
 class CoverLetterOutput(BaseModel):
     """

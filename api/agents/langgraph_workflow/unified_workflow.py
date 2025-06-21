@@ -1,7 +1,7 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt # Make sure to import the agent and build_prompt
+from ..cover_letter_generator.agent import cover_letter_agent, build_prompt, generate_with_style # Make sure to import the agent and build_prompt
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
 from typing import TypedDict, Dict, Optional
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
@@ -145,6 +145,8 @@ async def cover_letter_node(state):
         skillsets=", ".join(resume.get("skills", [])) if resume.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),
         github_username=context.get("github_username", ""), # Part of CoverLetterInput model
+        applicant_experience_level=context.get("applicant_experience_level", "mid"),  # Default to mid-level
+        desired_tone=context.get("desired_tone", "professional"), 
     )
     
     github_info_str = str(github) if github else "" # Convert github dict to string for the prompt
@@ -157,21 +159,50 @@ async def cover_letter_node(state):
     
     # Call the agent to get direct text generation.
     # For an agent with no tools, .run() returns an AgentRunResult.
-    agent_response = await cover_letter_agent.run(prompt_str) 
+    # agent_response = await cover_letter_agent.run(prompt_str) 
     
-    # Extract the generated text from AgentRunResult.data
-    generated_text = agent_response.data if hasattr(agent_response, "data") and isinstance(agent_response.data, str) else str(agent_response)
+    # # Extract the generated text from AgentRunResult.data
+    # generated_text = agent_response.data if hasattr(agent_response, "data") and isinstance(agent_response.data, str) else str(agent_response)
     
     # Create the CoverLetterOutput object
-    output_data = CoverLetterOutput(
-        cover_letter=generated_text,
-        summary=None,  # The LLM would need to be specifically prompted for a summary
-        used_highlights=resume_highlights_str.split(";") if resume_highlights_str else None, 
-        used_github_info=github # Store the parsed github dictionary
-    )
+    # output_data = CoverLetterOutput(
+    #     cover_letter=generated_text,
+    #     summary=None,  # The LLM would need to be specifically prompted for a summary
+    #     used_highlights=resume_highlights_str.split(";") if resume_highlights_str else None, 
+    #     used_github_info=github # Store the parsed github dictionary
+    # )
     
-    # Store the structured output as a dictionary in the context
-    context["cover_letter"] = output_data.model_dump()
+    try:
+        # Call the agent with the properly structured input
+        # Use the generate_with_style tool which handles RAG internally
+        agent_result = await cover_letter_agent.run(prompt_str, deps=cover_letter_input_model)
+        
+        # Extract the result
+        output_data = agent_result.data if hasattr(agent_result, "data") else agent_result
+        
+        # Store the structured output as a dictionary in the context
+        if hasattr(output_data, "model_dump"):
+            context["cover_letter"] = output_data.model_dump()
+        elif hasattr(output_data, "dict"):
+            context["cover_letter"] = output_data.dict()
+        else:
+            # Fallback for plain text or other formats
+            context["cover_letter"] = {
+                "cover_letter": str(output_data),
+                "summary": None,
+                "used_highlights": None,
+                "used_github_info": github if isinstance(github, dict) else None
+            }
+    
+    except Exception as e:
+        print(f"Error in cover letter generation: {e}")
+        # Provide a fallback response
+        context["cover_letter"] = {
+            "cover_letter": f"Error generating cover letter: {str(e)}",
+            "summary": None,
+            "used_highlights": None,
+            "used_github_info": None
+        }
     
     return {"context": context}
 

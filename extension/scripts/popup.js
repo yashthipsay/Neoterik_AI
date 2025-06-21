@@ -22,12 +22,7 @@ function initializeUI() {
 }
 
 function setupEventListeners() {
-  // Sign in button
-  const signinButton = document.getElementById("signin-btn");
-  if (signinButton) {
-    signinButton.addEventListener("click", handleSignIn);
-  }
-
+  
   // Sign out button
   const signoutButton = document.getElementById("signout-btn");
   if (signoutButton) {
@@ -39,6 +34,21 @@ function setupEventListeners() {
   if (coverLetterForm) {
     coverLetterForm.addEventListener("submit", handleGenerateCoverLetter);
   }
+
+  const signinBtnHeader = document.getElementById("signin-btn-header");
+  if (signinBtnHeader) {
+    signinBtnHeader.addEventListener("click", handleSignIn);
+  }
+  const signinBtnWelcome = document.getElementById("signin-btn-welcome");
+  if (signinBtnWelcome) {
+    signinBtnWelcome.addEventListener("click", handleSignIn);
+  }
+
+  // filepath: extension/scripts/popup.js
+const doSomethingLink = document.getElementById('do-something-link');
+if (doSomethingLink) {
+  doSomethingLink.addEventListener('click', doSomething);
+}
 
   // Listen for storage changes
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -82,7 +92,8 @@ function checkAuthState() {
 }
 
 function updateUI(isLoggedIn, user) {
-  const signinButton = document.getElementById("signin-btn");
+  const signinButtonHeader = document.getElementById("signin-btn-header");
+  const signinButtonWelcome = document.getElementById("signin-btn-welcome");
   const signoutButton = document.getElementById("signout-btn");
   const userInfo = document.getElementById("user-info");
   const welcomeState = document.getElementById("welcome-state");
@@ -96,7 +107,8 @@ function updateUI(isLoggedIn, user) {
 
   if (isLoggedIn && user) {
     // Authenticated state
-    if (signinButton) signinButton.classList.add('hidden');
+    if (signinButtonHeader) signinButtonHeader.classList.add('hidden');
+    if (signinButtonWelcome) signinButtonWelcome.classList.add('hidden');
     if (signoutButton) signoutButton.classList.remove('hidden');
     if (welcomeState) welcomeState.classList.add('hidden');
     if (generateTab) generateTab.classList.remove('hidden');
@@ -117,7 +129,8 @@ function updateUI(isLoggedIn, user) {
     }
   } else {
     // Unauthenticated state
-    if (signinButton) signinButton.classList.remove('hidden');
+    if (signinButtonHeader) signinButtonHeader.classList.remove('hidden');
+    if (signinButtonWelcome) signinButtonWelcome.classList.remove('hidden');
     if (signoutButton) signoutButton.classList.add('hidden');
     if (userInfo) userInfo.classList.add('hidden');
     if (welcomeState) welcomeState.classList.remove('hidden');
@@ -321,9 +334,9 @@ function saveCoverLetter() {
 }
 
 // Global function for welcome state button
-function handleSignIn() {
-  const signinButton = document.getElementById("signin-btn");
-  if (signinButton) {
-    signinButton.click();
-  }
-}
+// function handleSignIn() {
+//   const signinButton = document.getElementById("signin-btn");
+//   if (signinButton) {
+//     signinButton.click();
+//   }
+// }

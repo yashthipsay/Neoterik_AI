@@ -16,6 +16,9 @@
   --warning-color: #F59E0B;
   --error-color: #EF4444;
   --info-color: #3B82F6;
+  --parametric-primary: #419D78;
+  --parametric-secondary: #E0A458;
+  --parametric-accent: #2D3047;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,7 +34,7 @@
 }
 
 body {
-  background-color: var(--background-color);
+  background: linear-gradient(135deg, var(--background-color) 0%, #e9ecef 100%);
   color: var(--text-color);
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
@@ -42,9 +45,33 @@ body {
   width: 375px;
   height: 500px;
   overflow: auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
-/* Animation Classes */
+/* Parametric Pixel Animations */
+@keyframes parametricFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(90deg); }
+  50% { transform: translateY(-5px) rotate(180deg); }
+  75% { transform: translateY(-15px) rotate(270deg); }
+}
+
+@keyframes parametricPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+@keyframes parametricFlow {
+  0% { transform: translateX(-100%) rotate(0deg); }
+  100% { transform: translateX(100%) rotate(360deg); }
+}
+
+@keyframes circuitGlow {
+  0%, 100% { box-shadow: 0 0 5px var(--parametric-primary); }
+  50% { box-shadow: 0 0 20px var(--parametric-primary), 0 0 30px var(--parametric-secondary); }
+}
+
+/* Enhanced Animation Classes */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -77,8 +104,11 @@ body {
 .animate-pulse { animation: pulse 2s infinite; }
 .animate-spin { animation: spin 1s linear infinite; }
 .animate-bounce { animation: bounce 1s infinite; }
+.animate-parametric-float { animation: parametricFloat 4s ease-in-out infinite; }
+.animate-parametric-pulse { animation: parametricPulse 2s ease-in-out infinite; }
+.animate-circuit-glow { animation: circuitGlow 3s ease-in-out infinite; }
 
-/* Button Styles */
+/* Enhanced Button Styles with Parametric Elements */
 button, 
 .btn {
   cursor: pointer;
@@ -95,6 +125,22 @@ button,
   border: none;
   padding: 12px 24px;
   box-shadow: 0 4px 12px rgba(65, 157, 120, 0.3);
+  position: relative;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:hover {
@@ -120,15 +166,31 @@ button,
   color: var(--secondary-color);
   border: 2px solid var(--secondary-color);
   padding: 10px 22px;
+  position: relative;
+}
+
+.btn-outline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--secondary-color);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.btn-outline:hover::after {
+  width: 100%;
 }
 
 .btn-outline:hover {
-  background: var(--secondary-color);
   color: white;
   transform: translateY(-1px);
 }
 
-/* Input Styles */
+/* Enhanced Input Styles */
 input, 
 textarea {
   outline: none;
@@ -138,6 +200,7 @@ textarea {
   padding: 12px 16px;
   font-family: inherit;
   background: white;
+  position: relative;
 }
 
 input:focus, 
@@ -157,19 +220,38 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
-/* Card Styles */
+/* Enhanced Card Styles with Parametric Elements */
 .card {
   background: var(--card-background);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 20px var(--shadow-color);
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(65, 157, 120, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary), var(--parametric-primary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px var(--shadow-color);
+  border-color: rgba(65, 157, 120, 0.2);
 }
 
 .card-premium {
@@ -177,13 +259,25 @@ textarea:focus {
   color: white;
 }
 
-/* Progress Bar */
+/* Enhanced Progress Bar with Parametric Elements */
 .progress-bar {
   width: 100%;
   height: 8px;
   background: #E5E7EB;
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(65, 157, 120, 0.3), transparent);
+  animation: parametricFlow 2s linear infinite;
 }
 
 .progress-fill {
@@ -191,9 +285,21 @@ textarea:focus {
   background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
   transition: width 0.3s ease;
   border-radius: 4px;
+  position: relative;
 }
 
-/* Tooltip */
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  border-radius: 4px;
+}
+
+/* Enhanced Tooltip with Parametric Design */
 .tooltip {
   position: relative;
   display: inline-block;
@@ -202,10 +308,10 @@ textarea:focus {
 .tooltip .tooltip-text {
   visibility: hidden;
   width: 200px;
-  background-color: #333;
+  background: linear-gradient(135deg, #333, #555);
   color: #fff;
   text-align: center;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 8px 12px;
   position: absolute;
   z-index: 1;
@@ -215,6 +321,17 @@ textarea:focus {
   opacity: 0;
   transition: opacity 0.3s;
   font-size: 12px;
+  border: 1px solid var(--parametric-primary);
+}
+
+.tooltip .tooltip-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary));
 }
 
 .tooltip:hover .tooltip-text {
@@ -222,35 +339,38 @@ textarea:focus {
   opacity: 1;
 }
 
-/* Status Indicators */
+/* Enhanced Status Indicators */
 .status-success {
   color: var(--success-color);
-  background: rgba(16, 185, 129, 0.1);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .status-warning {
   color: var(--warning-color);
-  background: rgba(245, 158, 11, 0.1);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .status-error {
   color: var(--error-color);
-  background: rgba(239, 68, 68, 0.1);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* Loading States */
+/* Enhanced Loading States */
 .loading-skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
@@ -262,7 +382,7 @@ textarea:focus {
   100% { background-position: -200% 0; }
 }
 
-/* Scrollbar */
+/* Enhanced Scrollbar */
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) transparent;
@@ -277,7 +397,7 @@ textarea:focus {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: var(--primary-color);
+  background: linear-gradient(180deg, var(--parametric-primary), var(--parametric-secondary));
   border-radius: 3px;
 }
 
@@ -294,7 +414,7 @@ textarea:focus {
   }
 }
 
-/* Premium Features */
+/* Enhanced Premium Features */
 .premium-badge {
   background: linear-gradient(135deg, #FFD700, #FFA500);
   color: #333;
@@ -304,6 +424,19 @@ textarea:focus {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+}
+
+.premium-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 20px;
+  animation: parametricFlow 3s linear infinite;
 }
 
 .feature-locked {
@@ -317,9 +450,10 @@ textarea:focus {
   top: 8px;
   right: 8px;
   font-size: 16px;
+  filter: drop-shadow(0 0 3px var(--parametric-primary));
 }
 
-/* Notification Styles */
+/* Enhanced Notification Styles */
 .notification {
   position: fixed;
   top: 20px;
@@ -332,6 +466,7 @@ textarea:focus {
   animation: slideIn 0.3s ease-out;
   max-width: 300px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .notification-success {
@@ -346,7 +481,7 @@ textarea:focus {
   background: linear-gradient(135deg, var(--info-color), #2563EB);
 }
 
-/* Form Validation */
+/* Enhanced Form Validation */
 .form-group {
   margin-bottom: 20px;
   position: relative;
@@ -357,6 +492,20 @@ textarea:focus {
   margin-bottom: 8px;
   font-weight: 500;
   color: var(--text-color);
+  position: relative;
+}
+
+.form-label::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 3px;
+  background: var(--parametric-primary);
+  border-radius: 50%;
+  opacity: 0.6;
 }
 
 .form-error {
@@ -377,48 +526,26 @@ textarea:focus {
   gap: 4px;
 }
 
-/* Pricing Cards */
-.pricing-card {
-  background: white;
-  border-radius: 20px;
-  padding: 32px 24px;
-  text-align: center;
-  position: relative;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.pricing-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.pricing-card.featured {
-  border-color: var(--secondary-color);
-  transform: scale(1.05);
-}
-
-.pricing-card.featured::before {
-  content: 'Most Popular';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--secondary-color);
-  color: white;
-  padding: 6px 20px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Dashboard Stats */
+/* Enhanced Dashboard Stats */
 .stat-card {
   background: linear-gradient(135deg, rgba(65, 157, 120, 0.1), rgba(224, 164, 88, 0.1));
   border-radius: 16px;
   padding: 20px;
   text-align: center;
   border: 1px solid rgba(65, 157, 120, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(65, 157, 120, 0.1) 0%, transparent 70%);
+  animation: parametricFloat 6s ease-in-out infinite;
 }
 
 .stat-number {
@@ -426,21 +553,43 @@ textarea:focus {
   font-weight: 700;
   color: var(--secondary-color);
   margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-label {
   font-size: 14px;
   color: var(--text-color);
   opacity: 0.8;
+  position: relative;
+  z-index: 1;
 }
 
-/* Blog Card */
+/* Enhanced Blog Card */
 .blog-card {
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  border: 1px solid rgba(65, 157, 120, 0.1);
+  position: relative;
+}
+
+.blog-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover::before {
+  transform: scaleX(1);
 }
 
 .blog-card:hover {
@@ -478,4 +627,42 @@ textarea:focus {
   align-items: center;
   font-size: 12px;
   color: #999;
+}
+
+/* Parametric Grid Background */
+.parametric-bg {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(65, 157, 120, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(224, 164, 88, 0.1) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 49%, rgba(65, 157, 120, 0.05) 50%, transparent 51%);
+  background-size: 50px 50px, 50px 50px, 20px 20px;
+}
+
+/* Circuit-like connectors */
+.circuit-connector {
+  position: relative;
+}
+
+.circuit-connector::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  width: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--parametric-primary), transparent);
+  transform: translateY(-50%);
+}
+
+.circuit-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  width: 3px;
+  height: 3px;
+  background: var(--parametric-primary);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: parametricPulse 2s ease-in-out infinite;
 }

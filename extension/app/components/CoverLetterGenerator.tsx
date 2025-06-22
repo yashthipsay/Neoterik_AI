@@ -76,15 +76,15 @@ export const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({
   };
 
   return (
-    <Card className="animate-fadeIn">
-      <CardHeader>
+    <Card className="animate-fadeIn" parametric={true} parametricIntensity="medium">
+      <CardHeader parametric={true}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2" parametric={true}>
             <span className="text-2xl">✨</span>
             Generate Your Cover Letter
           </CardTitle>
           <Tooltip content="AI-powered cover letter generation based on your resume and job requirements">
-            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs cursor-help">
+            <div className="w-5 h-5 bg-gradient-to-br from-[#419D78] to-[#E0A458] rounded-full flex items-center justify-center text-xs cursor-help text-white font-bold">
               ?
             </div>
           </Tooltip>
@@ -109,7 +109,7 @@ export const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({
               value={formData.companyName}
               onChange={(e) => handleInputChange('companyName', e.target.value)}
               error={errors.companyName}
-              icon={<span className="text-gray-400">🏢</span>}
+              icon={<span className="text-[#419D78]">🏢</span>}
             />
             
             <Input
@@ -118,7 +118,7 @@ export const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({
               value={formData.jobTitle}
               onChange={(e) => handleInputChange('jobTitle', e.target.value)}
               error={errors.jobTitle}
-              icon={<span className="text-gray-400">💼</span>}
+              icon={<span className="text-[#419D78]">💼</span>}
             />
           </div>
           
@@ -150,7 +150,7 @@ export const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({
             rows={3}
           />
           
-          <div className="flex items-center justify-between pt-4 border-t">
+          <div className="flex items-center justify-between pt-4 border-t border-[#419D78]/10">
             <div className="flex items-center gap-2">
               <StatusBadge status="info">AI-Powered</StatusBadge>
               <StatusBadge status="success">Personalized</StatusBadge>
@@ -160,7 +160,7 @@ export const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({
               type="submit"
               loading={isGenerating}
               disabled={isGenerating}
-              className="min-w-[140px]"
+              className="min-w-[140px] bg-gradient-to-r from-[#419D78] to-[#37876A] hover:shadow-lg hover:shadow-[#419D78]/25"
             >
               {isGenerating ? 'Generating...' : 'Generate Cover Letter'}
             </Button>

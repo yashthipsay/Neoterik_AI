@@ -24,37 +24,37 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ stats, recentActiv
     <div className="space-y-6 animate-fadeIn">
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="text-center">
-          <div className="stat-number">{stats.coverLettersGenerated}</div>
+        <Card className="text-center" parametric={true} parametricIntensity="low">
+          <div className="stat-number text-[#419D78]">{stats.coverLettersGenerated}</div>
           <div className="stat-label">Cover Letters Generated</div>
         </Card>
         
-        <Card className="text-center">
-          <div className="stat-number">{stats.successRate}%</div>
+        <Card className="text-center" parametric={true} parametricIntensity="low">
+          <div className="stat-number text-[#E0A458]">{stats.successRate}%</div>
           <div className="stat-label">Success Rate</div>
         </Card>
         
-        <Card className="text-center">
-          <div className="stat-number">{stats.averageRating}/5</div>
+        <Card className="text-center" parametric={true} parametricIntensity="low">
+          <div className="stat-number text-[#419D78]">{stats.averageRating}/5</div>
           <div className="stat-label">Average Rating</div>
         </Card>
         
-        <Card className="text-center">
-          <div className="stat-number">{stats.monthlyLimit - stats.coverLettersGenerated}</div>
+        <Card className="text-center" parametric={true} parametricIntensity="low">
+          <div className="stat-number text-[#E0A458]">{stats.monthlyLimit - stats.coverLettersGenerated}</div>
           <div className="stat-label">Remaining This Month</div>
         </Card>
       </div>
 
       {/* Usage Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly Usage</CardTitle>
+      <Card parametric={true} parametricIntensity="medium">
+        <CardHeader parametric={true}>
+          <CardTitle parametric={true}>Monthly Usage</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Used: {stats.coverLettersGenerated} / {stats.monthlyLimit}</span>
-              <span>{Math.round(usagePercentage)}%</span>
+              <span className="font-semibold text-[#419D78]">{Math.round(usagePercentage)}%</span>
             </div>
             <ProgressBar 
               value={usagePercentage} 
@@ -65,16 +65,16 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ stats, recentActiv
       </Card>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+      <Card parametric={true} parametricIntensity="high">
+        <CardHeader parametric={true}>
+          <CardTitle parametric={true}>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-[#419D78]/5 rounded-lg border border-[#419D78]/10">
                 <div>
-                  <div className="font-medium">{activity.title}</div>
+                  <div className="font-medium text-[#2D3047]">{activity.title}</div>
                   <div className="text-sm text-gray-600">{activity.company}</div>
                 </div>
                 <div className="text-right">

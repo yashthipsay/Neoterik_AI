@@ -19,7 +19,7 @@ model = OpenAIModel(
 
 # Initialize the agent
 resume_agent = Agent(
-    model="groq:deepseek-r1-distill-llama-70b",
+    model="gemini-2.5-flash",
     deps_type=str,
     system_prompt=(
         "You are a resume parsing expert. Your role is to extract and structure "

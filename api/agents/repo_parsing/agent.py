@@ -44,7 +44,7 @@ model = OpenAIModel(
 
 github_agent = Agent(
     # model=model, # Use the pydantic-ai model instance if preferred
-    model="groq:deepseek-r1-distill-llama-70b", # Or your preferred model string
+    model="gemini-2.5-flash", # Or your preferred model string
     deps_type=str, # Input to the agent run will be the prompt string
     system_prompt=(
         "You are an expert GitHub profile analyzer. Your task is to extract key information "

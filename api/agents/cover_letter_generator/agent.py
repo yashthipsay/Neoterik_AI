@@ -63,13 +63,26 @@ load_dotenv()
 
 # Simple system prompt that defines the agent's primary role
 SYSTEM_PROMPT = """
-You are a cover letter generation expert.
+You are an AI-powered expert cover letter writer and a strategic career advisor. Your primary objective is to craft personalized, professional, practical and humanized cover letters.
+The Cover Letter length should be not too long, and not too short, ideally around 200-400 words. DO NOT USE VERY DRAMATIC LANGUAGE, but be confident and persuasive.
+Your task is to analyze the provided job details, applicant's information (including resume highlights and GitHub data), and insights into the hiring company's culture. Based on this analysis, you must generate a cover letter that:
 
-You must always generate cover letters by first selecting the best tone and style using available templates from RAG search, and then using that style to generate a personalized letter. You should use the generate_with_style tool to perform this.
+1.  **Directly addresses and integrates** specific keywords and requirements from the `job_description` and `preferred_qualifications`.
+2.  **Articulates the applicant's value proposition** by clearly showing *how* their `skillsets` and `working_experience` align with, and will contribute to, the job's demands. Focus on impact and outcomes.
+3.  **Skill Presentation (Crucial!):**
+    * **Avoid lengthy, sequential lists of technologies.** Instead, seamlessly integrate relevant technologies into descriptions of projects, accomplishments, or specific problem-solving scenarios.
+    * **Prioritize relevance:** Only highlight technologies most pertinent to the job description.
+4.  **Demonstrates a genuine understanding** for the `hiring_company`'s mission, values, and `company_culture_notes`, weaving these elements naturally into the narrative to create an authentic connection. But don't be too dramatic or verbose.
+5.  **Maintains a confident, persuasive, and naturally flowing tone** throughout. The letter should sound like it was written by a human, conveying personality and interest.
+6.  **Is structured logically** with a concise introduction, compelling body paragraphs showcasing relevant experience and company fit (with technical skills integrated contextually), and a strong, polite call to action.
+7.  **Avoids generic phrases** and instead focuses on concrete connections between the applicant and the role/company, making every sentence purposeful. Do not directly copy phrases from the job description. It's instantly noticable and unprofessional. Do it subtly if required.
+8.  **Handles all provided information gracefully**, integrating it where relevant and omitting or generalizing if a specific piece of information is missing from the input.
 
-You understand resume data, GitHub info, and job descriptions. You retrieve the best-matching tone/style/template using job context, and then produce a realistic, concise, professional letter.
+**Output Format:** Your response must be the complete text of the cover letter, ready for immediate use, without any additional conversational text, placeholders, or introductory/concluding remarks from you.
 
-Do not free-write the letter yourself. Always use the tools provided."""
+"""
+
+# ⚠️ Do not compose letters manually. Always invoke the proper toolchain.
 
 # Template for structuring the cover letter generation prompt
 # Uses Llama-style formatting with system/instruction tags for better model comprehension
@@ -92,11 +105,20 @@ COVER_LETTER_TEMPLATE = (
 )
 
 STYLE_SYSTEM_PROMPT = """
-You are an expert assistant for Neoterik AI, selecting the optimal cover letter style
-based on job details and user preferences. Analyze the provided job information and
-retrieved documents to choose the best template, tone, style, industry, and level.
-Ensure the selection aligns with the job description, company culture, and
-applicant’s experience level.
+You are a style selection assistant for a cover letter generator. Your task is to identify the most appropriate writing style based on the user's request or job context.
+
+**Available Styles:**
+- **Professional & Formal:** Emphasizes traditional business language, clarity, and precision.
+- **Enthusiastic & Dynamic:** Conveys high energy, passion, and a proactive attitude.
+- **Concise & Direct:** Focuses on brevity, impactful statements, and getting straight to the point.
+- **Innovative & Creative:** Highlights unique problem-solving, forward-thinking, and unconventional approaches (use with caution for formal roles).
+
+**Instructions:**
+1.  Analyze the provided `job_description`, `company_culture_notes`, and any explicit `style_preference` from the user.
+2.  Select the single most suitable style from the "Available Styles" list that best aligns with the job's requirements and company's expected tone.
+3.  If no specific style is indicated or implied, default to "Professional & Formal."
+
+**Output Format:** Provide only the name of the chosen style (e.g., "Professional & Formal", "Enthusiastic & Dynamic").
 """
 
 def build_prompt(
@@ -135,11 +157,53 @@ def build_prompt(
         github_info=github_info,
         resume_highlights=resume_highlights
     )
+    
+def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_data) -> str:
+    prompt_parts = []
+
+    # 1. Start with the System Prompt
+    prompt_parts.append(SYSTEM_PROMPT) # Ensure this is the improved system prompt
+
+    # 2. Clearly delineate sections for the LLM
+    prompt_parts.append("\n--- JOB APPLICATION DETAILS ---")
+    prompt_parts.append(f"Job Title: {input_data.job_title}")
+    prompt_parts.append(f"Hiring Company: {input_data.hiring_company}")
+    # prompt_parts.append(f"Company Website: {input_data.company_url}")
+
+    prompt_parts.append("\n--- JOB REQUIREMENTS ---")
+    prompt_parts.append(f"Job Description:\n{input_data.job_description}")
+    if input_data.preferred_qualifications:
+        prompt_parts.append(f"Preferred Qualifications:\n{input_data.preferred_qualifications}")
+
+    prompt_parts.append("\n--- APPLICANT BACKGROUND ---")
+    prompt_parts.append(f"Applicant Name: {input_data.applicant_name}")
+    if input_data.skillsets:
+        prompt_parts.append(f"Applicant Skillsets:\n{input_data.skillsets}")
+    if input_data.working_experience: # Assuming this is derived from resume parsing
+        prompt_parts.append(f"Applicant Working Experience Highlights:\n{input_data.working_experience}")
+    if resume_data: # If you pass the full resume text
+        # Consider truncating or summarizing if very long to save tokens
+        prompt_parts.append(f"Full Resume Content (for additional context):\n{resume_data[:2000]}...")
+    if github_info:
+        prompt_parts.append(f"GitHub Profile Information for {input_data.github_username or 'applicant'}:")
+        prompt_parts.append(f"- GitHub Summary: {github_info}")
+
+    prompt_parts.append("\n--- COMPANY CULTURE & CONTEXTUAL NOTES ---")
+    if input_data.company_culture_notes:
+        prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
+
+    # prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
+    # prompt_parts.append(
+    #     "Generate the cover letter now, strictly adhering to the System Prompt guidelines. "
+    #     "Focus on integrating all relevant information to demonstrate the applicant's ideal fit."
+    # )
+
+    return "\n\n".join(prompt_parts)
 
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="groq:deepseek-r1-distill-llama-70b",  # Google Gemini 2.0 Flash model for fast, quality generation
+    model="gemini-2.5-flash",  # Google Gemini 2.0 Flash model for fast, quality generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )
@@ -300,13 +364,13 @@ async def generate_with_style(
         if retrieved_texts:
             try:
                 style_agent = Agent(
-                    model="google-gla:gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     deps_type=StyleSelectionInput,
                     system_prompt=STYLE_SYSTEM_PROMPT,
                 )
                 
                 style_result = await style_agent.run(
-                    deps=style_input
+                    "Select the best template and style based on the job description and retrieved documents.", deps=style_input
                 )
                 
                 structured = style_result.data if hasattr(style_result, "data") else str(style_result)
@@ -373,8 +437,8 @@ async def generate_with_style(
             deps_type=str,
             system_prompt="You are a professional cover letter writer. Generate clear, compelling cover letters based on the provided information."
         )
-        
-        llm_result = await generation_agent.run(deps=prompt)
+        # Add prompt from the context here
+        llm_result = await generation_agent.run(prompt, deps=prompt)
         text = llm_result.data if hasattr(llm_result, "data") else str(llm_result)
 
         # FIX: Ensure used_github_info is always a dictionary

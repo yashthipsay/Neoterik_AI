@@ -1,7 +1,7 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt, generate_with_style # Make sure to import the agent and build_prompt
+from ..cover_letter_generator.agent import cover_letter_agent, build_prompt, generate_with_style, build_prompt_for_gemini # Make sure to import the agent and build_prompt
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
 from typing import TypedDict, Dict, Optional
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
@@ -161,10 +161,10 @@ async def cover_letter_node(state):
     # FIX: Convert github dict to string properly for the prompt
     github_info_str = json.dumps(github_info_dict, indent=2) if github_info_dict else ""
     resume_highlights_str = context.get("resume_highlights", "")
-    prompt_str = build_prompt(
+    prompt_str = build_prompt_for_gemini(
         cover_letter_input_model, 
         github_info=github_info_str, 
-        resume_highlights=resume_highlights_str
+        resume_data=resume_highlights_str
     )
     
     try:

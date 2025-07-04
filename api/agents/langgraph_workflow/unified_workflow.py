@@ -215,3 +215,7 @@ def build_graph():
 
     workflow.set_entry_point("resume")
     return workflow.compile()
+
+graph = build_graph()
+from IPython.display import Image, display
+display(Image(build_graph.get_graph().draw_mermaid_png()))

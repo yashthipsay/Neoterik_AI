@@ -771,24 +771,50 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                 <div class="form-group">
                   <label class="form-label">Company Name</label>
-                  <input type="text" class="form-input" placeholder="e.g., Google, Microsoft" required>
+                  <input type="text" id="company_name" class="form-input" placeholder="e.g., Google, Microsoft" required>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Job Title</label>
-                  <input type="text" class="form-input" placeholder="e.g., Software Engineer" required>
+                  <input type="text" id="job_title" class="form-input" placeholder="e.g., Software Engineer" required>
                 </div>
               </div>
-
+            
               <div class="form-group">
                 <label class="form-label">Job Description</label>
-                <textarea class="form-input form-textarea" placeholder="Paste the complete job description here..." required></textarea>
+                <textarea id="job_description" class="form-input form-textarea"
+                  placeholder="Paste the complete job description here..." required></textarea>
               </div>
-
+            
               <div class="form-group">
                 <label class="form-label">Resume Highlights (Optional)</label>
-                <textarea class="form-input form-textarea" placeholder="Key achievements, skills, or experiences..."></textarea>
+                <textarea id="resume_highlights" class="form-input form-textarea"
+                  placeholder="Key achievements, skills, or experiences..."></textarea>
               </div>
-
+            
+              <div class="form-group">
+                <label class="form-label">Company Summary (from Graph)</label>
+                <textarea id="company_summary" class="form-input form-textarea"
+                  placeholder="Company overview fetched by AI..."></textarea>
+              </div>
+            
+              <div class="form-group">
+                <label class="form-label">Vision & Mission (from Graph)</label>
+                <textarea id="company_vision" class="form-input form-textarea"
+                  placeholder="Vision or mission of the company..."></textarea>
+              </div>
+            
+              <div class="form-group">
+                <label class="form-label">Additional Notes (from Graph)</label>
+                <textarea id="additional_notes" class="form-input form-textarea"
+                  placeholder="Perks, culture, hybrid policy, etc..."></textarea>
+              </div>
+            
+              <div class="form-group">
+                <label class="form-label">Preferred Skills (from Graph)</label>
+                <textarea id="preferred_skills" class="form-input form-textarea"
+                  placeholder="AI-extracted preferred qualifications & skills..."></textarea>
+              </div>
+            
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
                 <div style="display: flex; gap: 8px;">
                   <span class="status-indicator status-success">✓ AI-Powered</span>
@@ -800,69 +826,60 @@
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-
-        <!-- Preview Tab -->
-        <div id="preview-tab" class="hidden animate-fadeIn">
-          <div id="preview-content" class="card">
-            <h2><span>📄</span> Your Cover Letter</h2>
-            <div id="cover-letter-preview" style="background: linear-gradient(135deg, #f8f9fa, rgba(65, 157, 120, 0.05)); padding: 16px; border-radius: 8px; margin: 16px 0; max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.6; border: 1px solid rgba(65, 157, 120, 0.1);">
-              <p style="text-align: center; color: #6c757d; padding: 40px 20px;">
-                📄<br><br>
-                <strong>No Cover Letter Yet</strong><br>
-                Generate your first cover letter to see the preview here.
-              </p>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn btn-outline" onclick="copyToClipboard()">
-                <span>📋</span> Copy
-              </button>
-              <button class="btn btn-outline" onclick="editCoverLetter()">
-                <span>✏️</span> Edit
-              </button>
-              <button class="btn btn-primary" onclick="saveCoverLetter()">
-                <span>💾</span> Save
-              </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard-tab" class="hidden animate-fadeIn">
-          <div class="card">
-            <h2><span>📊</span> Your Dashboard</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-              <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(65, 157, 120, 0.1), rgba(224, 164, 88, 0.05)); border-radius: 8px; border: 1px solid rgba(65, 157, 120, 0.2); position: relative;">
-                <div style="font-size: 24px; font-weight: 700; color: var(--secondary-color);">12</div>
-                <div style="font-size: 11px; color: #6c757d;">Cover Letters</div>
-              </div>
-              <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(224, 164, 88, 0.1), rgba(65, 157, 120, 0.05)); border-radius: 8px; border: 1px solid rgba(224, 164, 88, 0.2); position: relative;">
-                <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">85%</div>
-                <div style="font-size: 11px; color: #6c757d;">Success Rate</div>
+            
+            <div id="preview-tab" class="hidden animate-fadeIn">
+              <div id="preview-content" class="card">
+                <h2><span>📄</span> Your Cover Letter</h2>
+                <div id="cover-letter-preview"
+                  style="background: linear-gradient(135deg, #f8f9fa, rgba(65, 157, 120, 0.05)); padding: 16px; border-radius: 8px; margin: 16px 0; max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.6; border: 1px solid rgba(65, 157, 120, 0.1);">
+                  <p style="text-align: center; color: #6c757d; padding: 40px 20px;">📄<br><br><strong>No Cover Letter
+                      Yet</strong><br>Generate your first cover letter to see the preview here.</p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn btn-outline" onclick="copyToClipboard()">📋 Copy</button>
+                  <button class="btn btn-outline" onclick="editCoverLetter()">✏️ Edit</button>
+                  <button class="btn btn-primary" onclick="saveCoverLetter()">💾 Save</button>
+                </div>
               </div>
             </div>
-            <div class="progress-container">
-              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
-                <span>Monthly Usage</span>
-                <span style="font-weight: 600; color: var(--secondary-color);">12/50</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 24%"></div>
+            
+            <div id="dashboard-tab" class="hidden animate-fadeIn">
+              <div class="card">
+                <h2><span>📊</span> Your Dashboard</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                  <div
+                    style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(65, 157, 120, 0.1), rgba(224, 164, 88, 0.05)); border-radius: 8px; border: 1px solid rgba(65, 157, 120, 0.2);">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--secondary-color);">12</div>
+                    <div style="font-size: 11px; color: #6c757d;">Cover Letters</div>
+                  </div>
+                  <div
+                    style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(224, 164, 88, 0.1), rgba(65, 157, 120, 0.05)); border-radius: 8px; border: 1px solid rgba(224, 164, 88, 0.2);">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">85%</div>
+                    <div style="font-size: 11px; color: #6c757d;">Success Rate</div>
+                  </div>
+                </div>
+                <div class="progress-container">
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                    <span>Monthly Usage</span>
+                    <span style="font-weight: 600; color: var(--secondary-color);">12/50</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 24%"></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Library Tab -->
-        <div id="library-tab" class="hidden animate-fadeIn">
-          <div class="card welcome-card">
-            <div class="welcome-icon">📚</div>
-            <h3>Your Cover Letter Library</h3>
-            <p>Save and organize your generated cover letters here.</p>
-            <button class="btn btn-outline">Coming Soon</button>
-          </div>
-        </div>
+            
+            <div id="library-tab" class="hidden animate-fadeIn">
+              <div class="card welcome-card">
+                <div class="welcome-icon">📚</div>
+                <h3>Your Cover Letter Library</h3>
+                <p>Save and organize your generated cover letters here.</p>
+                <button class="btn btn-outline">Coming Soon</button>
+              </div>
+            </div>
       </main>
 
       <!-- Footer -->

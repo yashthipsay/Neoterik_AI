@@ -11,7 +11,9 @@ from agents.resume_parsing.agent import SAMPLE_RESUME_PATH
 # from agents.cover_letter_generator.agent import CoverLetterAgent, build_prompt
 from agents.cover_letter_generator.models import CoverLetterInput
 from agents.langgraph_workflow.unified_workflow import build_graph
+from company_research_graph import run_job_research  # Import the job research function
 import asyncio
+from fastapi.responses import JSONResponse
 
 app = FastAPI(
     title="Job URL Detector API",
@@ -48,16 +50,32 @@ KNOWN_JOB_BOARD_PATTERNS = [
     # Add more patterns as needed
 ]
 
-def is_job_application_url(url: str) -> bool:
-    """Check if URL matches any known job board patterns"""
-    return any(re.search(pattern, url) for pattern in KNOWN_JOB_BOARD_PATTERNS)
+# def is_job_application_url(url: str) -> bool:
+#     """Check if URL matches any known job board patterns"""
+#     return any(re.search(pattern, url) for pattern in KNOWN_JOB_BOARD_PATTERNS)
 
 @app.post("/check-url")
 async def check_url(data: URLCheckRequest):
-    """Check if the provided URL is a job application page"""
-    is_job_url = is_job_application_url(data.url)
-    print(f"Checking URL: {data.url} - Result: {'✓' if is_job_url else '✗'}")
-    return {"is_job_application": is_job_url, "checked_url": data.url}
+    try:
+        result = await run_job_research(data.url)
+        if result:
+            return JSONResponse(content={
+                "is_job_application": True,  # ✅ always true if graph succeeded
+                "parsed_output": result.model_dump()
+            }, status_code=200)
+        return JSONResponse(content={
+            "is_job_application": False,
+            "parsed_output": None
+        }, status_code=204)
+    except Exception as e:
+        return JSONResponse(content={
+            "is_job_application": False,
+            "error": str(e)
+        }, status_code=500)
+    # """Check if the provided URL is a job application page"""
+    # is_job_url = is_job_application_url(data.url)
+    # print(f"Checking URL: {data.url} - Result: {'✓' if is_job_url else '✗'}")
+    # return {"is_job_application": is_job_url, "checked_url": data.url}
 
 @app.post("/parse-resume")
 async def parse_resume(file: UploadFile = None):

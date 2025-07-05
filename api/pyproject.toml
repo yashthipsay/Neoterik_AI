@@ -27,6 +27,7 @@ fastembed = "^0.7.1"
 protobuf = ">=3.20.0,<3.21.0"
 ipython = "^9.4.0"
 graphviz = "^0.21"
+pypdf = "^5.7.0"
 
 
 [build-system]

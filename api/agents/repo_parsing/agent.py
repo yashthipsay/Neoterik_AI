@@ -44,15 +44,12 @@ model = OpenAIModel(
 
 github_agent = Agent(
     # model=model, # Use the pydantic-ai model instance if preferred
-    model="gemini-1.5-pro-latest", # Or your preferred model string
+    model="gemini-2.5-flash", # Or your preferred model string
     deps_type=str, # Input to the agent run will be the prompt string
     system_prompt=(
-        "You are an expert GitHub profile analyzer. Your task is to extract key information "
-        "from structured data fetched via the GitHub API, supplemented potentially by profile README content. "
-        "Focus on extracting profile details like name, bio, location, repo count, followers, following, and identify key skills or technologies "
-        "mentioned in the bio or README. Also, list some notable repositories with their descriptions and languages. "
-        "Return the response as a structured JSON object matching the provided schema."
-    ),
+        "You are a GitHub profile analyzer. Extract key details from the provided text and return them as a structured JSON object. "
+        "Focus on profile info, top repositories, and skills."
+    )
 )
 
 # --- Fallback Scraping Function (Keep for robustness if API fails) ---

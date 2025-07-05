@@ -219,5 +219,3 @@ def show_graph():
         f.write(img_data)
     print("✅ Graph visualization saved as graph_visualization.png")
     display(Image(img_data))
-
-graph = show_graph()

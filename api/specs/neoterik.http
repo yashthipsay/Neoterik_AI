@@ -1,0 +1,25 @@
+### Generate cover letter command
+
+POST http://localhost:8000/generate-cover-letter
+Content-Type: application/json
+
+{
+    "job_title": "Software Engineer",
+    "hiring_company": "Tech Corp",
+    "applicant_name": "Yash Thipsay",
+    "job_description": "We are looking for the new CEO for SpaceX",
+    "preferred_qualifications": "Bachelor's in Computer Science; 3+ years of experience with Python",
+    "company_culture_notes": "Innovative, Agile, Collaborative",
+    "github_username": "yashthipsay",
+    "company_url": ""
+}
+
+
+### Parse URL
+
+POST http://localhost:8000/check-url
+Content-Type: application/json
+
+{
+    "url": "https://example.com/job-posting"
+}

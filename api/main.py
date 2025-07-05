@@ -172,7 +172,7 @@ async def generate_cover_letter(input: CoverLetterInput):
     }
 
     # Build and run the workflow
-    graph = show_graph()
+    graph = build_graph()
     result = await graph.ainvoke(initial_state)
     cover_letter = result["context"]["cover_letter"]
 

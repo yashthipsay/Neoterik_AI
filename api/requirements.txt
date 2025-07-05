@@ -1,9 +1,0 @@
-pydantic
-langgraph
-langchain
-pydantic-ai
-PyGithub
-requests
-beautifulsoup4
-python-dotenv
-docx2txt

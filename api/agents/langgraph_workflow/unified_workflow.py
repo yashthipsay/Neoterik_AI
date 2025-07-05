@@ -1,7 +1,7 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt, generate_with_style, build_prompt_for_gemini # Make sure to import the agent and build_prompt
+from ..cover_letter_generator.agent import cover_letter_agent # Make sure to import the agent
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
 from typing import TypedDict, Dict, Optional
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
@@ -161,16 +161,11 @@ async def cover_letter_node(state):
     # FIX: Convert github dict to string properly for the prompt
     github_info_str = json.dumps(github_info_dict, indent=2) if github_info_dict else ""
     resume_highlights_str = context.get("resume_highlights", "")
-    prompt_str = build_prompt_for_gemini(
-        cover_letter_input_model, 
-        github_info=github_info_str, 
-        resume_data=resume_highlights_str
-    )
     
     try:
         # Call the agent with the properly structured input
-        # Use the generate_with_style tool which handles RAG internally
-        agent_result = await cover_letter_agent.run(prompt_str, deps=cover_letter_input_model)
+        # The agent will now use its system prompt and deps_type to generate the output
+        agent_result = await cover_letter_agent.run(deps=cover_letter_input_model)
         
         # Extract the result
         output_data = agent_result.data if hasattr(agent_result, "data") else agent_result
@@ -216,6 +211,13 @@ def build_graph():
     workflow.set_entry_point("resume")
     return workflow.compile()
 
-graph = build_graph()
-from IPython.display import Image, display
-display(Image(build_graph.get_graph().draw_mermaid_png()))
+def show_graph():
+    from IPython.display import Image, display
+    graph = build_graph()
+    img_data = graph.get_graph().draw_mermaid_png()
+    with open("graph_visualization.png", "wb") as f:
+        f.write(img_data)
+    print("✅ Graph visualization saved as graph_visualization.png")
+    display(Image(img_data))
+
+graph = show_graph()

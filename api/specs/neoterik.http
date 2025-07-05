@@ -22,5 +22,5 @@ POST http://localhost:8000/check-url
 Content-Type: application/json
 
 {
-    "url": "https://apply.workable.com/decentralized-masters/j/21685BC24D/"
+    "url": "https://job-boards.greenhouse.io/layerzerolabs/jobs/5554606004?source=web3.career&gh_src=web3.career#application_form"
 }

@@ -192,18 +192,17 @@ def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_da
     if input_data.company_culture_notes:
         prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
 
-    # prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
-    # prompt_parts.append(
-    #     "Generate the cover letter now, strictly adhering to the System Prompt guidelines. "
-    #     "Focus on integrating all relevant information to demonstrate the applicant's ideal fit."
-    # )
+    prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
+    prompt_parts.append(
+        "Focus on integrating all relevant information to demonstrate the applicant's ideal fit."
+    )
 
     return "\n\n".join(prompt_parts)
 
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="gemini-2.5-flash",  # Google Gemini 2.0 Flash model for fast, quality generation
+    model="gemini-2.5-pro",  # Google Gemini 2.0 Flash model for fast, quality generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )
@@ -364,7 +363,7 @@ async def generate_with_style(
         if retrieved_texts:
             try:
                 style_agent = Agent(
-                    model="gemini-2.5-flash",
+                    model="gemini-2.5-pro",
                     deps_type=StyleSelectionInput,
                     system_prompt=STYLE_SYSTEM_PROMPT,
                 )

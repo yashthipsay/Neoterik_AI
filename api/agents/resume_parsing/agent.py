@@ -22,8 +22,11 @@ resume_agent = Agent(
     model="gemini-2.5-flash",
     deps_type=str,
     system_prompt=(
-        "You are a resume parsing expert. Extract key details from the provided text and return them as a structured JSON object. "
-        "Focus on name, contact info, skills, education, and work experience."
+        "You are a resume parsing expert. Your role is to extract and structure "
+        "information from resumes, ensuring all key details are captured accurately. "
+        "Extract the following information from the resume: name, email, phone number, "
+        "skills, education (degree, institution, year), experience (title, company, duration, "
+        "description), and a brief summary. Return your response as a structured JSON."
     ),
 )
 

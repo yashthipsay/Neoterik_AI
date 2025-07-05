@@ -1,0 +1,26 @@
+### Generate cover letter command
+
+POST http://localhost:8000/generate-cover-letter
+Content-Type: application/json
+
+{
+    "job_title": "Staff Ethereum Engineer",
+    "hiring_company": "Exodus",
+    "applicant_name": "Yash Thipsay",
+    "job_description": "Exodus is looking for a Staff Software Engineer to lead our Solana integration efforts and take wallet support to the next level; In this role, you’ll own everything from wallet integration to fine-tuning smart contracts, ensuring a fast, seamless, and reliable experience for our customers; The ideal candidate is deeply immersed in the Solana ecosystem and knows the chain inside and out; You'll be responsible for optimizing our existing Solana implementation and building the features that will define the next generation of Solana experiences for Exodus customers; Contribute meaningful code for Solana features across the Exodus products; Identify areas for Solana integration improvements; Improve smart contract development for new products; Take ownership of all Solana integrations and fixes.",
+    "preferred_qualifications": "Expert level proficiency in JavaScript, with experience building modern, performant applications; Deep expertise with the Solana blockchain, including Solana’s architecture and account model; Proven experience developing Solana wallet integrations; Hands-on experience building fullstack Solana Web3 applications, from smart contracts to frontend dApps; Proficiency in writing, testing, and deploying Solana smart contracts; Understanding of various NFT and Token Standards; Contributions to open-source projects, especially within the Solana ecosystem; Proven experience shipping production level React Native mobile applications; Experience developing financial or DeFi applications.",
+    "company_culture_notes": "Exodus is a multi-asset cryptocurrency wallet with a built-in exchange feature; We started our movement in 2015 and have been a distributed team since then; Our mission is to help half of the world exit the traditional financial system and move into the crypto financial system by the year 2030; Freedom to work wherever you want, whenever you want; Building the future—cryptocurrencies lay the foundation to the internet of value; Collaborative and feedback-driven culture; Opportunity to grow; Fair pay, no matter where you live, along with a competitive benefits package; 100% pay in Bitcoin with a buffer to account for price changes and exchange fees; All the tools you need to do the job.",
+  "additional_notes": "Most health insurance plans are covered 100% for employees and 50% for dependents; Dental insurance covered; Reimbursement up to $500/month for medical and dental if outside the US; 30 days of paid time off per year; Part-time employees receive 15 days PTO; Unlimited bereavement with 2 weeks fully paid and more if needed; 13 weeks of fully paid parental leave for primary caregiver, 4 weeks for secondary; Reimbursement for tax consultation when being paid in Bitcoin; Seasonal perks include gym memberships, therapy, and quarterly wellness days; Hiring process includes recruiter interview, optional live coding, interviews with manager and future colleagues; Resume submission is optional; Application questions required",
+    "github_username": "yashthipsay",
+    "company_url": ""
+}
+
+
+### Parse URL
+
+POST http://localhost:8000/check-url
+Content-Type: application/json
+
+{
+    "url": "https://apply.workable.com/decentralized-masters/j/21685BC24D/"
+}

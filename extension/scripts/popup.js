@@ -30,10 +30,10 @@ function setupEventListeners() {
 	}
 
 	// Cover letter form
-	const coverLetterForm = document.getElementById("cover-letter-form");
-	if (coverLetterForm) {
-		coverLetterForm.addEventListener("submit", handleGenerateCoverLetter);
-	}
+const coverLetterForm = document.getElementById("cover-letter-form");
+if (coverLetterForm) {
+    coverLetterForm.addEventListener("submit", handleGenerateCoverLetter);
+}
 
 	const signinBtnHeader = document.getElementById("signin-btn-header");
 	if (signinBtnHeader) {
@@ -82,6 +82,8 @@ function switchTab(tabId) {
 		targetTab.classList.remove("hidden");
 		targetTab.classList.add("animate-fadeIn");
 	}
+
+	if (tabId !== "generate") setLoadingState(false);
 }
 
 function checkAuthState() {
@@ -246,21 +248,120 @@ async function getFinalJobData() {
 	});
 }
 
+function setLoadingState(isLoading) {
+    console.log(`🔄 Setting loading state: ${isLoading}`);
+    const progressContainer = document.getElementById("progress-container");
+    const generateBtnText = document.getElementById("generate-btn-text");
+    const generateBtnSpinner = document.getElementById("generate-btn-spinner");
+    
+    if (progressContainer) progressContainer.classList.toggle("hidden", !isLoading);
+    if (generateBtnText) generateBtnText.textContent = isLoading ? "Generating..." : "Generate Cover Letter";
+    if (generateBtnSpinner) generateBtnSpinner.classList.toggle("hidden", !isLoading);
+}
+
+async function getJobDataForCoverLetter() {
+    console.log("🔍 Fetching job data for cover letter");
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
+            const job = currentJobPage?.jobData || {};
+            console.log("📋 Current job data:", job);
+            
+            const get = (id, fallback = "") => {
+                const el = document.getElementById(id);
+                return el?.value?.trim() || fallback;
+            };
+
+            const data = {
+                job_title: get("job_title", job.job_title || ""),
+                hiring_company: get("company_name", job.company_name || ""),
+                applicant_name: get("applicant_name", ""), // Add a field for this in your form
+                job_description: get("job_description", job.job_description || ""),
+                preferred_qualifications: get("preferred_skills", job.preferred_qualifications || ""),
+                company_culture_notes: get("company_culture_notes", job.company_culture_notes || ""),
+                github_username: get("github_username", job.github_username || ""),
+                company_url: get("company_url", job.company_url || "")
+            };
+
+            console.log("✨ Prepared cover letter data:", data);
+            resolve(data);
+        });
+    });
+}
+
+
 // ---------------- Submit Handler ---------------- //
 async function handleGenerateCoverLetter(event) {
-	event.preventDefault();
-	console.log("📨 Submitting form...");
+    event.preventDefault();
+    console.log("🎯 Generate cover letter form submitted");
+    
+    setLoadingState(true);
+    try {
+        const data = await getJobDataForCoverLetter();
+        console.log("📦 Sending to /generate-cover-letter:", data);
 
-	const data = await getFinalJobData();
+        const response = await fetch("http://localhost:8000/generate-cover-letter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
 
-	if (!data.companyName || !data.jobTitle || !data.jobDescription) {
-		alert("Please fill in all required fields.");
-		return;
-	}
+        const result = await response.json();
+        console.log("📩 Received response:", result);
+        
+        setLoadingState(false);
 
-	console.log("📦 Final data:", data);
-	showGenerationProgress();
-	simulateGeneration(data);
+        if (response.ok && result.cover_letter) {
+            console.log("✅ Successfully generated cover letter");
+            showCoverLetterPreview(result.cover_letter);
+            switchTab("preview");
+        } else {
+            console.error("❌ Failed to generate cover letter:", result.error);
+            showError(result.error || "Failed to generate cover letter");
+        }
+    } catch (err) {
+        console.error("❌ Network or server error:", err);
+        setLoadingState(false);
+        showError("Network or server error. Please try again.");
+    }
+}
+
+
+async function getJobDataForCoverLetter() {
+    console.log("🔍 Fetching job data for cover letter");
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
+            const job = currentJobPage?.jobData || {};
+            console.log("📋 Current job data:", job);
+            
+            // Join skillset and preferred qualifications into a single string
+            const qualifications = [
+                ...(job.preferred_qualifications || []),
+                ...(job.skillset || [])
+            ].join("; ");
+
+            // Format culture notes from additional_notes
+            const cultureNotes = job.additional_notes || job.company_culture_notes || "";
+
+            const data = {
+                job_title: job.job_title || "",
+                hiring_company: job.company_name || "",
+                applicant_name: "Yash Thipsay", // Hardcoded name
+                job_description: job.job_description || "",
+                preferred_qualifications: qualifications,
+                company_culture_notes: `${job.company_vision || ""}\n${cultureNotes}`,
+                github_username: "yashthipsay", // Hardcoded GitHub username
+                company_url: "" // Optional field
+            };
+
+            console.log("✨ Prepared cover letter data:", data);
+            resolve(data);
+        });
+    });
+}
+
+// Utility to show error messages
+function showError(msg) {
+    alert(msg); // Or display in a UI element
 }
 
 // ---------------- Cover Letter Generation ---------------- //
@@ -340,10 +441,11 @@ Sincerely,
 }
 
 function showCoverLetterPreview(coverLetter) {
-	const preview = document.getElementById("cover-letter-preview");
-	if (preview) {
-		preview.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${coverLetter}</div>`;
-	}
+    console.log("📄 Showing cover letter preview");
+    const preview = document.getElementById("cover-letter-preview");
+    if (preview) {
+        preview.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${coverLetter}</div>`;
+    }
 }
 
 // ---------------- Utilities ---------------- //

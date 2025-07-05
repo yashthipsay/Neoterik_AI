@@ -321,6 +321,7 @@ async function checkUrlWithApi(url, tabId) {
 		console.log("🔍 Graph API Response:", data);
 
 		if (data.is_job_application && data.parsed_output) {
+			            console.log("[checkUrlWithApi] ✅ check-url endpoint succeeded for:", url);
 			// ✅ Store parsed job info for popup or auto-fill
 			chrome.storage.local.set({
 				currentJobPage: {
@@ -339,6 +340,7 @@ async function checkUrlWithApi(url, tabId) {
 
 			return true;
 		} else {
+console.log("[checkUrlWithApi] ❌ check-url endpoint did not detect a job page for:", url);
 			// ❌ Not a job page (or failed), clear badge
 			chrome.action.setBadgeText({ text: "", tabId: tabId });
 			return false;
@@ -347,6 +349,7 @@ async function checkUrlWithApi(url, tabId) {
 		console.error("❌ API fallback error:", error);
 
 		// 🔁 Fallback to legacy job pattern detection
+console.log("[checkUrlWithApi] ⚠️ Falling back to legacy job board pattern detection for:", url);
 		const KNOWN_JOB_BOARD_PATTERNS = [
 			/job-boards\.greenhouse\.io\/.+\/jobs\/\d+/,
 			/jobs\.lever\.co\/.+\/\d+/,
@@ -363,6 +366,7 @@ async function checkUrlWithApi(url, tabId) {
 		const isLegacyMatch = KNOWN_JOB_BOARD_PATTERNS.some((p) => p.test(url));
 
 		if (isLegacyMatch) {
+	console.log("[checkUrlWithApi] 🟡 Legacy pattern matched for:", url);
 			chrome.action.setBadgeText({ text: "JOB", tabId: tabId });
 			chrome.action.setBadgeBackgroundColor({
 				color: "#777",
@@ -379,8 +383,8 @@ async function checkUrlWithApi(url, tabId) {
 
 			return true;
 		}
-
-		return false;
+		console.log("[checkUrlWithApi] ⛔️ No legacy pattern match for:", url);
+        return false;
 	}
 }
 

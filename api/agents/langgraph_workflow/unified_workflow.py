@@ -1,7 +1,7 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt, generate_with_style, build_prompt_for_gemini # Make sure to import the agent and build_prompt
+from ..cover_letter_generator.agent import cover_letter_agent, build_prompt_for_gemini # Make sure to import the agent
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
 from typing import TypedDict, Dict, Optional
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
@@ -216,6 +216,11 @@ def build_graph():
     workflow.set_entry_point("resume")
     return workflow.compile()
 
-graph = build_graph()
-from IPython.display import Image, display
-display(Image(build_graph.get_graph().draw_mermaid_png()))
+def show_graph():
+    from IPython.display import Image, display
+    graph = build_graph()
+    img_data = graph.get_graph().draw_mermaid_png()
+    with open("graph_visualization.png", "wb") as f:
+        f.write(img_data)
+    print("✅ Graph visualization saved as graph_visualization.png")
+    display(Image(img_data))

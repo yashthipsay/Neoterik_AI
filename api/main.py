@@ -10,7 +10,7 @@ from agents.repo_parsing.workflow import create_github_parsing_workflow
 from agents.resume_parsing.agent import SAMPLE_RESUME_PATH
 # from agents.cover_letter_generator.agent import CoverLetterAgent, build_prompt
 from agents.cover_letter_generator.models import CoverLetterInput
-from agents.langgraph_workflow.unified_workflow import build_graph
+from agents.langgraph_workflow.unified_workflow import build_graph, show_graph
 from company_research_graph import run_job_research  # Import the job research function
 import asyncio
 from fastapi.responses import JSONResponse

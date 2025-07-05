@@ -52,7 +52,7 @@ def parse_llm_output(output: str) -> CompanyResearchOutput:
     )
 
 # 🤖 LLM + Tools
-llm = ChatGoogleGenerativeAI(model='gemini-1.5-pro-latest', google_api_key="AIzaSyCcraSTMkUPjOSRWjl53eyMfcF2NLav9j4")
+llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', google_api_key="AIzaSyCcraSTMkUPjOSRWjl53eyMfcF2NLav9j4")
 search_tool = TavilySearchResults(max_results=5)
 
 react_agent = create_react_agent(llm, tools=[search_tool], prompt="""

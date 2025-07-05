@@ -25,11 +25,11 @@ os.environ["HF_TOKEN"] = "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"
 
 # System prompt for style selection
 STYLE_SYSTEM_PROMPT = """
-You are an expert assistant for Neoterik AI, selecting the optimal cover letter style based on job details and user preferences. Analyze the provided job information and retrieved documents to choose the best template, tone, style, industry, and level. Ensure the selection aligns with the job description, company culture, and applicant’s experience level.
+You are an expert assistant for Neoterik AI, selecting the optimal cover letter style based on job details and user preferences. Analyze the provided job information and retrieved documents to choose the best template, tone, style, industry, and level. Ensure the selection aligns with the job description, company culture, and applicant's experience level.
 """
 
 cover_letter_agent = Agent(
-    model="groq:deepseek-r1-distill-llama-70b",  # Google Gemini 2.0 Flash model for fast, quality generation
+    model="gemini-2.5-pro",  # Google Gemini 2.5 Pro model for fast, quality generation
     deps=StyleSelectionInput,           # Input type dependency for the agent
     system_prompt=STYLE_SYSTEM_PROMPT,          # System prompt defining the agent's role
 )

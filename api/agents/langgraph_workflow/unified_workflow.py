@@ -44,11 +44,11 @@ async def resume_node(state):
     # Call the agent with the resume text
     result = await resume_agent.run(resume_text)
     context["resume"] = result
-    print(">>> Exiting resume_node with state:", {
-        "context": context,
-        "resume_path": resume_path,
-        "github_username": state["github_username"]
-    })
+    # print(">>> Exiting resume_node with state:", {
+    #     "context": context,
+    #     "resume_path": resume_path,
+    #     "github_username": state["github_username"]
+    # })
     return {"context": context, "resume_path": resume_path, "github_username": state["github_username"]}
 
 # --- Node 2: GitHub Repo Parsing ---
@@ -93,25 +93,25 @@ async def cover_letter_node(state):
     resume_result = context.get("resume", {})
     github_result = context.get("github", {})
 
-    print("\n--- DEBUG: resume_result ---")
-    print(repr(resume_result))
-    print("--- /DEBUG ---")
+    # print("\n--- DEBUG: resume_result ---")
+    # print(repr(resume_result))
+    # print("--- /DEBUG ---")
 
-    print("\n--- DEBUG: github_result ---")
-    print(repr(github_result))
-    print("--- /DEBUG ---")
+    # print("\n--- DEBUG: github_result ---")
+    # print(repr(github_result))
+    # print("--- /DEBUG ---")
 
     # Extract data from AgentRunResult if needed
     resume = resume_result.data if hasattr(resume_result, "data") else resume_result
     github = github_result.data if hasattr(github_result, "data") else github_result
 
-    print("\n--- DEBUG: resume (after .data if present) ---")
-    print(repr(resume))
-    print("--- /DEBUG ---")
+    # print("\n--- DEBUG: resume (after .data if present) ---")
+    # print(repr(resume))
+    # print("--- /DEBUG ---")
 
-    print("\n--- DEBUG: github (after .data if present) ---")
-    print(repr(github))
-    print("--- /DEBUG ---")
+    # print("\n--- DEBUG: github (after .data if present) ---")
+    # print(repr(github))
+    # print("--- /DEBUG ---")
 
     # --- FIX: Parse JSON if resume/github are strings ---
     if isinstance(resume, str):

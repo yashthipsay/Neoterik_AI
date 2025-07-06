@@ -350,6 +350,7 @@ async function getJobDataForCoverLetter() {
                 preferred_qualifications: qualifications,
                 company_culture_notes: `${job.company_vision || ""}\n${cultureNotes}`,
                 github_username: "yashthipsay", // Hardcoded GitHub username
+				desired_tone: "fun-loving", // Hardcoded desired tone
                 company_url: "" // Optional field
             };
 

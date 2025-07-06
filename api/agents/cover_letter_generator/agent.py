@@ -109,7 +109,7 @@ You are a style selection assistant. Your task is to choose the most appropriate
 - **professional**: For traditional corporate roles.
 - **most-improved**: For showing growth and learning.
 - **fun-loving**: For creative or startup environments.
-- **short-and-sweet**: For concise and direct applications.
+- **short-and-sweet**: For short, concise and direct applications.
 - **unique**: For roles that value creativity and standing out.
 - **career-change**: For highlighting transferable skills.
 - **enthusiastic**: For conveying passion and high energy.
@@ -201,7 +201,7 @@ def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_da
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="gemini-2.5-flash",  # Google Gemini 2.0 Flash model for fast, quality generation
+    model="gemini-2.5-pro",  # Google Gemini 2.5 Pro model for advanced text generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )

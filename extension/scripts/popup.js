@@ -259,34 +259,35 @@ function setLoadingState(isLoading) {
     if (generateBtnSpinner) generateBtnSpinner.classList.toggle("hidden", !isLoading);
 }
 
-async function getJobDataForCoverLetter() {
-    console.log("🔍 Fetching job data for cover letter");
-    return new Promise((resolve) => {
-        chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-            const job = currentJobPage?.jobData || {};
-            console.log("📋 Current job data:", job);
+// async function getJobDataForCoverLetter() {
+//     console.log("🔍 Fetching job data for cover letter");
+//     return new Promise((resolve) => {
+//         chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
+//             const job = currentJobPage?.jobData || {};
+//             console.log("📋 Current job data:", job);
             
-            const get = (id, fallback = "") => {
-                const el = document.getElementById(id);
-                return el?.value?.trim() || fallback;
-            };
+//             const get = (id, fallback = "") => {
+//                 const el = document.getElementById(id);
+//                 return el?.value?.trim() || fallback;
+//             };
 
-            const data = {
-                job_title: get("job_title", job.job_title || ""),
-                hiring_company: get("company_name", job.company_name || ""),
-                applicant_name: get("applicant_name", ""), // Add a field for this in your form
-                job_description: get("job_description", job.job_description || ""),
-                preferred_qualifications: get("preferred_skills", job.preferred_qualifications || ""),
-                company_culture_notes: get("company_culture_notes", job.company_culture_notes || ""),
-                github_username: get("github_username", job.github_username || ""),
-                company_url: get("company_url", job.company_url || "")
-            };
+//             const data = {
+//                 job_title: get("job_title", job.job_title || ""),
+//                 hiring_company: get("company_name", job.company_name || ""),
+//                 applicant_name: get("applicant_name", ""), // Add a field for this in your form
+//                 job_description: get("job_description", job.job_description || ""),
+//                 preferred_qualifications: get("preferred_skills", job.preferred_qualifications || ""),
+//                 company_culture_notes: get("company_culture_notes", job.company_culture_notes || ""),
+//                 github_username: get("github_username", job.github_username || ""),
+//                 company_url: get("company_url", job.company_url || "")
+//             };
 
-            console.log("✨ Prepared cover letter data:", data);
-            resolve(data);
-        });
-    });
-}
+//             console.log("✨ Prepared cover letter data:", data);
+//             resolve(data);
+//         });
+//     });
+// }
+
 
 
 // ---------------- Submit Handler ---------------- //
@@ -350,7 +351,7 @@ async function getJobDataForCoverLetter() {
                 preferred_qualifications: qualifications,
                 company_culture_notes: `${job.company_vision || ""}\n${cultureNotes}`,
                 github_username: "yashthipsay", // Hardcoded GitHub username
-				desired_tone: "fun-loving", // Hardcoded desired tone
+                desired_tone: document.getElementById("desired_tone")?.value || "professional", // Get selected tone
                 company_url: "" // Optional field
             };
 
@@ -359,7 +360,6 @@ async function getJobDataForCoverLetter() {
         });
     });
 }
-
 // Utility to show error messages
 function showError(msg) {
     alert(msg); // Or display in a UI element

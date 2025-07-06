@@ -24,7 +24,7 @@ class CoverLetterInput(BaseModel):
     company_culture_notes: Optional[str] = None  # e.g., "Innovative, collaborative, mission-driven"
     github_username: Optional[str] = None        # For enrichment if needed
     applicant_experience_level: Optional[str] = None
-    desired_tone: Optional[str] = "formal"  # e.g., "formal", "friendly"
+    desired_tone: Optional[str] = None  # e.g., "formal", "friendly"
 
 class CoverLetterOutput(BaseModel):
     cover_letter: str = Field(description="Generated cover letter text")

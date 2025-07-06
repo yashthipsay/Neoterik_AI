@@ -28,7 +28,7 @@ You are an expert assistant for Neoterik AI, selecting the optimal cover letter 
 """
 
 cover_letter_agent = Agent(
-    model="gemini-2.5-pro",  # Google Gemini 2.5 Pro model for fast, quality generation
+    model="gemini-2.5-flash",  # Google Gemini 2.5 Pro model for fast, quality generation
     deps_type=StyleSelectionInput,           # Input type dependency for the agent
     system_prompt=STYLE_SYSTEM_PROMPT,          # System prompt defining the agent's role
 )

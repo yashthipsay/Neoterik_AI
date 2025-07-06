@@ -211,7 +211,7 @@ async def parse_github_profile(username: str) -> dict:
     """
 
     try:
-        print(f"Sending prompt to LLM for GitHub user: {username}")
+        # print(f"Sending prompt to LLM for GitHub user: {username}")
         agent_result = await github_agent.run(prompt)
 
         if not isinstance(agent_result.data, str):
@@ -227,9 +227,9 @@ async def parse_github_profile(username: str) -> dict:
             cleaned_json = cleaned_json[:-len("```")].strip()
 
         # Add extra print for debugging JSON issues
-        print("--- Cleaned GitHub LLM JSON START ---")
-        print(cleaned_json)
-        print("--- Cleaned GitHub LLM JSON END ---")
+        # print("--- Cleaned GitHub LLM JSON START ---")
+        # print(cleaned_json)
+        # print("--- Cleaned GitHub LLM JSON END ---")
 
         parsed_data = json.loads(cleaned_json)
 

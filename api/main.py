@@ -168,7 +168,8 @@ async def generate_cover_letter(input: CoverLetterInput):
             "resume_highlights": "",  # You can add this to your input/model if needed
             "github_username": input.github_username or "",
             "applicant_name": input.applicant_name,
-        }
+            "desired_tone": input.desired_tone,   
+      }
     }
 
     # Build and run the workflow

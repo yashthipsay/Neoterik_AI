@@ -19,7 +19,7 @@ model = OpenAIModel(
 
 # Initialize the agent
 resume_agent = Agent(
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash",
     deps_type=str,
     system_prompt=(
         "You are a resume parsing expert. Your role is to extract and structure "
@@ -144,12 +144,12 @@ async def parse_resume_from_pdf(resume_path: Path = None) -> dict:
             
         parsed_data = json.loads(parsed_data_json_string)
 
-        print("--- RAW LLM OUTPUT START ---")
-        print(agent_result.data) # Still print the original raw output for debugging
-        print("--- RAW LLM OUTPUT END ---")
-        print("--- CLEANED JSON STRING START ---")
-        print(cleaned_json_string)
-        print("--- CLEANED JSON STRING END ---")
+        # print("--- RAW LLM OUTPUT START ---")
+        # print(agent_result.data) # Still print the original raw output for debugging
+        # print("--- RAW LLM OUTPUT END ---")
+        # print("--- CLEANED JSON STRING START ---")
+        # print(cleaned_json_string)
+        # print("--- CLEANED JSON STRING END ---")
 
         # Merge any fallback name/skills if LLM left them null/empty
         if not parsed_data.get("name") and name:

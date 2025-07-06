@@ -17,7 +17,7 @@ db = Chroma(
 
 os.environ["HF_TOKEN"] = "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"
 # === Define your query ===
-query = "Formal cover letter template for best candidate"
+query = "Biology student transitioning to data analyst career. Create a light-weight cover letter template for a resume that highlights transferable skills and relevant coursework."
 
 # === Run similarity search with metadata filter ===
 results = db.similarity_search(

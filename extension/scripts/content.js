@@ -79,30 +79,31 @@ function injectJobPageNotification() {
 		// Extract job description from the page
 		chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
 			const jobData = currentJobPage?.jobData;
-			if (jobData) {
+			try {
 				chrome.storage.local.set(
 					{ jobDescription: jobData.job_description },
 					() => {
 						chrome.runtime.sendMessage({ action: "openPopup" });
 					}
 				);
-			} else {
+			} catch (e) {
+				console.error("Error extracting job description:", e);
 				// fallback to extract directly if needed
-				chrome.runtime.sendMessage(
-					{ action: "extractJobDescription" },
-					(response) => {
-						if (response && response.success) {
-							chrome.storage.local.set(
-								{ jobDescription: response.description },
-								() => {
-									chrome.runtime.sendMessage({
-										action: "openPopup",
-									});
-								}
-							);
-						}
-					}
-				);
+				// chrome.runtime.sendMessage(
+				// 	{ action: "extractJobDescription" },
+				// 	(response) => {
+				// 		if (response && response.success) {
+				// 			chrome.storage.local.set(
+				// 				{ jobDescription: response.description },
+				// 				() => {
+				// 					chrome.runtime.sendMessage({
+				// 						action: "openPopup",
+				// 					});
+				// 				}
+				// 			);
+				// 		}
+				// 	}
+				// );
 			}
 		});
 		// Remove notification after click

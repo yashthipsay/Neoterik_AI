@@ -57,7 +57,7 @@ search_tool = TavilySearchResults(max_results=5)
 
 react_agent = create_react_agent(llm, tools=[search_tool], prompt="""
 You are a job and company research expert. Extract real info and format:
-RULES:
+Strictly follow these RULES:
 1. Extract only REAL information - no placeholders.
 2. If any field is missing or incomplete, use the search tool to retrieve that information.
 3. Avoid using \"not mentioned\" or \"not found\", \"not explicitly provided\" — instead, intelligently find from other sources.
@@ -68,7 +68,7 @@ RULES:
   <description text>
 **Company Summary:**
   <company description>
-**Preferred Qualifications:**
+**Preferred Qualifications:** Educational Qualifications and any years of Experience asked also include.
 - <qualification 1>
 - <qualification 2>
 **Skillset:**

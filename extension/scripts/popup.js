@@ -345,11 +345,11 @@ async function getJobDataForCoverLetter() {
             const data = {
                 job_title: job.job_title || "",
                 hiring_company: job.company_name || "",
-                applicant_name: "Yash Thipsay", // Hardcoded name
+                applicant_name: "Parag Purandare", // Hardcoded name
                 job_description: job.job_description || "",
                 preferred_qualifications: qualifications,
                 company_culture_notes: `${job.company_vision || ""}\n${cultureNotes}`,
-                github_username: "yashthipsay", // Hardcoded GitHub username
+                github_username: "paragpurandare", // Hardcoded GitHub username
 				desired_tone: "fun-loving", // Hardcoded desired tone
                 company_url: "" // Optional field
             };

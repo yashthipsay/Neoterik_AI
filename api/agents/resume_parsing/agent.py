@@ -10,7 +10,7 @@ load_dotenv()
 
 # Define base paths
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-SAMPLE_RESUME_PATH = BASE_DIR / "sample_resume" / "Resume-Yash-Thipsay.pdf"
+SAMPLE_RESUME_PATH = BASE_DIR / "sample_resume" / "Parag_cv.pdf"
 
 model = OpenAIModel(
     model_name='deepseek-chat',  # or whichever DeepSeek model variant you need

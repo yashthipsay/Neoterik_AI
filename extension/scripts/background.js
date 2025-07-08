@@ -1,459 +1,17 @@
-// Configuration - Update this with your actual API endpoint
+// === Configuration ===
+
 const API_BASE_URL = "http://localhost:8000";
 const EXTENSION_CALLBACK_URL = "http://localhost:3000/auth/extension-callback/";
 
-// Store currently detected job pages to avoid redundant notifications
-const detectedJobPages = new Set();
+// Used for debouncing URL checks per tab
+const checkUrlTimers = {};
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	if (request.action === "checkUrl") {
-		const tabId = sender.tab?.id;
-		if (!tabId) {
-			console.error("No tab ID found in sender");
-			sendResponse({ success: false, error: "No tab ID" });
-			return false;
-		}
-
-		// Check the URL with the API
-		checkUrlWithApi(request.url, tabId)
-			.then((isJobPage) => {
-				sendResponse({
-					success: true,
-					isJobPage: isJobPage,
-				});
-			})
-			.catch((error) => {
-				console.error("Error in URL check:", error);
-				sendResponse({
-					success: false,
-					error: error.message,
-				});
-			});
-
-		return true; // Indicates async response
-	}
-
-	// Handle request to extract job description
-	else if (request.action === "extractJobDescription") {
-		const tabId = sender.tab?.id;
-		if (!tabId) {
-			sendResponse({ success: false, error: "No tab ID" });
-			return false;
-		}
-
-		// Add new handler for auth success from content script
-		if (request.action === "authSuccess" && request.session) {
-			console.log(
-				"Background: Received auth success from content script:",
-				message.session
-			);
-
-			// Store the session data
-			chrome.storage.local.set(
-				{
-					isLoggedIn: true,
-					user: request.session.user,
-					authToken: request.session.token, // If you're passing a token
-				},
-				() => {
-					// Notify popup about login status change
-					notifyLoginStatusChanged();
-
-					// Close the auth tab if we have its ID
-					if (request.tabId) {
-						setTimeout(() => {
-							chrome.tabs
-								.remove(request.tabId)
-								.catch((err) =>
-									console.warn(
-										"Background: Failed to close callback tab:",
-										err
-									)
-								);
-						}, 2000);
-					}
-				}
-			);
-
-			sendResponse({ success: true });
-			return true;
-		}
-
-		// Execute a content script to try to extract the job description
-		chrome.scripting
-			.executeScript({
-				target: { tabId: tabId },
-				function: () => {
-					// This function runs in the context of the page
-					function findJobDescription() {
-						console.log(
-							"Attempting to find 'Additional Information' or 'Cover Letter' sections..."
-						);
-
-						// Look for headings or labels containing the target phrases
-						const potentialLabels = Array.from(
-							document.querySelectorAll(
-								"h1, h2, h3, h4, h5, h6, strong, b, label, dt, .form-label"
-							)
-						);
-						let foundText = null;
-
-						for (const labelElement of potentialLabels) {
-							const labelText = labelElement.textContent.trim();
-
-							if (
-								/additional information|cover letter/i.test(
-									labelText
-								)
-							) {
-								console.log(
-									"Found potential label:",
-									labelText,
-									labelElement
-								);
-
-								// Try to get text from the next sibling element
-								let nextElement =
-									labelElement.nextElementSibling;
-								if (
-									nextElement &&
-									nextElement.textContent.trim().length > 50
-								) {
-									console.log(
-										"Found text in next sibling:",
-										nextElement.textContent.trim()
-									);
-									foundText = nextElement.textContent.trim();
-									break; // Stop searching once found
-								}
-
-								// If next sibling didn't work, try the parent's next sibling (common in definition lists dt/dd)
-								if (!foundText && labelElement.parentElement) {
-									nextElement =
-										labelElement.parentElement
-											.nextElementSibling;
-									if (
-										nextElement &&
-										nextElement.textContent.trim().length >
-											50
-									) {
-										console.log(
-											"Found text in parent's next sibling:",
-											nextElement.textContent.trim()
-										);
-										foundText =
-											nextElement.textContent.trim();
-										break;
-									}
-								}
-
-								// If still not found, try finding a nearby textarea or content div
-								// This is more complex and might need refinement based on common structures
-								let parent = labelElement.parentElement;
-								let attempts = 0;
-								while (parent && attempts < 3) {
-									const nearbyTextarea =
-										parent.querySelector("textarea");
-									if (
-										nearbyTextarea &&
-										nearbyTextarea.value.trim().length > 50
-									) {
-										console.log(
-											"Found text in nearby textarea:",
-											nearbyTextarea.value.trim()
-										);
-										foundText = nearbyTextarea.value.trim();
-										break;
-									}
-									const nearbyDiv = parent.querySelector(
-										'div[class*="content"], div[class*="description"], div.ProseMirror'
-									); // Common rich text editor class
-									if (
-										nearbyDiv &&
-										nearbyDiv.textContent.trim().length > 50
-									) {
-										console.log(
-											"Found text in nearby content div:",
-											nearbyDiv.textContent.trim()
-										);
-										foundText =
-											nearbyDiv.textContent.trim();
-										break;
-									}
-									parent = parent.parentElement;
-									attempts++;
-								}
-								if (foundText) break;
-							}
-						}
-
-						if (foundText) {
-							return foundText;
-						}
-
-						console.log(
-							"Specific sections not found, falling back to body text."
-						);
-						// Fallback: return the body text if specific sections aren't found
-						return document.body.innerText.substring(0, 5000);
-					}
-
-					return findJobDescription();
-				},
-			})
-			.then((results) => {
-				if (results && results[0] && results[0].result) {
-					sendResponse({
-						success: true,
-						description: results[0].result,
-					});
-				} else {
-					sendResponse({
-						success: false,
-						error: "No job description found",
-					});
-				}
-			})
-			.catch((error) => {
-				console.error("Error extracting job description:", error);
-				sendResponse({
-					success: false,
-					error: error.message,
-				});
-			});
-
-		return true; // Indicates async response
-	}
-});
-
-// Check URL when tab is updated
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	// Log all status changes for debugging
-	// console.log(`Tab ${tabId} updated: Status=${changeInfo.status}, URL=${tab.url}`);
-
-	// --- Handle Auth Callback ---
-	// Use 'complete' status and check URL prefix
-	if (
-		changeInfo.status === "complete" &&
-		tab.url.includes("/auth/extension-callback/")
-	) {
-		handleAuthCallback(tabId, tab.url);
-		return; // Don't process further if it's the callback URL
-	}
-
-	// --- Handle Job Page Check ---
-	// Only check if the page has finished loading, has a valid HTTP/S URL,
-	// is not an extension page, and is not the callback URL.
-	if (
-		changeInfo.status === "complete" &&
-		tab.url &&
-		tab.url.includes("/auth/extension-callback")
-	) {
-		// Inject a content script to listen for the postMessage
-		chrome.scripting
-			.executeScript({
-				target: { tabId },
-				function: function () {
-					// This runs in the page context
-					window.addEventListener(
-						"message",
-						function (event) {
-							// In production, check event.origin
-							if (
-								event.data &&
-								event.data.type === "EXTENSION_AUTH_SUCCESS"
-							) {
-								// Forward the message to the background script
-								chrome.runtime.sendMessage({
-									action: "authSuccess",
-									session: event.data.session,
-									tabId: chrome.devtools
-										? null
-										: chrome.devtools.inspectedWindow.tabId,
-								});
-							}
-						},
-						false
-					);
-
-					// Also set up a MutationObserver to detect title changes
-					const observer = new MutationObserver((mutations) => {
-						if (document.title === "AUTH_SUCCESS") {
-							chrome.runtime.sendMessage({
-								action: "authTitleDetected",
-								tabId: chrome.devtools
-									? null
-									: chrome.devtools.inspectedWindow.tabId,
-							});
-						}
-					});
-
-					observer.observe(document.querySelector("title"), {
-						subtree: true,
-						characterData: true,
-						childList: true,
-					});
-				},
-			})
-			.catch((err) =>
-				console.error("Error injecting auth listener script:", err)
-			);
-	}
-});
-
-// Clear badge when tab is removed
-chrome.tabs.onRemoved.addListener((tabId) => {
-	chrome.action.setBadgeText({ text: "", tabId: tabId });
-});
-
-// Function to check if URL is a job application page via the API
-async function checkUrlWithApi(url, tabId) {
-	try {
-		console.log("Checking URL with API:", url);
-
-		const response = await fetch(`${API_BASE_URL}/check-url`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ url }),
-		});
-
-		const data = await response.json();
-		console.log("🔍 Graph API Response:", data);
-
-		if (data.is_job_application && data.parsed_output) {
-			            console.log("[checkUrlWithApi] ✅ check-url endpoint succeeded for:", url);
-			// ✅ Store parsed job info for popup or auto-fill
-			chrome.storage.local.set({
-				currentJobPage: {
-					url: url,
-					detected: Date.now(),
-					jobData: data.parsed_output,
-				},
-			});
-
-			// ✅ Show job badge
-			chrome.action.setBadgeText({ text: "JOB", tabId: tabId });
-			chrome.action.setBadgeBackgroundColor({
-				color: "#419D78",
-				tabId: tabId,
-			});
-
-			return true;
-		} else {
-console.log("[checkUrlWithApi] ❌ check-url endpoint did not detect a job page for:", url);
-			// ❌ Not a job page (or failed), clear badge
-			chrome.action.setBadgeText({ text: "", tabId: tabId });
-			return false;
-		}
-	} catch (error) {
-		console.error("❌ API fallback error:", error);
-
-		// 🔁 Fallback to legacy job pattern detection
-console.log("[checkUrlWithApi] ⚠️ Falling back to legacy job board pattern detection for:", url);
-		const KNOWN_JOB_BOARD_PATTERNS = [
-			/job-boards\.greenhouse\.io\/.+\/jobs\/\d+/,
-			/jobs\.lever\.co\/.+\/\d+/,
-			/boards\.greenhouse\.io\/.+\/#application_form/,
-			/apply\.workable\.com\/.+\/j\/.+/,
-			/jobs\.ashbyhq\.com\/.+\/.+/,
-			/careers\.smartrecruiters\.com\/.+\/job\/.+/,
-			/workday\..+\/careers\/.+\/job\/.+/,
-			/linkedin\.com\/jobs\/view\/.+/,
-			/indeed\.com\/.+\/viewjob/,
-			/wellfound\.com\/jobs\/.+/,
-		];
-
-		const isLegacyMatch = KNOWN_JOB_BOARD_PATTERNS.some((p) => p.test(url));
-
-		if (isLegacyMatch) {
-	console.log("[checkUrlWithApi] 🟡 Legacy pattern matched for:", url);
-			chrome.action.setBadgeText({ text: "JOB", tabId: tabId });
-			chrome.action.setBadgeBackgroundColor({
-				color: "#777",
-				tabId: tabId,
-			});
-
-			chrome.storage.local.set({
-				currentJobPage: {
-					url: url,
-					detected: Date.now(),
-					jobData: null, // Legacy match, no graph data
-				},
-			});
-
-			return true;
-		}
-		console.log("[checkUrlWithApi] ⛔️ No legacy pattern match for:", url);
-        return false;
-	}
-}
-
-// async function checkUrlWithApi(url, tabId) {
-// 	try {
-// 		console.log("Checking URL with API:", url);
-
-// 		const response = await fetch(`${API_BASE_URL}/check-url`, {
-// 			method: "POST",
-// 			headers: {
-// 				"Content-Type": "application/json",
-// 			},
-// 			body: JSON.stringify({ url }),
-// 		});
-
-// 		if (!response.ok) {
-// 			throw new Error(
-// 				`API request failed with status ${response.status}`
-// 			);
-// 		}
-
-// 		const data = await response.json();
-// 		console.log("API Response:", data);
-
-// 		// If it's a job application page, update the extension UI
-// 		if (data.is_job_application) {
-// 			// Set badge on the extension icon
-// 			chrome.action.setBadgeText({
-// 				text: "JOB",
-// 				tabId: tabId,
-// 			});
-// 			chrome.action.setBadgeBackgroundColor({
-// 				color: "#419D78",
-// 				tabId: tabId,
-// 			});
-
-// 			// Store this URL as detected
-// 			detectedJobPages.add(url);
-
-// 			// Store job URL in local storage for the popup
-// 			chrome.storage.local.set({
-// 				currentJobPage: {
-// 					url: url,
-// 					detected: Date.now(),
-// 				},
-// 			});
-
-// 			return true;
-// 		} else {
-// 			// Clear badge if not a job page
-// 			chrome.action.setBadgeText({ text: "", tabId: tabId });
-// 			return false;
-// 		}
-// 	} catch (error) {
-// 		console.error("Error checking URL with API:", error);
-// 		return false;
-// 	}
-// }
-
-// --- Function to handle sending login status change message ---
+// === Utility: Notify popup of login ===
 function notifyLoginStatusChanged() {
 	chrome.runtime
 		.sendMessage({ action: "loginStatusChanged" })
 		.catch((error) => {
-			if (error.message.includes("Could not establish connection")) {
-				console.log(
-					"Background: Popup not open, message not sent (this is expected)."
-				);
-			} else {
+			if (!error.message.includes("Could not establish connection")) {
 				console.error(
 					"Background: Error sending login status message:",
 					error
@@ -462,26 +20,13 @@ function notifyLoginStatusChanged() {
 		});
 }
 
-// Track which tabs we've already handled for auth
+// === Auth Callback Handler ===
 const handledAuthTabs = new Set();
-
-// --- Function to process the authentication callback ---
 async function handleAuthCallback(tabId, url) {
-	if (handledAuthTabs.has(tabId)) {
-		// Already handled, don't process again
-		return;
-	}
+	if (handledAuthTabs.has(tabId)) return;
 	handledAuthTabs.add(tabId);
 
-	console.log(
-		"Background: Handling auth callback for tab",
-		tabId,
-		"URL:",
-		url
-	);
-
 	try {
-		// Fetch the actual session data
 		const response = await fetch("http://localhost:3000/api/auth/session", {
 			method: "GET",
 			headers: { Accept: "application/json" },
@@ -490,252 +35,498 @@ async function handleAuthCallback(tabId, url) {
 
 		if (response.ok) {
 			const session = await response.json();
-			console.log("Background: Session data received:", session);
-
 			if (session && session.user) {
 				await chrome.storage.local.set({
 					isLoggedIn: true,
 					user: session.user,
 				});
-
+				console.log("🔑 Session result from server:", session);
 				notifyLoginStatusChanged();
-
-				// Close the tab after a short delay
 				setTimeout(() => {
 					chrome.tabs.remove(tabId).catch((err) => {
-						console.warn(
-							"Background: Failed to close callback tab:",
-							err
-						);
+						if (
+							err &&
+							err.message &&
+							err.message.includes("No tab with id")
+						) {
+							// Silently ignore this error
+							return;
+						}
+						// Log other errors
+						console.warn("chrome.tabs.remove error:", err);
 					});
 				}, 1000);
-
-				return;
 			}
+		} else {
+			console.error("Auth callback failed to fetch session");
 		}
-
-		console.error("Background: Failed to fetch or parse session");
 	} catch (error) {
-		console.error("Background: Error during auth callback:", error);
+		console.error("Error during auth callback:", error);
 	}
 }
 
-// Listen for messages from content scripts
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	if (request.action === "checkUrl") {
-		const tabId = sender.tab?.id;
-		if (!tabId) {
-			console.error("No tab ID found in sender");
-			sendResponse({ success: false, error: "No tab ID" });
+function shouldProceedWithDetection(url, callback) {
+	chrome.storage.local.get("jobSession", (data) => {
+		const session = data.jobSession;
+		if (
+			session?.isLocked &&
+			session?.jobUrl === url &&
+			(session?.isGeneratingCoverLetter === true ||
+				session?.isCoverLetterGenerated===false)
+		) {
+			console.warn("🔒 Detection blocked due to locked session.");
+			return callback(false);
+		}
+		callback(true);
+	});
+}
+
+// === Core Job Page Detection ===
+// Track cleanup timeouts per session
+let sessionCleanupTimeout = null;
+
+async function checkUrlWithApi(url, tabId) {
+	try {
+		const response = await fetch(`${API_BASE_URL}/check-url`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ url }),
+		});
+
+		if (!response.ok) throw new Error(`Status ${response.status}`);
+
+		const data = await response.json();
+		if (data.is_job_application) {
+			chrome.action.setBadgeText({ text: "JOB", tabId });
+			chrome.action.setBadgeBackgroundColor({ color: "#419D78", tabId });
+
+			await chrome.storage.local.set({
+				jobSession: {
+					jobUrl: url,
+					isJobDetected: true,
+					isAgentInProgress: false,
+					isAgentFinished: false,
+					isLocked: false,
+					isCoverLetterGenerated: false,
+					coverLetterError: null,
+					isUserConfirmed: null,
+					timestamp: Date.now(),
+				},
+				currentJobPage: {
+					url,
+					detected: Date.now(),
+					detectedFrom: "check-url",
+					jobData: data?.parsed_output || null,
+				},
+			});
+			// Clear any previous cleanup timeout if new job detected
+			if (sessionCleanupTimeout) {
+				clearTimeout(sessionCleanupTimeout);
+				sessionCleanupTimeout = null;
+			}
+
+			return true;
+		} else {
+			chrome.action.setBadgeText({ text: "", tabId });
 			return false;
 		}
+	} catch (error) {
+		console.error("Error checking URL with API:", error);
+		return false;
+	}
+}
 
-		// Check the URL with the API
-		checkUrlWithApi(request.url, tabId)
-			.then((isJobPage) => {
-				sendResponse({
-					success: true,
-					isJobPage: isJobPage,
-				});
-			})
-			.catch((error) => {
-				console.error("Error in URL check:", error);
-				sendResponse({
-					success: false,
-					error: error.message,
-				});
+async function handleGenerateCoverLetter(data) {
+	// Set flag in storage
+	const { jobSession, currentJobPage } = await chrome.storage.local.get(["jobSession", "currentJobPage"]);
+	await chrome.storage.local.set({
+		jobSession: {
+			...jobSession,
+			isCoverLetterGenerating: true,
+			isCoverLetterGenerated: false,
+			coverLetterError: null,
+		},
+	});
+	try {
+		const res = await fetch(`${API_BASE_URL}/generate-cover-letter`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(data),
+		});
+		const result = await res.json();
+		if (res.ok && result.cover_letter) {
+			await chrome.storage.local.set({
+				jobSession: {
+					jobUrl: jobSession.jobUrl,
+					isJobDetected: false,
+					isAgentInProgress: false,
+					isAgentFinished: false,
+					isLocked: false,
+					isCoverLetterGenerated: true,
+					isCoverLetterGenerating: false,
+					isUserConfirmed: null,
+					coverLetter: result.cover_letter,
+					coverLetterError: null,
+					timestamp: Date.now(),
+				},
+				currentJobPage: {
+					...(currentJobPage || {}),
+					coverLetter: result.cover_letter,
+				},
 			});
+			chrome.runtime.sendMessage({
+				action: "coverLetterGenerated",
+				coverLetter: result.cover_letter,
+			});
+			
+		} else {
+			await chrome.storage.local.set({
+				jobSession: {
+					...jobSession,
+					isLocked: false,
+					isCoverLetterGenerating: false,
+					isCoverLetterGenerated: false,
+					coverLetterError:
+						result.error || "Failed to generate cover letter",
+				},
+			});
+			chrome.runtime.sendMessage({
+				action: "coverLetterError",
+				error: result.error || "Failed to generate cover letter",
+			});
+		}
+	} catch (err) {
+		await chrome.storage.local.set({
+			jobSession: {
+				...jobSession,
+				isLocked: false,
+				isCoverLetterGenerating: false,
+				isCoverLetterGenerated: false,
+				coverLetterError: err.message || "Network error",
+			},
+		});
+		chrome.runtime.sendMessage({
+			action: "coverLetterError",
+			error: err.message || "Network error",
+		});
+	}
+}
 
-		return true; // Indicates async response
+// Add a global flag for agent running
+let isAgentRunning = false;
+
+// === Content Script Communication ===
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+	if (request.action === "generateCoverLetter") {
+		console.log("[Background] Received generateCoverLetter message");
+		handleGenerateCoverLetter(request.data);
+		return true;
 	}
 
-	// Handle request to extract job description
-	else if (request.action === "extractJobDescription") {
-		const tabId = sender.tab?.id;
-		if (!tabId) {
-			sendResponse({ success: false, error: "No tab ID" });
-			return false;
-		}
+	const tabId = sender.tab?.id;
 
-		// Execute a content script to try to extract the job description
+	if (!tabId) {
+		sendResponse({ success: false, error: "No tab ID" });
+		return false;
+	}
+
+	if (request.action === "checkUrl") {
+		shouldProceedWithDetection(request.url, (canProceed) => {
+			if (!canProceed)
+				return sendResponse({ success: false, blocked: true });
+
+			checkUrlWithApi(request.url, tabId)
+				.then((isJobPage) => sendResponse({ success: true, isJobPage }))
+				.catch((error) =>
+					sendResponse({ success: false, error: error.message })
+				);
+		});
+		return true;
+	}
+
+	if (request.action === "shouldInjectBanner") {
+		shouldProceedWithDetection(request.url, (canProceed) => {
+			sendResponse({ allow: canProceed });
+		});
+		return true;
+	}
+
+	if (request.action === "run_job_agent") {
+		if (isAgentRunning) {
+			sendResponse({ success: false, error: "Agent already running" });
+			return true;
+		}
+		isAgentRunning = true;
+		chrome.storage.local.get(
+			["jobSession", "currentJobPage"],
+			async (data) => {
+				let session = data.jobSession;
+				// If session is missing or jobUrl is missing, try to recover from currentJobPage
+				if (!session || !session.jobUrl) {
+					if (data.currentJobPage && data.currentJobPage.url) {
+						// Recreate jobSession from currentJobPage
+						session = {
+							jobUrl: data.currentJobPage.url,
+							isJobDetected: true,
+							isAgentInProgress: false,
+							isAgentFinished: false,
+							isLocked: false,
+							isCoverLetterGenerated: false,
+							isUserConfirmed: null,
+							timestamp: Date.now(),
+						};
+						await chrome.storage.local.set({ jobSession: session });
+						console.warn(
+							"[Background] Recovered jobSession from currentJobPage."
+						);
+					} else {
+						console.error(
+							"[Background] No jobSession or currentJobPage found. Cannot start agent."
+						);
+						chrome.runtime.sendMessage({
+							action: "agentError",
+							error: "No job detected. Please refresh the page and try again.",
+						});
+						isAgentRunning = false;
+						return;
+					}
+				}
+
+				// Set progress state
+				await chrome.storage.local.set({
+					jobSession: {
+						...session,
+						isAgentInProgress: true,
+						isAgentFinished: false,
+					},
+				});
+				console.log("[Background] Starting agent for:", session.jobUrl);
+
+				try {
+					// Log the URL being sent to the agent
+					console.log(
+						"[Background] Calling /run-agent with URL:",
+						session.jobUrl
+					);
+					const response = await fetch(`${API_BASE_URL}/run-agent`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ url: session.jobUrl }),
+					});
+					const result = await response.json();
+					// Log the result
+					console.log("[Background] Agent API response:", result);
+
+					// Validate result: must be a non-empty object with at least job_title or company_name
+					const isValidResult =
+						result &&
+						(result.job_title ||
+							result.company_name ||
+							Object.keys(result).length > 0);
+					if (response.ok && isValidResult) {
+						await chrome.storage.local.set({
+							currentJobPage: {
+								url: session.jobUrl,
+								detected: Date.now(),
+								jobData: result,
+							},
+							jobSession: {
+								...session,
+								isAgentInProgress: false,
+								isAgentFinished: true,
+								isLocked: true,
+							},
+						});
+						// Remind to complete job after 5 minutes if not completed
+						if (sessionCleanupTimeout) {
+							clearTimeout(sessionCleanupTimeout);
+							sessionCleanupTimeout = null;
+						}
+						sessionCleanupTimeout = setTimeout(async () => {
+							const { jobSession } =
+								await chrome.storage.local.get("jobSession");
+							if (
+								jobSession?.isLocked &&
+								!jobSession?.isCoverLetterGenerated
+							) {
+								chrome.notifications.create({
+									type: "basic",
+									iconUrl: "icons/icon128.png",
+									title: "⏳ You left a job incomplete",
+									message:
+										"You started generating a cover letter. Please complete or skip.",
+									priority: 2,
+								});
+								// After notification, clear session/job data and unlock detection
+								await chrome.storage.local.remove([
+									"jobSession",
+									"currentJobPage",
+								]);
+							}
+							sessionCleanupTimeout = null;
+						}, 5 * 60 * 1000); // 5 minutes
+						chrome.runtime.sendMessage({ action: "agentFinished" });
+						isAgentRunning = false;
+					} else {
+						// If result is invalid, log and show error
+						console.error(
+							"[Background] Agent returned invalid/empty result:",
+							result
+						);
+						await chrome.storage.local.set({
+							jobSession: {
+								...session,
+								isAgentInProgress: false,
+								isAgentFinished: false,
+								isLocked: false,
+								agentError:
+									result?.error ||
+									"Agent returned no data. Please try again or check the job page.",
+							},
+						});
+						chrome.runtime.sendMessage({
+							action: "agentError",
+							error:
+								result?.error ||
+								"Agent returned no data. Please try again or check the job page.",
+						});
+						isAgentRunning = false;
+						return;
+					}
+				} catch (err) {
+					await chrome.storage.local.set({
+						jobSession: {
+							...session,
+							isLocked: false,
+							isAgentInProgress: false,
+							isAgentFinished: false,
+							agentError: err.message || "Agent error",
+						},
+					});
+					console.error("[Background] Agent network/error:", err);
+					isAgentRunning = false;
+				}
+			}
+		);
+		return true;
+	}
+
+	if (request.action === "extractJobDescription") {
 		chrome.scripting
 			.executeScript({
-				target: { tabId: tabId },
+				target: { tabId },
 				function: () => {
-					// This function runs in the context of the page
 					function findJobDescription() {
-						console.log(
-							"Attempting to find 'Additional Information' or 'Cover Letter' sections..."
-						);
-
-						// Look for headings or labels containing the target phrases
 						const potentialLabels = Array.from(
 							document.querySelectorAll(
 								"h1, h2, h3, h4, h5, h6, strong, b, label, dt, .form-label"
 							)
 						);
-						let foundText = null;
-
-						for (const labelElement of potentialLabels) {
-							const labelText = labelElement.textContent.trim();
-
+						for (const label of potentialLabels) {
+							const text = label.textContent.trim();
 							if (
 								/additional information|cover letter/i.test(
-									labelText
+									text
 								)
 							) {
-								console.log(
-									"Found potential label:",
-									labelText,
-									labelElement
-								);
+								let next =
+									label.nextElementSibling ||
+									label.parentElement?.nextElementSibling;
+								if (next && next.textContent.trim().length > 50)
+									return next.textContent.trim();
 
-								// Try to get text from the next sibling element
-								let nextElement =
-									labelElement.nextElementSibling;
-								if (
-									nextElement &&
-									nextElement.textContent.trim().length > 50
+								let parent = label.parentElement;
+								for (
+									let i = 0;
+									i < 3 && parent;
+									i++, parent = parent.parentElement
 								) {
-									console.log(
-										"Found text in next sibling:",
-										nextElement.textContent.trim()
-									);
-									foundText = nextElement.textContent.trim();
-									break; // Stop searching once found
-								}
-
-								// If next sibling didn't work, try the parent's next sibling (common in definition lists dt/dd)
-								if (!foundText && labelElement.parentElement) {
-									nextElement =
-										labelElement.parentElement
-											.nextElementSibling;
-									if (
-										nextElement &&
-										nextElement.textContent.trim().length >
-											50
-									) {
-										console.log(
-											"Found text in parent's next sibling:",
-											nextElement.textContent.trim()
-										);
-										foundText =
-											nextElement.textContent.trim();
-										break;
-									}
-								}
-
-								// If still not found, try finding a nearby textarea or content div
-								// This is more complex and might need refinement based on common structures
-								let parent = labelElement.parentElement;
-								let attempts = 0;
-								while (parent && attempts < 3) {
-									const nearbyTextarea =
+									const textarea =
 										parent.querySelector("textarea");
-									if (
-										nearbyTextarea &&
-										nearbyTextarea.value.trim().length > 50
-									) {
-										console.log(
-											"Found text in nearby textarea:",
-											nearbyTextarea.value.trim()
-										);
-										foundText = nearbyTextarea.value.trim();
-										break;
-									}
-									const nearbyDiv = parent.querySelector(
-										'div[class*="content"], div[class*="description"], div.ProseMirror'
-									); // Common rich text editor class
-									if (
-										nearbyDiv &&
-										nearbyDiv.textContent.trim().length > 50
-									) {
-										console.log(
-											"Found text in nearby content div:",
-											nearbyDiv.textContent.trim()
-										);
-										foundText =
-											nearbyDiv.textContent.trim();
-										break;
-									}
-									parent = parent.parentElement;
-									attempts++;
+									if (textarea?.value.trim().length > 50)
+										return textarea.value.trim();
+									const div = parent.querySelector(
+										"div[class*='content'], div[class*='description'], div.ProseMirror"
+									);
+									if (div?.textContent.trim().length > 50)
+										return div.textContent.trim();
 								}
-								if (foundText) break;
 							}
 						}
-
-						if (foundText) {
-							return foundText;
-						}
-
-						console.log(
-							"Specific sections not found, falling back to body text."
-						);
-						// Fallback: return the body text if specific sections aren't found
 						return document.body.innerText.substring(0, 5000);
 					}
-
 					return findJobDescription();
 				},
 			})
 			.then((results) => {
-				if (results && results[0] && results[0].result) {
-					sendResponse({
-						success: true,
-						description: results[0].result,
-					});
-				} else {
-					sendResponse({
-						success: false,
-						error: "No job description found",
-					});
-				}
-			})
-			.catch((error) => {
-				console.error("Error extracting job description:", error);
 				sendResponse({
-					success: false,
-					error: error.message,
+					success: true,
+					description: results?.[0]?.result || null,
 				});
+			})
+			.catch((err) => {
+				sendResponse({ success: false, error: err.message });
 			});
+		return true;
+	}
 
-		return true; // Indicates async response
+
+	if (request.action === "authSuccess" && request.session) {
+		chrome.storage.local.set(
+			{
+				isLoggedIn: true,
+				user: request.session.user,
+				authToken: request.session.token,
+			},
+			() => {
+				notifyLoginStatusChanged();
+				if (request.tabId) {
+					setTimeout(() => {
+						chrome.tabs.remove(request.tabId).catch((err) => {
+							if (
+								err &&
+								err.message &&
+								err.message.includes("No tab with id")
+							) {
+								// Silently ignore this error
+								return;
+							}
+							// Log other errors
+							console.warn("chrome.tabs.remove error:", err);
+						});
+					}, 2000);
+				}
+			}
+		);
+		sendResponse({ success: true });
+		return true;
 	}
 });
 
-// Check URL when tab is updated
+// === Tab Updates ===
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	// Log all status changes for debugging
-	// console.log(`Tab ${tabId} updated: Status=${changeInfo.status}, URL=${tab.url}`);
+	if (changeInfo.status !== "complete" || !tab.url) return;
 
-	// --- Handle Auth Callback ---
-	// Use 'complete' status and check URL prefix
-	if (
-		changeInfo.status === "complete" &&
-		tab.url &&
-		tab.url.includes("/auth/extension-callback/")
-	) {
+	if (tab.url.includes("/auth/extension-callback/")) {
 		handleAuthCallback(tabId, tab.url);
 		return;
 	}
 
-	// --- Handle Job Page Check ---
-	// Only check if the page has finished loading, has a valid HTTP/S URL,
-	// is not an extension page, and is not the callback URL.
 	if (
-		changeInfo.status === "complete" &&
-		tab.url &&
-		tab.url.startsWith("http") && // Covers http and https
+		tab.url.startsWith("http") &&
 		!tab.url.startsWith("chrome-extension://") &&
 		!tab.url.startsWith(EXTENSION_CALLBACK_URL)
-	) {
-		// console.log(`Checking job status for completed tab ${tabId}: ${tab.url}`); // Optional logging
-		checkUrlWithApi(tab.url, tabId);
-	}
+	)
+		if (checkUrlTimers[tabId]) clearTimeout(checkUrlTimers[tabId]);
+	checkUrlTimers[tabId] = setTimeout(() => {
+		shouldProceedWithDetection(tab.url, (canProceed) => {
+			if (canProceed) checkUrlWithApi(tab.url, tabId);
+		});
+	}, 1500); // Add 1.5s debounce
 });
 
-// Clear badge when tab is removed
+// === Tab Removed Cleanup ===
 chrome.tabs.onRemoved.addListener((tabId) => {
-	chrome.action.setBadgeText({ text: "", tabId: tabId });
+	chrome.action.setBadgeText({ text: "", tabId });
 });

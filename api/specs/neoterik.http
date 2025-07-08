@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ### Parse URL
 
-POST http://localhost:8000/check-url
+POST http://localhost:8000/run-agent
 Content-Type: application/json
 
 {

@@ -1,0 +1,18 @@
+{
+  "company_name": "LayerZero Labs",
+  "job_title": "Backend Engineer",
+  "job_description": "We're seeking a talented Backend Engineer to join our team at LayerZero, where you'll play a pivotal role in revolutionizing blockchain interoperability and shaping the future of decentralized applications. As a Backend Engineer, you'll spearhead the development of robust and scalable backend systems that power our web3 technologies.",
+  "company_summary": "LayerZero Labs is a blockchain messaging protocol developer that allows decentralized applications to build across multiple blockchains. It is an omnichain interoperability protocol that unites decentralized applications. Founded in 2021 by Bryan Pellegrino, Caleb Banister, and Ryan Zarick, the company is based in Vancouver, Canada, and has raised $318M in funding from investors like a16z, Sequoia Capital, and Christie's, with a current valuation of $3B.",
+  "preferred_qualifications": [
+    "Experience working with workflow engines.",
+    "Previous experience with blockchain technologies, smart contracts, and decentralized finance is a strong plus."
+  ],
+  "skillset": [
+    "Backend system development",
+    "Blockchain technology",
+    "Web3 technologies",
+    "Decentralized applications"
+  ],
+  "company_vision": "LayerZero Labs is building LayerZero, an omnichain interoperability protocol, with the vision to revolutionize blockchain interoperability and shape the future of decentralized applications. They aim to drive the adoption of LayerZero within DeFi protocols, foster key partnerships, and remain at the forefront of cross-chain DeFi innovation.",
+  "additional_notes": "LayerZero Labs is committed to fostering a diverse and inclusive workplace and is an equal opportunity employer. They do not discriminate on the basis of race, national origin, religion, gender, gender identity, sexual orientation, marital status, protected veteran status, disability, age, or any other legally protected status. The role of Technical Recruiter is based full-time in their Vancouver, BC office, however, other roles like Head of DeFi Business Development, Global Mobility Specialist, and Social Media Manager are remote."
+}

@@ -1,473 +1,393 @@
-// Enhanced popup script with modern UI interactions
-document.addEventListener("DOMContentLoaded", function () {
-	console.log("Enhanced popup DOM loaded.");
+// popup.js - Cleaned and Enhanced
 
-	// Initialize UI state
+document.addEventListener("DOMContentLoaded", () => {
+	console.log("✅ Popup loaded");
 	initializeUI();
 	setupEventListeners();
-	checkAuthState();
-	populateFieldsFromGraph();
+	setUIFromStorage();
 });
 
 function initializeUI() {
-	// Set up tab navigation
-	const tabButtons = document.querySelectorAll(".tab-btn");
-	const tabContents = document.querySelectorAll('[id$="-tab"]');
-
-	tabButtons.forEach((button) => {
-		button.addEventListener("click", () => {
-			const tabId = button.dataset.tab;
-			switchTab(tabId);
-		});
+	document.querySelectorAll(".tab-btn").forEach((btn) => {
+		btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 	});
+}
+
+// Add global flags for agent and cover letter generation
+let isAgentRunning = false;
+let isGeneratingCoverLetter = false;
+
+function setAgentProgressState(running, message = "") {
+	const agentProgress = document.getElementById("agent-progress-container");
+	if (agentProgress) {
+		agentProgress.classList.toggle("hidden", !running);
+		const agentStatus = document.getElementById("agent-progress-status");
+		if (agentStatus) agentStatus.textContent = running ? message : "";
+	}
+	isAgentRunning = running;
+}
+
+function setLoadingState(loading, message = "") {
+	const progressContainer = document.getElementById("progress-container");
+	if (progressContainer)
+		progressContainer.classList.toggle("hidden", !loading);
+	document.getElementById("generate-btn-text").textContent = loading
+		? "Generating..."
+		: "Generate Cover Letter";
+	document
+		.getElementById("generate-btn-spinner")
+		?.classList.toggle("hidden", !loading);
+	const status = document.getElementById("status-message");
+	if (status) status.textContent = loading ? message : "";
+	isGeneratingCoverLetter = loading;
+	const generateBtn = document.getElementById("generate-btn");
+	if (generateBtn) generateBtn.disabled = loading;
+	// Hide status/progress if agent is running
+	if (isAgentRunning && !loading) {
+		if (progressContainer) progressContainer.classList.add("hidden");
+		if (status) status.textContent = "";
+	}
 }
 
 function setupEventListeners() {
-	// Sign out button
-	const signoutButton = document.getElementById("signout-btn");
-	if (signoutButton) {
-		signoutButton.addEventListener("click", handleSignOut);
-	}
+	document
+		.getElementById("signout-btn")
+		?.addEventListener("click", handleSignOut);
+	document
+		.getElementById("cover-letter-form")
+		?.addEventListener("submit", handleGenerateCoverLetter);
+	document
+		.getElementById("signin-btn-header")
+		?.addEventListener("click", handleSignIn);
+	document
+		.getElementById("signin-btn-welcome")
+		?.addEventListener("click", handleSignIn);
+	document
+		.getElementById("do-something-link")
+		?.addEventListener("click", doSomething);
 
-	// Cover letter form
-const coverLetterForm = document.getElementById("cover-letter-form");
-if (coverLetterForm) {
-    coverLetterForm.addEventListener("submit", handleGenerateCoverLetter);
-}
-
-	const signinBtnHeader = document.getElementById("signin-btn-header");
-	if (signinBtnHeader) {
-		signinBtnHeader.addEventListener("click", handleSignIn);
-	}
-	const signinBtnWelcome = document.getElementById("signin-btn-welcome");
-	if (signinBtnWelcome) {
-		signinBtnWelcome.addEventListener("click", handleSignIn);
-	}
-
-	// filepath: extension/scripts/popup.js
-	const doSomethingLink = document.getElementById("do-something-link");
-	if (doSomethingLink) {
-		doSomethingLink.addEventListener("click", doSomething);
-	}
-
-	// Listen for storage changes
 	chrome.storage.onChanged.addListener((changes, area) => {
+		if (
+			area === "local" &&
+			(changes.jobSession ||
+				changes.currentJobPage ||
+				changes.isLoggedIn ||
+				changes.user)
+		) {
+			setUIFromStorage();
+			const jobSession = changes.jobSession?.newValue;
+			if (jobSession?.agentError) {
+				showError(jobSession.agentError);
+				setLoadingState(false, "");
+			}
+			if (jobSession?.isLocked && !jobSession?.isCoverLetterGenerated) {
+				window.sessionStorage.setItem("neoterik-locked-alert", "1");
+			} else {
+				window.sessionStorage.removeItem("neoterik-locked-alert");
+			}
+		}
 		if (area === "local" && (changes.isLoggedIn || changes.user)) {
-			checkAuthState();
+			const isLoggedIn = changes.isLoggedIn?.newValue;
+			const user = changes.user?.newValue;
+			updateUI(!!isLoggedIn, user);
 		}
 	});
-
-	// Listen for messages from background script
-	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (window.sessionStorage.getItem("neoterik-locked-alert") === "1") {
+		alert(
+			"You have already started generating a cover letter for this job. Please complete or skip before starting a new one."
+		);
+		window.sessionStorage.removeItem("neoterik-locked-alert");
+	}
+	chrome.runtime.onMessage.addListener((message) => {
 		if (message.action === "loginStatusChanged") {
-			checkAuthState();
+			chrome.storage.local.get(["isLoggedIn", "user"], (data) => {
+				updateUI(data.isLoggedIn, data.user);
+			});
+		}
+		if (message.action === "coverLetterGenerated") {
+			showCoverLetterPreview(message.coverLetter);
+			switchTab("preview");
+			setLoadingState(false, "");
+		}
+		if (message.action === "coverLetterError") {
+			showError(message.error || "Failed to generate cover letter");
+			setLoadingState(false, "");
 		}
 	});
 }
 
 function switchTab(tabId) {
-	// Update tab buttons
-	document.querySelectorAll(".tab-btn").forEach((btn) => {
-		btn.classList.remove("active");
-	});
-	document.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
-
-	// Update tab content
-	document.querySelectorAll('[id$="-tab"]').forEach((content) => {
-		content.classList.add("hidden");
-	});
-
-	const targetTab = document.getElementById(`${tabId}-tab`);
-	if (targetTab) {
-		targetTab.classList.remove("hidden");
-		targetTab.classList.add("animate-fadeIn");
-	}
-
+	document
+		.querySelectorAll(".tab-btn")
+		.forEach((btn) => btn.classList.remove("active"));
+	document.querySelector(`[data-tab="${tabId}"]`)?.classList.add("active");
+	document
+		.querySelectorAll('[id$="-tab"]')
+		.forEach((el) => el.classList.add("hidden"));
+	document.getElementById(`${tabId}-tab`)?.classList.remove("hidden");
 	if (tabId !== "generate") setLoadingState(false);
 }
 
 function checkAuthState() {
-	chrome.storage.local.get(["isLoggedIn", "user"], (result) => {
-		console.log("Auth state:", result);
-		updateUI(result.isLoggedIn, result.user);
+	chrome.storage.local.get(["isLoggedIn", "user"], ({ isLoggedIn, user }) => {
+		console.log("🔍 Auth check:", isLoggedIn, user);
+		updateUI(isLoggedIn, user);
 	});
 }
 
 function updateUI(isLoggedIn, user) {
-	const signinButtonHeader = document.getElementById("signin-btn-header");
-	const signinButtonWelcome = document.getElementById("signin-btn-welcome");
-	const signoutButton = document.getElementById("signout-btn");
-	const userInfo = document.getElementById("user-info");
-	const welcomeState = document.getElementById("welcome-state");
-	const generateTab = document.getElementById("generate-tab");
-	const loadingIndicator = document.getElementById("loading-indicator");
-
-	// Hide loading indicator
-	if (loadingIndicator) {
-		loadingIndicator.classList.add("hidden");
-	}
+	document
+		.getElementById("signin-btn-header")
+		?.classList.toggle("hidden", isLoggedIn);
+	document
+		.getElementById("signin-btn-welcome")
+		?.classList.toggle("hidden", isLoggedIn);
+	document
+		.getElementById("signout-btn")
+		?.classList.toggle("hidden", !isLoggedIn);
+	document
+		.getElementById("user-info")
+		?.classList.toggle("hidden", !isLoggedIn);
+	document
+		.getElementById("welcome-state")
+		?.classList.toggle("hidden", isLoggedIn);
+	document
+		.getElementById("generate-tab")
+		?.classList.toggle("hidden", !isLoggedIn);
+	document.getElementById("loading-indicator")?.classList.add("hidden");
 
 	if (isLoggedIn && user) {
-		// Authenticated state
-		if (signinButtonHeader) signinButtonHeader.classList.add("hidden");
-		if (signinButtonWelcome) signinButtonWelcome.classList.add("hidden");
-		if (signoutButton) signoutButton.classList.remove("hidden");
-		if (welcomeState) welcomeState.classList.add("hidden");
-		if (generateTab) generateTab.classList.remove("hidden");
-
-		if (userInfo) {
-			userInfo.classList.remove("hidden");
-			const userName = document.getElementById("user-name");
-			const userAvatar = document.getElementById("user-avatar");
-
-			if (userName) {
-				userName.textContent = user.name?.split(" ")[0] || "User";
-			}
-
-			if (userAvatar && user.image) {
-				userAvatar.src = user.image;
-				userAvatar.style.display = "block";
-			}
+		document.getElementById("user-name").textContent =
+			user.name?.split(" ")[0] || "User";
+		const avatar = document.getElementById("user-avatar");
+		if (avatar && user.image) {
+			avatar.src = user.image;
+			avatar.style.display = "block";
 		}
-	} else {
-		// Unauthenticated state
-		if (signinButtonHeader) signinButtonHeader.classList.remove("hidden");
-		if (signinButtonWelcome) signinButtonWelcome.classList.remove("hidden");
-		if (signoutButton) signoutButton.classList.add("hidden");
-		if (userInfo) userInfo.classList.add("hidden");
-		if (welcomeState) welcomeState.classList.remove("hidden");
-		if (generateTab) generateTab.classList.add("hidden");
 	}
 }
 
 function handleSignIn() {
-	console.log("Sign in button clicked");
+	console.log("🔐 Sign in initiated");
+	document.getElementById("loading-indicator")?.classList.remove("hidden");
 
-	// Show loading state
-	const loadingIndicator = document.getElementById("loading-indicator");
-	if (loadingIndicator) {
-		loadingIndicator.classList.remove("hidden");
-	}
-
-	// Check if running in extension context
-	if (typeof chrome !== "undefined" && chrome.windows) {
-		// Extension context - open popup window
-		const width = 600;
-		const height = 700;
-		const left = Math.round((screen.width - width) / 2);
-		const top = Math.round((screen.height - height) / 2);
-
-		chrome.windows.create({
-			url: "http://localhost:3000/auth/signin",
-			type: "popup",
-			width: width,
-			height: height,
-			left: left,
-			top: top,
-		});
-	} else {
-		// Web context - redirect
-		window.location.href = "http://localhost:3000/auth/signin";
-	}
+	const width = 600,
+		height = 700;
+	chrome.windows.create({
+		url: "http://localhost:3000/auth/signin",
+		type: "popup",
+		width,
+		height,
+		left: Math.round((screen.width - width) / 2),
+		top: Math.round((screen.height - height) / 2),
+	});
 }
 
 function handleSignOut() {
-	console.log("Sign out button clicked");
-
-	chrome.storage.local.remove(["isLoggedIn", "user"], () => {
-		console.log("Cleared local auth state");
-		updateUI(false, null);
-
-		// Clear server session
-		if (typeof chrome !== "undefined" && chrome.tabs) {
+	chrome.storage.local.remove(
+		["isLoggedIn", "user", "jobSession", "currentJobPage"],
+		() => {
+			updateUI(false, null);
+			document
+				.getElementById("welcome-state")
+				?.classList.remove("hidden");
+			document
+				.getElementById("signin-btn-header")
+				?.classList.remove("hidden");
+			document
+				.getElementById("signin-btn-welcome")
+				?.classList.remove("hidden");
+			document.getElementById("signout-btn")?.classList.add("hidden");
+			document.getElementById("user-info")?.classList.add("hidden");
+			document.getElementById("generate-tab")?.classList.add("hidden");
+			[
+				"#company_name",
+				"#job_title",
+				"#job_description",
+				"#company_summary",
+				"#company_vision",
+				"#additional_notes",
+				"#preferred_skills",
+			].forEach((id) => {
+				const field = document.querySelector(id);
+				if (field) field.value = "";
+			});
+			document.getElementById("cover-letter-preview").innerHTML = "";
 			chrome.tabs.create({
 				url: "http://localhost:3000/api/auth/signout",
 				active: false,
 			});
 		}
-	});
+	);
 }
 
 function populateFieldsFromGraph() {
 	chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-		if (currentJobPage && currentJobPage.jobData) {
-			const job = currentJobPage.jobData;
-			console.log("Filling fields from parsed job data:", job);
+		const job = currentJobPage?.jobData;
+		if (!job) return;
 
-			const fillField = (selector, value) => {
-				const field = document.querySelector(selector);
-				if (field && value) field.value = value;
-			};
+		const fill = (id, val) => {
+			const field = document.querySelector(id);
+			if (field && val) field.value = val;
+		};
 
-			fillField("#company_name", job.company_name);
-			fillField("#job_title", job.job_title);
-			fillField("#job_description", job.job_description);
-			fillField("#company_summary", job.company_summary);
-			fillField("#company_vision", job.company_vision);
-			fillField("#additional_notes", job.additional_notes);
+		fill("#company_name", job.company_name);
+		fill("#job_title", job.job_title);
+		fill("#job_description", job.job_description);
+		fill("#company_summary", job.company_summary);
+		fill("#company_vision", job.company_vision);
+		fill("#additional_notes", job.additional_notes);
 
-			// ✅ Combine preferred qualifications + skillset into one field
-			const mergedSkills = [
-				...(job.preferred_qualifications || []),
-				...(job.skillset || []),
-			];
-			fillField("#preferred_skills", mergedSkills.join(", "));
-		}
+		const skills = [
+			...(job.preferred_qualifications || []),
+			...(job.skillset || []),
+		];
+		fill("#preferred_skills", skills.join(", "));
 	});
 }
 
-// ---------------- Unified Data Extractor ---------------- //
-async function getFinalJobData() {
-	return new Promise((resolve) => {
-		chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-			const job = currentJobPage?.jobData || {};
-			const get = (id, fallback = "") => {
-				const el = document.getElementById(id);
-				return el?.value.trim() || fallback;
-			};
-
-			const data = {
-				companyName: get("company_name", job.company_name),
-				jobTitle: get("job_title", job.job_title),
-				jobDescription: get("job_description", job.job_description),
-				companySummary: get("company_summary", job.company_summary),
-				companyVision: get("company_vision", job.company_vision),
-				additionalNotes: get("additional_notes", job.additional_notes),
-				resumeHighlights: get("resume_highlights"),
-				skillsAndQualifications: get(
-					"preferred_skills",
-					[
-						...(job.preferred_qualifications || []),
-						...(job.skillset || []),
-					].join(", ")
-				),
-			};
-
-			resolve(data);
-		});
+async function handleGenerateCoverLetter(e) {
+	e.preventDefault();
+	if (isGeneratingCoverLetter) return; // Prevent double submit
+	const { jobSession } = await chrome.storage.local.get("jobSession");
+	await chrome.storage.local.set({
+		jobSession: {
+			...jobSession,
+			isUserConfirmed: true,
+			isCoverLetterGenerating: true,
+			coverLetterError: null, // <-- Set flag here!
+		},
 	});
+	const data = await getJobDataForCoverLetter();
+	chrome.runtime.sendMessage({ action: "generateCoverLetter", data });
+	setLoadingState(
+		true,
+		"⏳ Our AI assistant is preparing your personalized cover letter..."
+	);
 }
-
-function setLoadingState(isLoading) {
-    console.log(`🔄 Setting loading state: ${isLoading}`);
-    const progressContainer = document.getElementById("progress-container");
-    const generateBtnText = document.getElementById("generate-btn-text");
-    const generateBtnSpinner = document.getElementById("generate-btn-spinner");
-    
-    if (progressContainer) progressContainer.classList.toggle("hidden", !isLoading);
-    if (generateBtnText) generateBtnText.textContent = isLoading ? "Generating..." : "Generate Cover Letter";
-    if (generateBtnSpinner) generateBtnSpinner.classList.toggle("hidden", !isLoading);
-}
-
-// async function getJobDataForCoverLetter() {
-//     console.log("🔍 Fetching job data for cover letter");
-//     return new Promise((resolve) => {
-//         chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-//             const job = currentJobPage?.jobData || {};
-//             console.log("📋 Current job data:", job);
-            
-//             const get = (id, fallback = "") => {
-//                 const el = document.getElementById(id);
-//                 return el?.value?.trim() || fallback;
-//             };
-
-//             const data = {
-//                 job_title: get("job_title", job.job_title || ""),
-//                 hiring_company: get("company_name", job.company_name || ""),
-//                 applicant_name: get("applicant_name", ""), // Add a field for this in your form
-//                 job_description: get("job_description", job.job_description || ""),
-//                 preferred_qualifications: get("preferred_skills", job.preferred_qualifications || ""),
-//                 company_culture_notes: get("company_culture_notes", job.company_culture_notes || ""),
-//                 github_username: get("github_username", job.github_username || ""),
-//                 company_url: get("company_url", job.company_url || "")
-//             };
-
-//             console.log("✨ Prepared cover letter data:", data);
-//             resolve(data);
+// try {
+//     const data = await getJobDataForCoverLetter();
+//     console.log("📨 Submitting data:", data);
+//     const res = await fetch("http://localhost:8000/generate-cover-letter", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(data),
+//     });
+//     const result = await res.json();
+//     setLoadingState(false);
+//     if (res.ok && result.cover_letter) {
+//         await chrome.storage.local.get("jobSession", ({ jobSession }) => {
+//             chrome.storage.local.set({
+//                 jobSession: {
+//                     ...jobSession,
+//                     isCoverLetterGenerated: true,
+//                     isCoverLetterGenerating: false // <-- Clear flag on success
+//                 }
+//             });
+//         });
+//         showCoverLetterPreview(result.cover_letter);
+//         [
+//             "#company_name",
+//             "#job_title",
+//             "#job_description",
+//             "#company_summary",
+//             "#company_vision",
+//             "#additional_notes",
+//             "#preferred_skills",
+//         ].forEach((id) => {
+//             const field = document.querySelector(id);
+//             if (field) field.value = "";
+//         });
+//         switchTab("preview");
+//         chrome.runtime.sendMessage({ action: "coverLetterGeneratedCleanup" });
+//     } else {
+//         // Clear flag on error
+//         await chrome.storage.local.get("jobSession", ({ jobSession }) => {
+//             chrome.storage.local.set({
+//                 jobSession: {
+//                     ...jobSession,
+//                     isCoverLetterGenerating: false
+//                 }
+//             });
+//         });
+//         showError(result.error || "Failed to generate cover letter");
+//     }
+// } catch (err) {
+//     console.error("❌ Generation error:", err);
+//     await chrome.storage.local.get("jobSession", ({ jobSession }) => {
+//         chrome.storage.local.set({
+//             jobSession: {
+//                 ...jobSession,
+//                 isCoverLetterGenerating: false
+//             }
 //         });
 //     });
+//     showError("Network error. Please try again.");
+//     setLoadingState(false);
+// }
+//}
+
+// async function handleGenerateCoverLetter(e) {
+// 	e.preventDefault();
+// 	if (isGeneratingCoverLetter) return; // Prevent double submit
+// 	const { jobSession } = await chrome.storage.local.get("jobSession");
+// 	await chrome.storage.local.set({ jobSession: { ...jobSession, isUserConfirmed: true } });
+// 	setLoadingState(true, "⏳ Our AI assistant is preparing your personalized cover letter...");
+// 	try {
+// 		const data = await getJobDataForCoverLetter();
+// 		console.log("📨 Submitting data:", data);
+// 		const res = await fetch("http://localhost:8000/generate-cover-letter", {
+// 			method: "POST",
+// 			headers: { "Content-Type": "application/json" },
+// 			body: JSON.stringify(data),
+// 		});
+// 		const result = await res.json();
+// 		setLoadingState(false);
+// 		if (res.ok && result.cover_letter) {
+// 			await chrome.storage.local.get("jobSession", ({ jobSession }) => {
+// 				chrome.storage.local.set({ jobSession: { ...jobSession, isCoverLetterGenerated: true } });
+// 			});
+// 			showCoverLetterPreview(result.cover_letter);
+// 			// Clear all fields on generate tab
+// 			[
+// 				"#company_name",
+// 				"#job_title",
+// 				"#job_description",
+// 				"#company_summary",
+// 				"#company_vision",
+// 				"#additional_notes",
+// 				"#preferred_skills",
+// 			].forEach((id) => {
+// 				const field = document.querySelector(id);
+// 				if (field) field.value = "";
+// 			});
+// 			// Switch to preview tab
+// 			switchTab("preview");
+// 			// Clear jobSession and currentJobPage after short delay
+// 			chrome.runtime.sendMessage({ action: "coverLetterGeneratedCleanup" });
+// 		} else {
+// 			showError(result.error || "Failed to generate cover letter");
+// 		}
+// 	} catch (err) {
+// 		console.error("❌ Generation error:", err);
+// 		showError("Network error. Please try again.");
+// 		setLoadingState(false);
+// 	}
 // }
 
-
-
-// ---------------- Submit Handler ---------------- //
-async function handleGenerateCoverLetter(event) {
-    event.preventDefault();
-    console.log("🎯 Generate cover letter form submitted");
-    
-    setLoadingState(true);
-    try {
-        const data = await getJobDataForCoverLetter();
-        console.log("📦 Sending to /generate-cover-letter:", data);
-
-        const response = await fetch("http://localhost:8000/generate-cover-letter", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-        console.log("📩 Received response:", result);
-        
-        setLoadingState(false);
-
-        if (response.ok && result.cover_letter) {
-            console.log("✅ Successfully generated cover letter");
-            showCoverLetterPreview(result.cover_letter);
-            switchTab("preview");
-        } else {
-            console.error("❌ Failed to generate cover letter:", result.error);
-            showError(result.error || "Failed to generate cover letter");
-        }
-    } catch (err) {
-        console.error("❌ Network or server error:", err);
-        setLoadingState(false);
-        showError("Network or server error. Please try again.");
-    }
+function showCoverLetterPreview(text) {
+	document.getElementById(
+		"cover-letter-preview"
+	).innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${text}</div>`;
 }
 
-
-async function getJobDataForCoverLetter() {
-    console.log("🔍 Fetching job data for cover letter");
-    return new Promise((resolve) => {
-        chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-            const job = currentJobPage?.jobData || {};
-            console.log("📋 Current job data:", job);
-            
-            // Join skillset and preferred qualifications into a single string
-            const qualifications = [
-                ...(job.preferred_qualifications || []),
-                ...(job.skillset || [])
-            ].join("; ");
-
-            // Format culture notes from additional_notes
-            const cultureNotes = job.additional_notes || job.company_culture_notes || "";
-
-            const data = {
-                job_title: job.job_title || "",
-                hiring_company: job.company_name || "",
-                applicant_name: "Parag Purandare", // Hardcoded name
-                job_description: job.job_description || "",
-                preferred_qualifications: qualifications,
-                company_culture_notes: `${job.company_vision || ""}\n${cultureNotes}`,
-                github_username: "paragpurandare", // Hardcoded GitHub username
-				desired_tone: "fun-loving", // Hardcoded desired tone
-                company_url: "" // Optional field
-            };
-
-            console.log("✨ Prepared cover letter data:", data);
-            resolve(data);
-        });
-    });
-}
-// Utility to show error messages
 function showError(msg) {
-    alert(msg); // Or display in a UI element
+	alert(msg);
 }
 
-// ---------------- Cover Letter Generation ---------------- //
-function showGenerationProgress() {
-	const progressContainer = document.getElementById("progress-container");
-	const generateBtnText = document.getElementById("generate-btn-text");
-	const generateBtnSpinner = document.getElementById("generate-btn-spinner");
-	const progressFill = document.getElementById("progress-fill");
-	const progressPercent = document.getElementById("progress-percent");
-
-	progressContainer?.classList.remove("hidden");
-	if (generateBtnText) generateBtnText.textContent = "Generating...";
-	generateBtnSpinner?.classList.remove("hidden");
-
-	let progress = 0;
-	const interval = setInterval(() => {
-		progress += Math.random() * 15;
-		if (progress > 90) progress = 90;
-		if (progressFill) progressFill.style.width = `${progress}%`;
-		if (progressPercent)
-			progressPercent.textContent = `${Math.round(progress)}%`;
-		if (progress >= 90) clearInterval(interval);
-	}, 200);
-}
-
-function hideGenerationProgress() {
-	document.getElementById("progress-container")?.classList.add("hidden");
-	const btnText = document.getElementById("generate-btn-text");
-	if (btnText) btnText.textContent = "Generate Cover Letter";
-	document.getElementById("generate-btn-spinner")?.classList.add("hidden");
-}
-
-function simulateGeneration(data) {
-	setTimeout(() => {
-		const mockCoverLetter = generateMockCoverLetter(data);
-		document.getElementById("progress-fill").style.width = "100%";
-		document.getElementById("progress-percent").textContent = "100%";
-
-		setTimeout(() => {
-			hideGenerationProgress();
-			showCoverLetterPreview(mockCoverLetter);
-			switchTab("preview");
-		}, 500);
-	}, 3000);
-}
-
-function generateMockCoverLetter(data) {
-	return `Dear Hiring Manager,
-
-I am writing to express my strong interest in the ${
-		data.jobTitle
-	} position at ${data.companyName}.
-
-Here’s why I’m a great fit:
-${
-	data.skillsAndQualifications
-		? "• " + data.skillsAndQualifications.split(", ").join("\n• ") + "\n"
-		: ""
-}
-${
-	data.resumeHighlights
-		? "Resume Highlights:\n" + data.resumeHighlights + "\n"
-		: ""
-}
-${data.companySummary ? "Company Summary:\n" + data.companySummary + "\n" : ""}
-${data.companyVision ? "Company Vision:\n" + data.companyVision + "\n" : ""}
-${
-	data.additionalNotes
-		? "Additional Notes:\n" + data.additionalNotes + "\n"
-		: ""
-}
-
-Thank you for considering my application.
-
-Sincerely,
-[Your Name]`;
-}
-
-function showCoverLetterPreview(coverLetter) {
-    console.log("📄 Showing cover letter preview");
-    const preview = document.getElementById("cover-letter-preview");
-    if (preview) {
-        preview.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${coverLetter}</div>`;
-    }
-}
-
-// ---------------- Utilities ---------------- //
 function copyToClipboard() {
-	const preview = document.getElementById("cover-letter-preview");
-	if (preview) {
-		const text = preview.textContent;
-		navigator.clipboard.writeText(text).then(() => {
-			const button = event.target;
-			const original = button.innerHTML;
-			button.innerHTML = "<span>✓</span> Copied!";
-			button.style.background = "var(--success-color)";
-			button.style.color = "white";
-
-			setTimeout(() => {
-				button.innerHTML = original;
-				button.style.background = "";
-				button.style.color = "";
-			}, 2000);
-		});
-	}
+	const text = document.getElementById("cover-letter-preview")?.textContent;
+	if (text) navigator.clipboard.writeText(text).then(() => alert("Copied!"));
 }
 
 function editCoverLetter() {
@@ -477,173 +397,114 @@ function editCoverLetter() {
 function saveCoverLetter() {
 	alert("Cover letter saved to your library!");
 }
-// function handleGenerateCoverLetter(event) {
-// 	event.preventDefault();
 
-// 	console.log("Generate cover letter form submitted");
+async function getJobDataForCoverLetter() {
+	return new Promise((resolve) => {
+		chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
+			const job = currentJobPage?.jobData || {};
+			resolve({
+				job_title: job.job_title || "",
+				hiring_company: job.company_name || "",
+				applicant_name: "Parag Purandare",
+				job_description: job.job_description || "",
+				preferred_qualifications: [
+					...(job.preferred_qualifications || []),
+					...(job.skillset || []),
+				].join("; "),
+				company_culture_notes: `${job.company_vision || ""}\n${
+					job.additional_notes || ""
+				}`,
+				github_username: "paragpurandare",
+				desired_tone:
+					document.getElementById("desired_tone")?.value ||
+					"professional",
+				company_url: "",
+			});
+		});
+	});
+}
 
-// 	// Get form data
-// 	const formData = new FormData(event.target);
-// 	const inputs = event.target.querySelectorAll("input, textarea");
-// 	const data = {};
+function showGenerateTabAndPopulate() {
+	switchTab("generate");
+	populateFieldsFromGraph();
+	setLoadingState(false, ""); // Ensure button is not loading
+}
 
-// 	inputs.forEach((input) => {
-// 		if (input.placeholder.includes("Company"))
-// 			data.companyName = input.value;
-// 		if (input.placeholder.includes("Job Title"))
-// 			data.jobTitle = input.value;
-// 		if (input.placeholder.includes("job description"))
-// 			data.jobDescription = input.value;
-// 		if (input.placeholder.includes("Resume Highlights"))
-// 			data.resumeHighlights = input.value;
-// 	});
+// Restore original authentication UI/logic
+function setUIFromStorage() {
+	chrome.storage.local.get(
+		["isLoggedIn", "user", "jobSession", "currentJobPage"],
+		({ isLoggedIn, user, jobSession, currentJobPage }) => {
+			// Restore authentication UI
+			updateUI(!!isLoggedIn, user);
 
-// 	console.log("Form data:", data);
+			// Job/agent/cover letter state
+			const isAgentInProgress = jobSession?.isAgentInProgress;
+			const isAgentFinished = jobSession?.isAgentFinished;
+			const isCoverLetterGenerating = jobSession?.isCoverLetterGenerating;
+			const isCoverLetterGenerated = jobSession?.isCoverLetterGenerated;
+			const jobData = currentJobPage?.jobData;
 
-// 	// Validate required fields
-// 	if (!data.companyName || !data.jobTitle || !data.jobDescription) {
-// 		alert("Please fill in all required fields.");
-// 		return;
-// 	}
+			// 1. Show preview if cover letter is generated
+			if (isCoverLetterGenerated && jobSession?.coverLetter) {
+				showCoverLetterPreview(jobSession.coverLetter);
+				switchTab("preview");
+				setLoadingState(false, "");
+				return;
+			}
 
-// 	// Show progress
-// 	showGenerationProgress();
+			// 2. Show loading if generating
+			if (isCoverLetterGenerating) {
+				setLoadingState(
+					true,
+					"⏳ Our AI assistant is preparing your personalized cover letter..."
+				);
+				return;
+			}
 
-// 	// Simulate API call (replace with actual API call)
-// 	simulateGeneration(data);
-// }
+			if (isAgentInProgress) {
+				setAgentProgressState(
+					true,
+					"NeoterikAi's Agent Fetching Job Details.."
+				);
+				setLoadingState(false, "");
+				switchTab("generate");
+				return;
+			} else {
+				setAgentProgressState(false);
+			}
 
-// function showGenerationProgress() {
-// 	const progressContainer = document.getElementById("progress-container");
-// 	const generateBtnText = document.getElementById("generate-btn-text");
-// 	const generateBtnSpinner = document.getElementById("generate-btn-spinner");
-// 	const progressFill = document.getElementById("progress-fill");
-// 	const progressPercent = document.getElementById("progress-percent");
+			if (isAgentFinished && jobData) {
+				showGenerateTabAndPopulate();
+				return;
+			}
 
-// 	if (progressContainer) progressContainer.classList.remove("hidden");
-// 	if (generateBtnText) generateBtnText.textContent = "Generating...";
-// 	if (generateBtnSpinner) generateBtnSpinner.classList.remove("hidden");
+			if (jobData) {
+				populateFieldsFromGraph();
+				switchTab("generate");
+				setLoadingState(false, "");
+				return;
+			}
+			// 6. Default: clear fields in generate tab if no jobData or after cover letter generated
+			clearGenerateTabFields();
+			setLoadingState(false, "");
+		})
+}
 
-// 	// Animate progress
-// 	let progress = 0;
-// 	const interval = setInterval(() => {
-// 		progress += Math.random() * 15;
-// 		if (progress > 90) progress = 90;
+// Helper to clear all fields in generate tab
+function clearGenerateTabFields() {
+    [
+        "#company_name",
+        "#job_title",
+        "#job_description",
+        "#company_summary",
+        "#company_vision",
+        "#additional_notes",
+        "#preferred_skills",
+    ].forEach((id) => {
+        const field = document.querySelector(id);
+        if (field) field.value = "";
+    });
+}
 
-// 		if (progressFill) progressFill.style.width = `${progress}%`;
-// 		if (progressPercent)
-// 			progressPercent.textContent = `${Math.round(progress)}%`;
 
-// 		if (progress >= 90) {
-// 			clearInterval(interval);
-// 		}
-// 	}, 200);
-// }
-
-// function simulateGeneration(data) {
-// 	// Simulate API delay
-// 	setTimeout(() => {
-// 		const mockCoverLetter = generateMockCoverLetter(data);
-
-// 		// Complete progress
-// 		const progressFill = document.getElementById("progress-fill");
-// 		const progressPercent = document.getElementById("progress-percent");
-// 		if (progressFill) progressFill.style.width = "100%";
-// 		if (progressPercent) progressPercent.textContent = "100%";
-
-// 		// Hide progress after a moment
-// 		setTimeout(() => {
-// 			hideGenerationProgress();
-// 			showCoverLetterPreview(mockCoverLetter);
-// 			switchTab("preview");
-// 		}, 500);
-// 	}, 3000);
-// }
-
-// function hideGenerationProgress() {
-// 	const progressContainer = document.getElementById("progress-container");
-// 	const generateBtnText = document.getElementById("generate-btn-text");
-// 	const generateBtnSpinner = document.getElementById("generate-btn-spinner");
-
-// 	if (progressContainer) progressContainer.classList.add("hidden");
-// 	if (generateBtnText) generateBtnText.textContent = "Generate Cover Letter";
-// 	if (generateBtnSpinner) generateBtnSpinner.classList.add("hidden");
-// }
-
-// function generateMockCoverLetter(data) {
-// 	return `Dear Hiring Manager,
-
-// I am writing to express my strong interest in the ${
-// 		data.jobTitle
-// 	} position at ${
-// 		data.companyName
-// 	}. With my background in software development and passion for innovative technology solutions, I am excited about the opportunity to contribute to your team.
-
-// In my previous roles, I have successfully delivered high-quality software solutions that align perfectly with the requirements outlined in your job description. My experience includes:
-
-// • Developing scalable web applications using modern frameworks
-// • Collaborating with cross-functional teams to deliver projects on time
-// • Implementing best practices for code quality and testing
-// • Contributing to open-source projects and staying current with industry trends
-
-// ${
-// 	data.resumeHighlights
-// 		? `Key highlights from my experience include:\n${data.resumeHighlights}\n\n`
-// 		: ""
-// }I am particularly drawn to ${
-// 		data.companyName
-// 	} because of your commitment to innovation and excellence in the technology space. I believe my skills and enthusiasm would make me a valuable addition to your team.
-
-// Thank you for considering my application. I look forward to the opportunity to discuss how I can contribute to ${
-// 		data.companyName
-// 	}'s continued success.
-
-// Best regards,
-// [Your Name]`;
-// }
-
-// function showCoverLetterPreview(coverLetter) {
-// 	const previewElement = document.getElementById("cover-letter-preview");
-// 	if (previewElement) {
-// 		previewElement.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${coverLetter}</div>`;
-// 	}
-// }
-
-// // Utility functions
-// function copyToClipboard() {
-// 	const previewElement = document.getElementById("cover-letter-preview");
-// 	if (previewElement) {
-// 		const text = previewElement.textContent;
-// 		navigator.clipboard.writeText(text).then(() => {
-// 			// Show temporary success message
-// 			const button = event.target;
-// 			const originalText = button.innerHTML;
-// 			button.innerHTML = "<span>✓</span> Copied!";
-// 			button.style.background = "var(--success-color)";
-// 			button.style.color = "white";
-
-// 			setTimeout(() => {
-// 				button.innerHTML = originalText;
-// 				button.style.background = "";
-// 				button.style.color = "";
-// 			}, 2000);
-// 		});
-// 	}
-// }
-
-// function editCoverLetter() {
-// 	switchTab("generate");
-// }
-
-// function saveCoverLetter() {
-// 	// Implement save functionality
-// 	alert("Cover letter saved to your library!");
-// }
-
-// // Global function for welcome state button
-// // function handleSignIn() {
-// //   const signinButton = document.getElementById("signin-btn");
-// //   if (signinButton) {
-// //     signinButton.click();
-// //   }
-// // }

@@ -1,6 +1,6 @@
 console.log("Neoterik Cover Letter Assistant: Content script loaded");
 
-// Debounce function to limit how often a function can be called
+// Debounce helper
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -9,118 +9,110 @@ function debounce(func, wait) {
 	};
 }
 
-// Check URL with background script - debounced version
+// Debounced job page check
 const checkCurrentUrlDebounced = debounce(function () {
 	const url = window.location.href;
 
-	chrome.runtime.sendMessage(
-		{
-			action: "checkUrl",
-			url: url,
-		},
-		(response) => {
-			if (chrome.runtime.lastError) {
-				console.error(
-					"Error sending message:",
-					chrome.runtime.lastError
+	chrome.runtime.sendMessage({ action: "checkUrl", url }, (response) => {
+		if (chrome.runtime.lastError) {
+			console.error("Runtime error:", chrome.runtime.lastError);
+			return;
+		}
+
+		if (response?.success && response.isJobPage) {
+			console.log("✅ Job page detected!");
+
+			// Inject banner only once
+			if (!document.getElementById("neoterik-job-detected")) {
+				chrome.runtime.sendMessage(
+					{ action: "shouldInjectBanner", url },
+					(response) => {
+						if (response?.allow) {
+							injectJobPageNotification();
+						}
+					}
 				);
-				return;
-			}
-
-			if (response && response.success && response.isJobPage) {
-				console.log("Job page detected!");
-
-				// Inject a notification if not already present
-				if (!document.getElementById("neoterik-job-detected")) {
-					injectJobPageNotification();
-				}
 			}
 		}
-	);
-}, 1000); // Wait 1 second before checking
+	});
+}, 1000);
 
-// Inject notification banner
+// Add a global flag
+let isAgentRunning = false;
+
+// Inject the banner
 function injectJobPageNotification() {
-	// Create notification element
+	let clicked = false;
 	const notification = document.createElement("div");
 	notification.id = "neoterik-job-detected";
 	notification.style.cssText = `
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    background-color: #419D78;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    font-size: 14px;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    max-width: 300px;
-  `;
+		position: fixed;
+		top: 16px;
+		right: 16px;
+		background-color: #419D78;
+		color: white;
+		padding: 12px 16px;
+		border-radius: 8px;
+		font-family: 'Segoe UI', Tahoma, sans-serif;
+		font-size: 14px;
+		z-index: 9999;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+		max-width: 300px;
+	`;
 
-	// Create the content
 	notification.innerHTML = `
-    <div style="margin-right: 12px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7M21 7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7M21 7L12 13L3 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div>
-      <div style="font-weight: 600; margin-bottom: 4px;">Neoterik detected a job!</div>
-      <div style="font-size: 12px;">Click to generate a cover letter</div>
-    </div>
-  `;
+		<div style="margin-right: 12px;">
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M21 7V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7M21 7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7M21 7L12 13L3 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+		</div>
+		<div>
+			<div style="font-weight: 600; margin-bottom: 4px;">Neoterik detected a job!</div>
+			<div style="font-size: 12px;">Click to generate a cover letter</div>
+		</div>
+	`;
 
-	// Add click handler
+	// Run agent on click
 	notification.addEventListener("click", () => {
-		// Extract job description from the page
-		chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-			const jobData = currentJobPage?.jobData;
-			try {
-				chrome.storage.local.set(
-					{ jobDescription: jobData.job_description },
-					() => {
-						chrome.runtime.sendMessage({ action: "openPopup" });
-					}
-				);
-			} catch (e) {
-				console.error("Error extracting job description:", e);
-				// fallback to extract directly if needed
-				// chrome.runtime.sendMessage(
-				// 	{ action: "extractJobDescription" },
-				// 	(response) => {
-				// 		if (response && response.success) {
-				// 			chrome.storage.local.set(
-				// 				{ jobDescription: response.description },
-				// 				() => {
-				// 					chrome.runtime.sendMessage({
-				// 						action: "openPopup",
-				// 					});
-				// 				}
-				// 			);
-				// 		}
-				// 	}
-				// );
-			}
+		if (clicked || isAgentRunning) return; // Prevent multiple clicks or if agent running
+		clicked = true;
+		isAgentRunning = true;
+		console.log("📧 Banner clicked: Starting job agent...");
+		notification.style.pointerEvents = "none";
+		notification.style.opacity = "0.5";
+
+		// Add spinner
+		const spinner = document.createElement("div");
+		spinner.innerHTML = `<div class="loader">⏳</div>`;
+		spinner.style.marginLeft = "12px";
+		notification.appendChild(spinner);
+
+		chrome.runtime.sendMessage({ action: "run_job_agent" }, () => {
+			isAgentRunning = false;
 		});
-		// Remove notification after click
-		notification.remove();
+
+		// Remove banner
+		setTimeout(() => notification.remove(), 500);
+
+		// Open popup after delay
+		setTimeout(() => {
+			chrome.runtime.sendMessage({ action: "openPopup" });
+		}, 2000);
 	});
 
-	// Add dismiss button
+	// Add dismiss (×) button
 	const dismissBtn = document.createElement("button");
 	dismissBtn.style.cssText = `
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    margin-left: 12px;
-    padding: 0 4px;
-  `;
+		background: transparent;
+		border: none;
+		color: white;
+		font-size: 16px;
+		cursor: pointer;
+		margin-left: auto;
+	`;
 	dismissBtn.innerHTML = "×";
 	dismissBtn.addEventListener("click", (e) => {
 		e.stopPropagation();
@@ -128,23 +120,22 @@ function injectJobPageNotification() {
 	});
 	notification.appendChild(dismissBtn);
 
-	// Add to page
 	document.body.appendChild(notification);
 
-	// Auto-remove after 10 seconds
-	setTimeout(() => {
-		if (notification.parentNode) {
-			notification.remove();
-		}
-	}, 10000);
+	// Auto-remove after 10s
+	// setTimeout(() => {
+	// 	if (notification.parentNode) {
+	// 		notification.remove();
+	// 	}
+	// }, 10000);
 }
 
-// Run on page load - with slight delay to prevent jamming during page load
+// Run on initial load
 setTimeout(() => {
 	checkCurrentUrlDebounced();
 }, 2000);
 
-// Also listen for SPA navigation
+// Watch for URL changes (SPA, client routing)
 let lastUrl = location.href;
 new MutationObserver(() => {
 	const url = location.href;
@@ -154,5 +145,5 @@ new MutationObserver(() => {
 	}
 }).observe(document, { subtree: true, childList: true });
 
-// Listen for popstate events (history navigation)
+// For history navigation
 window.addEventListener("popstate", checkCurrentUrlDebounced);

@@ -744,6 +744,22 @@
 
       <!-- Content Area -->
       <main class="content">
+        <!-- Agent Progress Container (for agent progress UI, separate from cover letter spinner) -->
+        <div id="agent-progress-container" class="hidden" style="margin-bottom: 16px;">
+          <div class="card" style="background: #f6fff9; border: 1px solid #419D78;">
+            <h2 style="color: #419D78; font-size: 15px; margin-bottom: 8px;">
+              <span style="margin-right: 6px;">⏳</span>Analyzing job posting...
+            </h2>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 80%;"></div>
+              </div>
+              <div class="progress-text" style="margin-top: 6px; color: #419D78;">
+                Our AI agent is gathering job and company insights...
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Welcome State (shown when not authenticated) -->
         <div id="welcome-state" class="card welcome-card">
           <div class="welcome-icon">🚀</div>
@@ -843,9 +859,13 @@
                   <span id="generate-btn-text">Generate Cover Letter</span>
                   <div id="generate-btn-spinner" class="loading-spinner hidden"></div>
                 </button>
+                <!-- <div id="status-message" style="margin: 8px 0; font-size: 12px; color: #555;"></div> -->
+
               </div>
             </form>
             </div>
+            <!-- Place this at the bottom of your popup, after all main content -->
+            <div id="status-message" style="margin: 16px 0 0 0; text-align: center; font-size: 13px; color: #419D78;"></div>
             </div>
             
             <div id="preview-tab" class="hidden animate-fadeIn">

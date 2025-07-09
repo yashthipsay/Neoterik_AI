@@ -5,6 +5,7 @@ const EXTENSION_CALLBACK_URL = "http://localhost:3000/auth/extension-callback/";
 
 // Used for debouncing URL checks per tab
 const checkUrlTimers = {};
+const detectedJobsPerTab = {};
 
 // === Utility: Notify popup of login ===
 function notifyLoginStatusChanged() {
@@ -70,9 +71,7 @@ function shouldProceedWithDetection(url, callback) {
 		const session = data.jobSession;
 		if (
 			session?.isLocked &&
-			session?.jobUrl === url &&
-			(session?.isGeneratingCoverLetter === true ||
-				session?.isCoverLetterGenerated===false)
+			!session?.isCoverLetterGenerated
 		) {
 			console.warn("🔒 Detection blocked due to locked session.");
 			return callback(false);
@@ -96,7 +95,14 @@ async function checkUrlWithApi(url, tabId) {
 		if (!response.ok) throw new Error(`Status ${response.status}`);
 
 		const data = await response.json();
+		
 		if (data.is_job_application) {
+
+			detectedJobsPerTab[tabId] = {
+				url,
+				jobData: data?.parsed_output || null,
+				detectedAt: Date.now(),
+			};	
 			chrome.action.setBadgeText({ text: "JOB", tabId });
 			chrome.action.setBadgeBackgroundColor({ color: "#419D78", tabId });
 
@@ -108,6 +114,7 @@ async function checkUrlWithApi(url, tabId) {
 					isAgentFinished: false,
 					isLocked: false,
 					isCoverLetterGenerated: false,
+					isCoverLetterGenerating:false,
 					coverLetterError: null,
 					isUserConfirmed: null,
 					timestamp: Date.now(),
@@ -142,6 +149,7 @@ async function handleGenerateCoverLetter(data) {
 	await chrome.storage.local.set({
 		jobSession: {
 			...jobSession,
+			isLocked: true, // lock session while generating
 			isCoverLetterGenerating: true,
 			isCoverLetterGenerated: false,
 			coverLetterError: null,
@@ -222,6 +230,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		console.log("[Background] Received generateCoverLetter message");
 		handleGenerateCoverLetter(request.data);
 		return true;
+	}
+
+	if (request.action === "removeBanner") {
+		const banner = document.getElementById("neoterik-job-detected");
+		if (banner) banner.remove();
 	}
 
 	const tabId = sender.tab?.id;
@@ -526,7 +539,30 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	}, 1500); // Add 1.5s debounce
 });
 
+chrome.tabs.onActivated.addListener(({ tabId }) => {
+	//check if this tab has a detected job
+	const jobInfo = detectedJobsPerTab[tabId];
+	if (jobInfo) {
+		// Ask content script to iject the banner
+		chrome.tabs.sendMessage(tabId, { action: "injectBanner" })
+		
+	}
+});
+
 // === Tab Removed Cleanup ===
 chrome.tabs.onRemoved.addListener((tabId) => {
+	delete detectedJobsPerTab[tabId];
 	chrome.action.setBadgeText({ text: "", tabId });
-});
+	if  (checkUrlTimers[tabId]) {
+		clearTimeout(checkUrlTimers[tabId]);
+		delete checkUrlTimers[tabId];
+		}
+	});
+
+
+// function isPopupOpen(callback) {
+// 	chrome.extension.getViews({ type: "popup" }).length > 0
+// 		? callback(true)
+// 		: callback(false);
+// }
+

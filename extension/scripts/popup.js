@@ -166,7 +166,7 @@ function updateUI(isLoggedIn, user) {
 		}
 	}
 }
-
+ 
 function handleSignIn() {
 	console.log("🔐 Sign in initiated");
 	document.getElementById("loading-indicator")?.classList.remove("hidden");
@@ -454,7 +454,8 @@ function setUIFromStorage() {
 			}
 
 			// 2. Show loading if generating
-			if (isCoverLetterGenerating) {
+			if (isCoverLetterGenerating && jobData) {
+				populateFieldsFromGraph();
 				setLoadingState(
 					true,
 					"⏳ Our AI assistant is preparing your personalized cover letter..."

@@ -42,6 +42,9 @@ let isAgentRunning = false;
 
 // Inject the banner
 function injectJobPageNotification() {
+	document
+		.querySelectorAll("#neoterik-job-detected")
+		.forEach((b) => b.remove());
 	let clicked = false;
 	const notification = document.createElement("div");
 	notification.id = "neoterik-job-detected";
@@ -117,6 +120,7 @@ function injectJobPageNotification() {
 	dismissBtn.addEventListener("click", (e) => {
 		e.stopPropagation();
 		notification.remove();
+		chrome.runtime.sendMessage({ action: "bannerDismissed" });
 	});
 	notification.appendChild(dismissBtn);
 
@@ -147,3 +151,10 @@ new MutationObserver(() => {
 
 // For history navigation
 window.addEventListener("popstate", checkCurrentUrlDebounced);
+
+// Listen for messages from background script to inject banner
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request.action === "injectBanner") {
+		injectJobPageNotification(); // or whatever function injects your banner
+	}
+});

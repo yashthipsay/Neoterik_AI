@@ -1,28 +1,72 @@
+// This file contains API specifications for the Neoterik HTTP service.
+
+### Register User Command
+POST http://localhost:8000/register-user
+Content-Type: application/json
+
+{
+  "id": "a86c2369-4f05-46f7-a186-48390b4f149d",
+  "email": "paragpurandare50@gmail.com",        
+  "name": "Parag Purandare",                    
+  "avatar_url": "", 
+  "github_username": "paragpurandare" 
+}
+
+### Upload Resume Command
+POST http://localhost:8000/upload-resume
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="user_id"
+
+a86c2369-4f05-46f7-a186-48390b4f149d
+--boundary
+Content-Disposition: form-data; name="file"; filename="resume.pdf"
+Content-Type: application/pdf
+
+< ./api/sample_resume/parag_cv.pdf
+--boundary--
+supabase.table("documents").upsert(doc, on_conflict=["user_id", "type"]).execute()
+
+### Submit GitHub Username Command
+POST http://localhost:8000/submit-github
+Content-Type: application/x-www-form-urlencoded
+
+user_id=a86c2369-4f05-46f7-a186-48390b4f149d&github_username=paragpurandare
+
+
 ### Generate cover letter command
 
 POST http://localhost:8000/generate-cover-letter
 Content-Type: application/json
 
 {
-    "job_title": "Head Chef",
-    "hiring_company": "The Golden Spoon",
-    "applicant_name": "Parag Purandare",
-    "job_description": "The Golden Spoon, a Michelin-starred restaurant, is seeking a creative and experienced Head Chef to lead our culinary team. You will be responsible for all aspects of the kitchen, including menu creation, staff management, and ensuring the highest quality of our dishes. The ideal candidate will have a passion for seasonal ingredients and innovative cooking techniques.",
-    "preferred_qualifications": "Proven experience as a Head Chef or Sous Chef in a fine dining establishment. Culinary degree from an accredited institution. In-depth knowledge of kitchen management and food safety regulations. Strong leadership and communication skills. Ability to work well under pressure in a fast-paced environment. A portfolio of creative and original dishes.",
-    "company_culture_notes": "At The Golden Spoon, we believe in a collaborative and creative kitchen environment. We value fresh, locally-sourced ingredients and a commitment to culinary excellence. Our team is a family, and we support each other to create unforgettable dining experiences for our guests.",
-    "additional_notes": "Competitive salary and performance-based bonuses. Health and dental insurance provided. Paid vacation and sick leave. Opportunities for professional development, including attending culinary workshops and competitions. The hiring process includes a tasting interview where you will prepare a signature dish.",
-    "github_username": "paragpurandare",
-    "desired_tone": "auto",
-    "company_url": ""
+  "user_id": "a86c2369-4f05-46f7-a186-48390b4f149d",         
+  "job_title": "Software Engineer",       
+  "hiring_company": "Acme Corp",        
+  "job_description": "We are looking for a Software Engineer...", 
+  "preferred_qualifications": "Python, FastAPI, SQL",            
+  "company_culture_notes": "We value innovation and teamwork.", 
+  "github_username": "paragpurandare",     
+  "applicant_name": "Parag Purandare",      
+  "desired_tone": "professional"           
 }
 
 
+### Check URL command
 
-### Parse URL
+POST http://localhost:8000/check-url
+Content-Type: application/json
 
+{
+    "url": "https://job-boards.greenhouse.io/layerzerolabs/jobs/5554606004?source=web3.career&gh_src=web3.career#application_form"
+}
+
+// run-agent command to scrap job info
 POST http://localhost:8000/run-agent
 Content-Type: application/json
 
 {
     "url": "https://job-boards.greenhouse.io/layerzerolabs/jobs/5554606004?source=web3.career&gh_src=web3.career#application_form"
 }
+

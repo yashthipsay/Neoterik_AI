@@ -18,6 +18,24 @@ export default function Home() {
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.id) {
+      fetch("http://localhost:8000/register-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name,
+          avatar_url: session.user.image,
+          github_username: session.user.github_username || "",
+        }),
+      }).catch((err) => {
+        console.error("Failed to register user:", err);
+      });
+    }
+  }, [status, session?.user?.id]);
+
   // Mock user stats
   const userStats = {
     coverLettersGenerated: 12,

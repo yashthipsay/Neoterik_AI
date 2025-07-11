@@ -1,30 +1,34 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt_for_gemini # Make sure to import the agent
-from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
+from ..cover_letter_generator.agent import cover_letter_agent, build_prompt_for_gemini
+from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput
 from typing import TypedDict, Dict, Optional
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
 import json
-import asyncio
 
-from langgraph.graph import StateGraph, END, START
+from langgraph.graph import StateGraph, END
 
-
-# Define the state schema
+# --- Define the state schema ---
 class AppState(TypedDict):
     context: Dict
-    resume_path: Optional[str]
-    github_username: Optional[str]
-    
-    
-# --- Node 1: Resume Parsing ---
+    resume_data: Optional[dict]
+    github_data: Optional[dict]
+    resume_path: Optional[str]  # legacy/testing only
+    github_username: Optional[str]  # legacy/testing only
+
+# --- Node 1: Resume Parsing or Use Parsed Data ---
 async def resume_node(state):
     print(">>> Entered resume_node")
     context = state["context"]
-    resume_path = state["resume_path"]
-    print("Running Resume Parser...")
-
+    # Use parsed resume_data if present (from Supabase)
+    if "resume_data" in state and state["resume_data"]:
+        print("Using parsed resume_data from state (Supabase).")
+        context["resume"] = state["resume_data"]
+        return {"context": context, "resume_data": state["resume_data"], "github_data": state.get("github_data")}
+    # Legacy: parse from file if resume_data not present
+    resume_path = state.get("resume_path")
+    print(f"Running Resume Parser... resume_path={resume_path}")
     resume_text = ""
     if resume_path:
         suffix = Path(resume_path).suffix.lower()
@@ -39,79 +43,87 @@ async def resume_node(state):
         else:
             raise ValueError("Unsupported resume file type.")
     else:
-        resume_text = ""  # Or load a sample resume text
-
+        print("No resume_path provided, using empty resume_text.")
+        resume_text = ""
     # Call the agent with the resume text
     result = await resume_agent.run(resume_text)
+    print("Resume agent result:", result)
     context["resume"] = result
-    # print(">>> Exiting resume_node with state:", {
-    #     "context": context,
-    #     "resume_path": resume_path,
-    #     "github_username": state["github_username"]
-    # })
-    return {"context": context, "resume_path": resume_path, "github_username": state["github_username"]}
+    print(">>> Exiting resume_node with state:", {
+        "context": context,
+        "resume_data": result,
+        "github_data": state.get("github_data")
+    })
+    return {"context": context, "resume_data": result, "github_data": state.get("github_data")}
 
-# --- Node 2: GitHub Repo Parsing ---
+# --- Node 2: GitHub Repo Parsing or Use Parsed Data ---
 async def github_node(state):
+    print(">>> Entered github_node")
     context = state["context"]
-    github_username = state["github_username"]
-    print("Running GitHub Parser...")
+    # Use parsed github_data if present (from Supabase)
+    if "github_data" in state and state["github_data"]:
+        print("Using parsed github_data from state (Supabase).")
+        context["github"] = state["github_data"]
+        return {"context": context, "resume_data": state.get("resume_data"), "github_data": state["github_data"]}
+    # Legacy: parse from username if github_data not present
+    github_username = state.get("github_username")
+    print(f"Running GitHub Parser... github_username={github_username}")
     if not github_username:
+        print("No github_username provided, returning empty github dict.")
         context["github"] = {}
-        return {"context": context, "resume_path": state["resume_path"], "github_username": github_username}
+        return {"context": context, "resume_data": state.get("resume_data"), "github_data": {}}
     github_result = await github_agent.run(github_username)
-    # If your tool returns a .data attribute, use that; otherwise, use the result directly
     github_data = github_result.data if hasattr(github_result, "data") else github_result
+    print("GitHub agent result:", github_data)
     context["github"] = github_data
-    return {"context": context, "resume_path": state["resume_path"], "github_username": github_username}
+    print(">>> Exiting github_node with state:", {
+        "context": context,
+        "resume_data": state.get("resume_data"),
+        "github_data": github_data
+    })
+    return {"context": context, "resume_data": state.get("resume_data"), "github_data": github_data}
 
 def clean_json_string(s):
     """Remove markdown fences, description text, and whitespace from a string."""
     s = s.strip()
-    
-    # Find the JSON block within the string
     json_start = s.find("```json")
     if json_start != -1:
-        # Find the start of actual JSON after the markdown fence
         json_content_start = s.find("\n", json_start) + 1
-        # Find the end of the JSON block
         json_end = s.find("```", json_content_start)
         if json_end != -1:
             return s[json_content_start:json_end].strip()
-    
-    # If no markdown fences found, try to find JSON object directly
     json_start = s.find("{")
     json_end = s.rfind("}")
     if json_start != -1 and json_end != -1 and json_end > json_start:
         return s[json_start:json_end+1].strip()
-    
-    # Return original if no JSON pattern found
     return s
 
+# --- Node 3: Cover Letter Generation ---
 async def cover_letter_node(state):
+    print(">>> Entered cover_letter_node")
     context = state["context"]
     resume_result = context.get("resume", {})
     github_result = context.get("github", {})
 
-    # print("\n--- DEBUG: resume_result ---")
-    # print(repr(resume_result))
-    # print("--- /DEBUG ---")
+    print("\n--- DEBUG: resume_result ---")
+    print(repr(resume_result))
+    print("--- /DEBUG ---")
 
-    # print("\n--- DEBUG: github_result ---")
-    # print(repr(github_result))
-    # print("--- /DEBUG ---")
+    print("\n--- DEBUG: github_result ---")
+    print(repr(github_result))
+    print("--- /DEBUG ---")
 
     # Extract data from AgentRunResult if needed
     resume = resume_result.data if hasattr(resume_result, "data") else resume_result
     github = github_result.data if hasattr(github_result, "data") else github_result
 
-    # print("\n--- DEBUG: resume (after .data if present) ---")
-    # print(repr(resume))
-    # print("--- /DEBUG ---")
+    print("\n--- DEBUG: resume (after .data if present) ---")
+    print(repr(resume))
+    print("--- /DEBUG ---")
 
-    # print("\n--- DEBUG: github (after .data if present) ---")
-    # print(repr(github))
-    # print("--- /DEBUG ---")
+    print("\n--- DEBUG: github (after .data if present) ---")
+    print(repr(github))
+    print("--- /DEBUG ---")
 
     # --- FIX: Parse JSON if resume/github are strings ---
     if isinstance(resume, str):
@@ -136,6 +148,10 @@ async def cover_letter_node(state):
     # FIX: Extract GitHub username properly and create github info dict
     github_username = github.get("username", context.get("github_username", ""))
     github_info_dict = github if isinstance(github, dict) and github else {}
+
+    print("\n--- DEBUG: github_info_dict ---")
+    print(repr(github_info_dict))
+    print("--- /DEBUG ---")
 
     cover_letter_input_model = CoverLetterInput(
         job_title=context.get("job_title", ""),
@@ -167,12 +183,15 @@ async def cover_letter_node(state):
         github_info=github_info_str, 
         resume_data=resume_highlights_str
     )
+    print("\n--- DEBUG: Prompt for Gemini ---")
+    print(prompt_str)
+    print("--- /DEBUG ---")
     
     try:
         # Call the agent with the properly structured input
         # Use the generate_with_style tool which handles RAG internally
         agent_result = await cover_letter_agent.run(prompt_str, deps=cover_letter_input_model)
-        
+        print("Cover letter agent result:", agent_result)
         # Extract the result
         output_data = agent_result.data if hasattr(agent_result, "data") else agent_result
         
@@ -187,9 +206,8 @@ async def cover_letter_node(state):
                 "cover_letter": str(output_data),
                 "summary": None,
                 "used_highlights": None,
-                "used_github_info": github_info_dict  # FIX: Use the github dict
+                "used_github_info": github_info_dict
             }
-    
     except Exception as e:
         print(f"Error in cover letter generation: {e}")
         # Provide a fallback response
@@ -197,9 +215,9 @@ async def cover_letter_node(state):
             "cover_letter": f"Error generating cover letter: {str(e)}",
             "summary": None,
             "used_highlights": None,
-            "used_github_info": github_info_dict  # FIX: Use the github dict
+            "used_github_info": github_info_dict
         }
-    
+    print(">>> Exiting cover_letter_node with context keys:", list(context.keys()))
     return {"context": context}
 
 # --- Define the LangGraph graph ---
@@ -208,12 +226,10 @@ def build_graph():
     workflow.add_node("resume", resume_node)
     workflow.add_node("github", github_node)
     workflow.add_node("cover_letter", cover_letter_node)
-
     # Edges: resume -> github -> cover_letter -> END
     workflow.add_edge("resume", "github")
     workflow.add_edge("github", "cover_letter")
     workflow.add_edge("cover_letter", END)
-
     workflow.set_entry_point("resume")
     return workflow.compile()
 
@@ -225,3 +241,4 @@ def show_graph():
         f.write(img_data)
     print("✅ Graph visualization saved as graph_visualization.png")
     display(Image(img_data))
+

@@ -150,6 +150,7 @@ async def cover_letter_node(state):
         qualifications="; ".join(
             f"{edu.get('degree', '')} from {edu.get('institution', '')}"
             for edu in resume.get("education", [])
+            if isinstance(edu, dict)
         ) if resume.get("education") else "",
         skillsets=", ".join(resume.get("skills", [])) if resume.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),

@@ -11,9 +11,10 @@ from agents.resume_parsing.agent import SAMPLE_RESUME_PATH
 # from agents.cover_letter_generator.agent import CoverLetterAgent, build_prompt
 from agents.cover_letter_generator.models import CoverLetterInput
 from agents.langgraph_workflow.unified_workflow import build_graph, show_graph
-from company_research_graph import run_job_research  # Import the job research function
+from company_research_graph import build_detect_only_graph, DetectOnlyState,  run_job_research  # Import the job research function
 import asyncio
 from fastapi.responses import JSONResponse
+
 
 app = FastAPI(
     title="Job URL Detector API",
@@ -50,28 +51,65 @@ KNOWN_JOB_BOARD_PATTERNS = [
     # Add more patterns as needed
 ]
 
-# def is_job_application_url(url: str) -> bool:
-#     """Check if URL matches any known job board patterns"""
-#     return any(re.search(pattern, url) for pattern in KNOWN_JOB_BOARD_PATTERNS)
-
 @app.post("/check-url")
 async def check_url(data: URLCheckRequest):
     try:
-        result = await run_job_research(data.url)
-        if result:
-            return JSONResponse(content={
-                "is_job_application": True,  # ✅ always true if graph succeeded
-                "parsed_output": result.model_dump()
-            }, status_code=200)
+        # Run detect_node only
+        graph = build_detect_only_graph()
+        initial_state = DetectOnlyState(
+            job_url=data.url,
+            is_job_page=False,
+            scraped_html="",
+            job_title="",
+            company_name=""
+        )
+        result = await graph.ainvoke(initial_state)
+
+        # Return is_job_application only based on detect_node
         return JSONResponse(content={
-            "is_job_application": False,
-            "parsed_output": None
-        }, status_code=204)
+            "is_job_application": result.get("is_job_page", False),
+            "job_title": result.get("job_title", ""),
+            "company_name": result.get("company_name", "")
+        }, status_code=200)
+        
     except Exception as e:
         return JSONResponse(content={
             "is_job_application": False,
             "error": str(e)
         }, status_code=500)
+    
+# Endpoint to run the full job research graph
+@app.post("/run-agent")
+async def run_agent_api(data: URLCheckRequest):
+    try:
+        parsed_output = await run_job_research(data.url)  # full graph
+        return parsed_output.model_dump()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# def is_job_application_url(url: str) -> bool:
+#     """Check if URL matches any known job board patterns"""
+#     return any(re.search(pattern, url) for pattern in KNOWN_JOB_BOARD_PATTERNS)
+
+# @app.post("/check-url")
+# async def check_url(data: URLCheckRequest):
+#     try:
+#         result = await run_job_research(data.url)
+#         if result:
+#             return JSONResponse(content={
+#                 "is_job_application": True,  # ✅ always true if graph succeeded
+#                 "parsed_output": result.model_dump()
+#             }, status_code=200)
+#         return JSONResponse(content={
+#             "is_job_application": False,
+#             "parsed_output": None
+#         }, status_code=204)
+#     except Exception as e:
+#         return JSONResponse(content={
+#             "is_job_application": False,
+#             "error": str(e)
+#         }, status_code=500)
     # """Check if the provided URL is a job application page"""
     # is_job_url = is_job_application_url(data.url)
     # print(f"Checking URL: {data.url} - Result: {'✓' if is_job_url else '✗'}")

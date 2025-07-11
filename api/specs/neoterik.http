@@ -6,12 +6,12 @@ Content-Type: application/json
 {
     "job_title": "Head Chef",
     "hiring_company": "The Golden Spoon",
-    "applicant_name": "Yash Thipsay",
+    "applicant_name": "Parag Purandare",
     "job_description": "The Golden Spoon, a Michelin-starred restaurant, is seeking a creative and experienced Head Chef to lead our culinary team. You will be responsible for all aspects of the kitchen, including menu creation, staff management, and ensuring the highest quality of our dishes. The ideal candidate will have a passion for seasonal ingredients and innovative cooking techniques.",
     "preferred_qualifications": "Proven experience as a Head Chef or Sous Chef in a fine dining establishment. Culinary degree from an accredited institution. In-depth knowledge of kitchen management and food safety regulations. Strong leadership and communication skills. Ability to work well under pressure in a fast-paced environment. A portfolio of creative and original dishes.",
     "company_culture_notes": "At The Golden Spoon, we believe in a collaborative and creative kitchen environment. We value fresh, locally-sourced ingredients and a commitment to culinary excellence. Our team is a family, and we support each other to create unforgettable dining experiences for our guests.",
     "additional_notes": "Competitive salary and performance-based bonuses. Health and dental insurance provided. Paid vacation and sick leave. Opportunities for professional development, including attending culinary workshops and competitions. The hiring process includes a tasting interview where you will prepare a signature dish.",
-    "github_username": "yashthipsay",
+    "github_username": "paragpurandare",
     "desired_tone": "auto",
     "company_url": ""
 }
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ### Parse URL
 
-POST http://localhost:8000/check-url
+POST http://localhost:8000/run-agent
 Content-Type: application/json
 
 {

@@ -1,9 +1,23 @@
+<<<<<<< HEAD
+[project]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "paragpurandare",email = "paragpurandare50@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
+=======
 [tool.poetry]
 name = "api"
 version = "0.1.0"
 description = ""
 authors = ["yash"]
 readme = "README.md"
+>>>>>>> e4e74a1c92a318ee99d142a6f70004f692c161c7
 
 [tool.poetry.dependencies]
 python = "^3.12"

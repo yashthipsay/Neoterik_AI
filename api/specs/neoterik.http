@@ -4,17 +4,18 @@ POST http://localhost:8000/generate-cover-letter
 Content-Type: application/json
 
 {
-    "job_title": "Guest Experience Manager",
-    "hiring_company": "LuxeStay Resorts",
+    "job_title": "Director of Crisis Operations",
+    "hiring_company": "Sentinel Global Risk",
     "applicant_name": "Yash Thipsay",
-    "job_description": "LuxeStay Resorts, a leader in luxury hospitality, is looking for a Guest Experience Manager to ensure our guests receive world-class service from arrival to departure. You will oversee front-of-house operations, curate personalized experiences, and maintain the highest standards of hospitality. The ideal candidate is detail-oriented, empathetic, and passionate about guest satisfaction.",
-    "preferred_qualifications": "Previous experience in luxury hospitality or guest relations. A degree or certification in Hospitality Management is a plus. Strong communication and interpersonal skills. Proven ability to resolve guest concerns diplomatically. Familiarity with CRM systems and concierge software.",
-    "company_culture_notes": "LuxeStay is built on a foundation of elegance, attentiveness, and a commitment to making every guest feel at home. We foster a culture of integrity, warmth, and excellence in every interaction—both with guests and among team members.",
-    "additional_notes": "Competitive compensation and relocation support. Access to luxury hospitality training programs. Opportunities to grow into regional leadership roles. Staff wellness programs and exclusive resort benefits included.",
+    "job_description": "Sentinel Global Risk is seeking a highly disciplined and strategically minded Director of Crisis Operations to oversee mission-critical response protocols across international conflict zones and high-risk environments. You will lead multidisciplinary teams in real-time emergency decision-making, ensuring the safety of personnel, the integrity of assets, and the success of classified operations. This role is not for the faint-hearted — it requires absolute composure under pressure, sharp judgment, and a proven record of leadership in volatile, high-stakes situations.",
+    "preferred_qualifications": "Minimum 10 years in military, intelligence, or international emergency management. Advanced training in crisis response, risk mitigation, and operational command. Exceptional communication skills under duress. Experience interfacing with government and defense agencies. Clearance to handle sensitive and confidential material. Tactical leadership experience required.",
+    "company_culture_notes": "At Sentinel, we don't do easy. Our culture is built on precision, resilience, and accountability. There is zero tolerance for complacency. Every team member is expected to operate at peak performance, uphold the chain of command, and respond to challenges with unwavering focus and integrity.",
+    "additional_notes": "This role requires frequent international travel, extended deployments in high-risk areas, and 24/7 on-call availability. Physical and psychological readiness assessments will be conducted. Compensation reflects the demands of the role, including performance-based bonuses, hazard pay, and elite-tier benefits.",
     "github_username": "yashthipsay",
     "desired_tone": "auto",
     "company_url": ""
 }
+
 
 
 

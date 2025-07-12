@@ -4,17 +4,18 @@ POST http://localhost:8000/generate-cover-letter
 Content-Type: application/json
 
 {
-    "job_title": "Head Chef",
-    "hiring_company": "The Golden Spoon",
-    "applicant_name": "Parag Purandare",
-    "job_description": "The Golden Spoon, a Michelin-starred restaurant, is seeking a creative and experienced Head Chef to lead our culinary team. You will be responsible for all aspects of the kitchen, including menu creation, staff management, and ensuring the highest quality of our dishes. The ideal candidate will have a passion for seasonal ingredients and innovative cooking techniques.",
-    "preferred_qualifications": "Proven experience as a Head Chef or Sous Chef in a fine dining establishment. Culinary degree from an accredited institution. In-depth knowledge of kitchen management and food safety regulations. Strong leadership and communication skills. Ability to work well under pressure in a fast-paced environment. A portfolio of creative and original dishes.",
-    "company_culture_notes": "At The Golden Spoon, we believe in a collaborative and creative kitchen environment. We value fresh, locally-sourced ingredients and a commitment to culinary excellence. Our team is a family, and we support each other to create unforgettable dining experiences for our guests.",
-    "additional_notes": "Competitive salary and performance-based bonuses. Health and dental insurance provided. Paid vacation and sick leave. Opportunities for professional development, including attending culinary workshops and competitions. The hiring process includes a tasting interview where you will prepare a signature dish.",
-    "github_username": "paragpurandare",
+    "job_title": "Guest Experience Manager",
+    "hiring_company": "LuxeStay Resorts",
+    "applicant_name": "Yash Thipsay",
+    "job_description": "LuxeStay Resorts, a leader in luxury hospitality, is looking for a Guest Experience Manager to ensure our guests receive world-class service from arrival to departure. You will oversee front-of-house operations, curate personalized experiences, and maintain the highest standards of hospitality. The ideal candidate is detail-oriented, empathetic, and passionate about guest satisfaction.",
+    "preferred_qualifications": "Previous experience in luxury hospitality or guest relations. A degree or certification in Hospitality Management is a plus. Strong communication and interpersonal skills. Proven ability to resolve guest concerns diplomatically. Familiarity with CRM systems and concierge software.",
+    "company_culture_notes": "LuxeStay is built on a foundation of elegance, attentiveness, and a commitment to making every guest feel at home. We foster a culture of integrity, warmth, and excellence in every interaction—both with guests and among team members.",
+    "additional_notes": "Competitive compensation and relocation support. Access to luxury hospitality training programs. Opportunities to grow into regional leadership roles. Staff wellness programs and exclusive resort benefits included.",
+    "github_username": "yashthipsay",
     "desired_tone": "auto",
     "company_url": ""
 }
+
 
 
 

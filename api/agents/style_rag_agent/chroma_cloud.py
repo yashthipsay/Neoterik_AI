@@ -143,7 +143,7 @@ def chunk_documents(documents: list[Document]) -> list[Document]:
 
 # === Upload to Chroma ===
 def store_documents_in_chroma(chunks: list[Document]):
-    embed_model = HuggingFaceEmbeddings(model_name="lightonai/modernbert-embed-large")
+    embed_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
     client = get_chroma_client()
 
     try:

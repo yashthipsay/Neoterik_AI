@@ -1,9 +1,10 @@
 from pathlib import Path
 from ..resume_parsing.agent import resume_agent
 from ..repo_parsing.agent import github_agent
-from ..cover_letter_generator.agent import cover_letter_agent, build_prompt_for_gemini # Make sure to import the agent
+from ..cover_letter_generator.agent import cover_letter_agent
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
 from typing import TypedDict, Dict, Optional
+from ..resume_parsing.models import ResumeData
 from langchain.document_loaders import PyPDFLoader, Docx2txtLoader
 import json
 import asyncio
@@ -89,6 +90,11 @@ def clean_json_string(s):
     return s
 
 async def cover_letter_node(state):
+
+    SYSTEM_PROMPT = """
+    You are a cover letter assistant. Your sole responsibility is to use the provided tools to generate a cover letter.
+    **Crucial Instruction:** You must invoke the `retrieve_styles_and_generate_letter` tool to fulfill the user's request. Do not attempt to write the cover letter yourself.
+    """
     context = state["context"]
     resume_result = context.get("resume", {})
     github_result = context.get("github", {})
@@ -102,8 +108,8 @@ async def cover_letter_node(state):
     # print("--- /DEBUG ---")
 
     # Extract data from AgentRunResult if needed
-    resume = resume_result.data if hasattr(resume_result, "data") else resume_result
-    github = github_result.data if hasattr(github_result, "data") else github_result
+    resume_dict = resume_result.data if hasattr(resume_result, "data") else resume_result
+    github_dict = github_result.data if hasattr(github_result, "data") else github_result
 
     # print("\n--- DEBUG: resume (after .data if present) ---")
     # print(repr(resume))
@@ -114,64 +120,65 @@ async def cover_letter_node(state):
     # print("--- /DEBUG ---")
 
     # --- FIX: Parse JSON if resume/github are strings ---
-    if isinstance(resume, str):
+    if isinstance(resume_dict, str):
         try:
-            resume = json.loads(clean_json_string(resume))
+            resume_dict = json.loads(clean_json_string(resume_dict))
         except Exception as e:
             print("Error parsing resume JSON:", e)
-            resume = {}
+            resume_dict = {}
 
-    if isinstance(github, str):
+    if isinstance(github_dict, str):
         try:
-            github = json.loads(clean_json_string(github))
+            github_dict = json.loads(clean_json_string(github_dict))
         except Exception as e:
-            print("Error parsing github JSON:", e)
-            github = {}
+            print(f"Error parsing github JSON: {e}")
+            github_dict = {}
 
     # FIX: Ensure github is a proper dictionary, not just the username string
-    if not isinstance(github, dict):
-        print(f"Warning: github data is not a dict, got {type(github)}: {github}")
-        github = {}
+    if not isinstance(github_dict, dict):
+        print(f"Warning: github data is not a dict, got {type(github_dict)}: {github_dict}")
+        github_dict = {}
+
+    # --- Create Pydantic models from the dictionaries ---
+    # try:
+    #     resume_data_model = ResumeData(**resume_dict)
+    # except Exception as e:
+    #     print(f"Error validating resume data with Pydantic model: {e}")
+    #     resume_data_model = ResumeData() # Fallback to empty model
 
     # FIX: Extract GitHub username properly and create github info dict
-    github_username = github.get("username", context.get("github_username", ""))
-    github_info_dict = github if isinstance(github, dict) and github else {}
+    github_username = github_dict.get("username", context.get("github_username", ""))
+    github_info_dict = github_dict if isinstance(github_dict, dict) and github_dict else {}
 
     cover_letter_input_model = CoverLetterInput(
         job_title=context.get("job_title", ""),
         hiring_company=context.get("hiring_company", ""),
-        applicant_name=resume.get("name", ""), # resume is now a dict
+        applicant_name=resume_dict.get("name", ""), # resume is now a dict
         job_description=context.get("job_description", ""),
         preferred_qualifications=context.get("preferred_qualifications", ""),
         working_experience="; ".join(
             f"{exp.get('title', '')} at {exp.get('company', '')} for {exp.get('duration', '')}"
-            for exp in resume.get("experience", [])
-        ) if resume.get("experience") else "",
+            for exp in resume_dict.get("experience", [])
+        ) if resume_dict.get("experience") else "",
         qualifications="; ".join(
             f"{edu.get('degree', '')} from {edu.get('institution', '')}"
-            for edu in resume.get("education", [])
+            for edu in resume_dict.get("education", [])
             if isinstance(edu, dict)
-        ) if resume.get("education") else "",
-        skillsets=", ".join(resume.get("skills", [])) if resume.get("skills") else "",
+        ) if resume_dict.get("education") else "",
+        skillsets=", ".join(resume_dict.get("skills", [])) if resume_dict.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),
         github_username=github_username, # Use extracted username
         applicant_experience_level=context.get("applicant_experience_level", "mid"),  # Default to mid-level
-        desired_tone=context.get("desired_tone", "professional"), 
+        desired_tone=context.get("desired_tone", "professional"),
+        resume_data=resume_dict, # Pass the structured resume data
+        github_data=github_dict,  
     )
     
-    # FIX: Convert github dict to string properly for the prompt
-    github_info_str = json.dumps(github_info_dict, indent=2) if github_info_dict else ""
-    resume_highlights_str = context.get("resume_highlights", "")
-    prompt_str = build_prompt_for_gemini(
-        cover_letter_input_model, 
-        github_info=github_info_str, 
-        resume_data=resume_highlights_str
-    )
     
     try:
         # Call the agent with the properly structured input
         # Use the generate_with_style tool which handles RAG internally
-        agent_result = await cover_letter_agent.run(prompt_str, deps=cover_letter_input_model)
+        agent_result = await cover_letter_agent.run(SYSTEM_PROMPT, deps=cover_letter_input_model)
         
         # Extract the result
         output_data = agent_result.data if hasattr(agent_result, "data") else agent_result

@@ -63,17 +63,7 @@ load_dotenv()
 
 # Simple system prompt that defines the agent's primary role
 SYSTEM_PROMPT = """
-You are an expert AI cover letter writer. Your goal is to create personalized, professional, and human-like cover letters that are 200-400 words. Be confident and persuasive, but not overly dramatic.
-
-Your task is to generate a cover letter that:
-1.  **Integrates keywords** from the `job_description` and `preferred_qualifications`.
-2.  **Shows value** by connecting the applicant's `skillsets` and `working_experience` to the job's needs.
-3.  **Presents skills naturally** within project descriptions, not as a list.
-4.  **Demonstrates genuine interest** in the `hiring_company` by referencing its culture and mission.
-5.  **Maintains a confident and natural tone**, sounding human and personable.
-6.  **Is well-structured** with a clear intro, body, and call to action.
-7.  **Avoids generic phrases** and creates concrete connections to the role.
-8.  **Handles all provided information gracefully**, omitting what isn't relevant.
+You are an expert AI cover letter writer. Your goal is to create personalized, professional, and human-like cover letters that are 200-300 words. Be confident and persuasive, but not overly dramatic.
 
 **Crucial Instruction:** Before writing, you must determine the correct style and tone by using the RAG functions.
 
@@ -157,46 +147,46 @@ def build_prompt(
         resume_highlights=resume_highlights
     )
     
-def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_data) -> str:
-    prompt_parts = []
+# def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_data) -> str:
+#     prompt_parts = []
 
-    # 1. Start with the System Prompt
-    # prompt_parts.append(SYSTEM_PROMPT) # Ensure this is the improved system prompt
+#     # 1. Start with the System Prompt
+#     # prompt_parts.append(SYSTEM_PROMPT) # Ensure this is the improved system prompt
 
-    # 2. Clearly delineate sections for the LLM
-    prompt_parts.append("\n--- JOB APPLICATION DETAILS ---")
-    prompt_parts.append(f"Job Title: {input_data.job_title}")
-    prompt_parts.append(f"Hiring Company: {input_data.hiring_company}")
-    # prompt_parts.append(f"Company Website: {input_data.company_url}")
+#     # 2. Clearly delineate sections for the LLM
+#     prompt_parts.append("\n--- JOB APPLICATION DETAILS ---")
+#     prompt_parts.append(f"Job Title: {input_data.job_title}")
+#     prompt_parts.append(f"Hiring Company: {input_data.hiring_company}")
+#     # prompt_parts.append(f"Company Website: {input_data.company_url}")
 
-    prompt_parts.append("\n--- JOB REQUIREMENTS ---")
-    prompt_parts.append(f"Job Description:\n{input_data.job_description}")
-    if input_data.preferred_qualifications:
-        prompt_parts.append(f"Preferred Qualifications:\n{input_data.preferred_qualifications}")
+#     prompt_parts.append("\n--- JOB REQUIREMENTS ---")
+#     prompt_parts.append(f"Job Description:\n{input_data.job_description}")
+#     if input_data.preferred_qualifications:
+#         prompt_parts.append(f"Preferred Qualifications:\n{input_data.preferred_qualifications}")
 
-    prompt_parts.append("\n--- APPLICANT BACKGROUND ---")
-    prompt_parts.append(f"Applicant Name: {input_data.applicant_name}")
-    if input_data.skillsets:
-        prompt_parts.append(f"Applicant Skillsets:\n{input_data.skillsets}")
-    if input_data.working_experience: # Assuming this is derived from resume parsing
-        prompt_parts.append(f"Applicant Working Experience Highlights:\n{input_data.working_experience}")
-    if resume_data: # If you pass the full resume text
-        # Consider truncating or summarizing if very long to save tokens
-        prompt_parts.append(f"Full Resume Content (for additional context):\n{resume_data[:2000]}...")
-    if github_info:
-        prompt_parts.append(f"GitHub Profile Information for {input_data.github_username or 'applicant'}:")
-        prompt_parts.append(f"- GitHub Summary: {github_info}")
+#     prompt_parts.append("\n--- APPLICANT BACKGROUND ---")
+#     prompt_parts.append(f"Applicant Name: {input_data.applicant_name}")
+#     if input_data.skillsets:
+#         prompt_parts.append(f"Applicant Skillsets:\n{input_data.skillsets}")
+#     if input_data.working_experience: # Assuming this is derived from resume parsing
+#         prompt_parts.append(f"Applicant Working Experience Highlights:\n{input_data.working_experience}")
+#     if resume_data: # If you pass the full resume text
+#         # Consider truncating or summarizing if very long to save tokens
+#         prompt_parts.append(f"Full Resume Content (for additional context):\n{resume_data[:2000]}...")
+#     if github_info:
+#         prompt_parts.append(f"GitHub Profile Information for {input_data.github_username or 'applicant'}:")
+#         prompt_parts.append(f"- GitHub Summary: {github_info}")
 
-    prompt_parts.append("\n--- COMPANY CULTURE & CONTEXTUAL NOTES ---")
-    if input_data.company_culture_notes:
-        prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
+#     prompt_parts.append("\n--- COMPANY CULTURE & CONTEXTUAL NOTES ---")
+#     if input_data.company_culture_notes:
+#         prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
 
-    prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
-    prompt_parts.append(
-        "Focus on integrating all relevant information to demonstrate the applicant's ideal fit. Use the styles filter before generating the cover letter, to ensure the desired tone for the cover letter is set."
-    )
+#     prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
+#     prompt_parts.append(
+#         "Focus on integrating all relevant information to demonstrate the applicant's ideal fit. Use the styles filter before generating the cover letter, to ensure the desired tone for the cover letter is set."
+#     )
 
-    return "\n\n".join(prompt_parts)
+#     return "\n\n".join(prompt_parts)
 
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
@@ -270,6 +260,37 @@ def get_style_retriever_cloud(collection: str = "cover-letter-templates") -> Chr
         embedding_function=embed_model,
         client=client
     )
+
+def format_github_info(info):
+    if not info:
+        return "No GitHub information available."
+    lines = []
+    if info.get("name"):
+        lines.append(f"Name: {info['name']}")
+    if info.get("username"):
+        lines.append(f"Username: {info['username']}")
+    if info.get("bio"):
+        lines.append(f"Bio: {info['bio']}")
+    if info.get("location"):
+        lines.append(f"Location: {info['location']}")
+    if info.get("repo_count") is not None:
+        lines.append(f"Public Repos: {info['repo_count']}")
+    if info.get("followers") is not None:
+        lines.append(f"Followers: {info['followers']}")
+    if info.get("following") is not None:
+        lines.append(f"Following: {info['following']}")
+    if info.get("key_skills"):
+        lines.append(f"Key Skills: {', '.join(info['key_skills'])}")
+    if info.get("notable_repositories"):
+        lines.append("Notable Repositories:")
+        for repo in info["notable_repositories"]:
+            repo_line = f"  - {repo['name']}"
+            if repo.get("description"):
+                repo_line += f": {repo['description']}"
+            if repo.get("language"):
+                repo_line += f" [{repo['language']}]"
+            lines.append(repo_line)
+    return "\n".join(lines)
 
 @cover_letter_agent.tool
 async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOutput:
@@ -390,7 +411,15 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
                 preferred_qualifications=ctx.deps.preferred_qualifications,
                 company_culture_notes=ctx.deps.company_culture_notes,
                 applicant_experience_level=getattr(ctx.deps, 'applicant_experience_level', None),
-                desired_tone="auto"
+                desired_tone="auto",
+                # Add the missing parsed data
+                applicant_name=getattr(ctx.deps, 'applicant_name', ''),
+                working_experience=getattr(ctx.deps, 'working_experience', ''),
+                qualifications=getattr(ctx.deps, 'qualifications', ''),
+                skillsets=getattr(ctx.deps, 'skillsets', ''),
+                github_username=getattr(ctx.deps, 'github_username', ''),
+                resume_data=getattr(ctx.deps, 'resume_data', None),
+                github_data=getattr(ctx.deps, 'github_data', None)
             )
             style_result = await style_agent.run(deps=rag_input)
             structured = style_result.data if hasattr(style_result, "data") else style_result
@@ -505,6 +534,36 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
         # Build enhanced generation prompt using all retrieved data
         print(f"\n--- BUILDING GENERATION PROMPT ---")
         
+        github_data = getattr(ctx.deps, 'github_data', None)
+        used_github_info = {}
+
+        # --- PATCH START ---
+        # Always use the same logic for both output and prompt
+        github_data = ctx.deps.github_data or {}
+        used_github_info = {}
+        if isinstance(github_data, dict) and github_data:
+            used_github_info = {
+                "name": github_data.get("name"),
+                "username": github_data.get("username"),
+                "bio": github_data.get("bio"),
+                "location": github_data.get("location"),
+                "repo_count": github_data.get("public_repos_count"),
+                "followers": github_data.get("followers"),
+                "following": github_data.get("following"),
+                "key_skills": github_data.get("skills_tags", []),
+                "notable_repositories": [
+                    {
+                        "name": repo.get("name"),
+                        "description": repo.get("description"),
+                        "language": repo.get("language")
+                    }
+                    for repo in github_data.get("top_repositories", [])
+                ]
+            }
+        else:
+            used_github_info = None
+        github_info_formatted = format_github_info(used_github_info)
+
         base_prompt = f"""Generate a personalized cover letter for {input_data.job_title} at {input_data.hiring_company}.
 
 APPLICANT INFORMATION:
@@ -513,6 +572,9 @@ APPLICANT INFORMATION:
 - Qualifications: {input_data.qualifications}
 - Skillsets: {input_data.skillsets}
 - Company Culture Notes: {input_data.company_culture_notes}
+
+GITHUB PROFILE INFORMATION:
+{github_info_formatted}
 
 JOB DETAILS:
 - Job Description: {input_data.job_description}

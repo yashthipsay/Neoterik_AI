@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional
+from ..cover_letter_generator.models import CoverLetterInput
 
-class StyleSelectionInput(BaseModel):
+class StyleSelectionInput(CoverLetterInput):
     job_title: str
     hiring_company: str
     job_description: Optional[str]

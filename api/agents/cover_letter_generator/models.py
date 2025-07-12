@@ -22,6 +22,8 @@ class CoverLetterInput(BaseModel):
     qualifications: Optional[str] = None      # e.g., "Master's in Artificial Intelligence"
     skillsets: Optional[str] = None           # e.g., "Python, TensorFlow, PyTorch, cloud deployment (AWS, GCP), computer vision, NLP, MLOps, scalable model deployment, data-driven decision making"
     company_culture_notes: Optional[str] = None  # e.g., "Innovative, collaborative, mission-driven"
+    resume_data: Optional[Dict[str, Any]] = None
+    github_data: Optional[Dict[str, Any]] = None
     github_username: Optional[str] = None        # For enrichment if needed
     applicant_experience_level: Optional[str] = None
     desired_tone: Optional[str] = None  # e.g., "formal", "friendly"

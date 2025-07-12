@@ -6,12 +6,12 @@ Content-Type: application/json
 {
     "job_title": "Crypto Fraud Investigator",
     "hiring_company": "BlockShield Analytics",
-    "applicant_name": "Yash Thipsay",
+    "applicant_name": "Parag Purandare",
     "job_description": "BlockShield Analytics is seeking a detail-oriented and tenacious Crypto Fraud Investigator to uncover and analyze illicit activity across blockchain networks. You will conduct on-chain forensic research, trace suspicious transactions, and collaborate with legal and compliance teams to build airtight case files. Your work will directly support law enforcement and help safeguard the integrity of the digital asset ecosystem.",
     "preferred_qualifications": "3+ years in blockchain analytics, financial crime investigation, or digital forensics. Hands-on experience with chain-analysis tools (e.g., Chainalysis, Elliptic) and transaction tracing techniques. Strong understanding of smart contracts, DeFi protocols, and AML/CFT regulations. Excellent analytical, report-writing, and presentation skills. Prior collaboration with compliance or law enforcement preferred.",
     "company_culture_notes": "At BlockShield, we combine rigorous analytics with a collaborative spirit. We challenge each other to dig deeper, share insights openly, and innovate new methods to stay ahead of evolving fraud tactics. Integrity, curiosity, and teamwork are at the core of everything we do.",
     "additional_notes": "Competitive compensation with performance bonuses tied to successful investigations. Comprehensive benefits including health insurance, professional certification reimbursement, and remote-friendly work arrangements. Expect occasional on-call rotations to respond to incidents in real time.",
-    "github_username": "yashthipsay",
+    "github_username": "paragpurandare",
     "desired_tone": "auto",
     "company_url": ""
 }

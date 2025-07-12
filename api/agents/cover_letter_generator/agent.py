@@ -191,7 +191,7 @@ def build_prompt(
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="gemini-2.5-pro",  # Google Gemini 2.5 Pro model for advanced text generation
+    model="gemini-2.5-flash",  # Google Gemini 2.5 Pro model for advanced text generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )

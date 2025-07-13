@@ -405,7 +405,7 @@ async function getJobDataForCoverLetter() {
 			resolve({
 				job_title: job.job_title || "",
 				hiring_company: job.company_name || "",
-				applicant_name: "Parag Purandare",
+				applicant_name: "Yash Thipsay",
 				job_description: job.job_description || "",
 				preferred_qualifications: [
 					...(job.preferred_qualifications || []),
@@ -414,7 +414,7 @@ async function getJobDataForCoverLetter() {
 				company_culture_notes: `${job.company_vision || ""}\n${
 					job.additional_notes || ""
 				}`,
-				github_username: "paragpurandare",
+				github_username: "yashthipsay",
 				desired_tone:
 					document.getElementById("desired_tone")?.value ||
 					"professional",

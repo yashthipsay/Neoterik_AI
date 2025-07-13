@@ -30,10 +30,12 @@ docx2txt = "^0.9"
 pypdf2 = "^3.0.1"
 playwright = "^1.53.0"
 fastembed = "^0.7.1"
-protobuf = ">=3.20.0,<3.21.0"
+protobuf = ">=6.30.0,<7.0.0"
 ipython = "^9.4.0"
 graphviz = "^0.21"
 pypdf = "^5.7.0"
+chromadb = "^1.0.15"
+sentence-transformers = "^5.0.0"
 
 
 [build-system]

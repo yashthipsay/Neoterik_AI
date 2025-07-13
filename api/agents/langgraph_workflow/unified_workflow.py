@@ -1,5 +1,5 @@
 from pathlib import Path
-from ..resume_parsing.agent import resume_agent
+from ..resume_parsing.agent import resume_agent, parse_resume_from_pdf
 from ..repo_parsing.agent import github_agent
 from ..cover_letter_generator.agent import cover_letter_agent
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
@@ -197,13 +197,16 @@ async def cover_letter_node(state):
             for edu in resume_dict.get("education", [])
             if isinstance(edu, dict)
         ) if resume_dict.get("education") else "",
-        skillsets=", ".join(resume_dict.get("skills", [])) if resume_dict.get("skills") else "",
+        # Combine all individual skills from each skill group into a comma-separated string.
+        skillsets=", ".join(
+            skill for s in resume_dict.get("skills", []) for skill in s.get("skills", [])
+        ) if resume_dict.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),
-        github_username=github_username, # Use extracted username
-        applicant_experience_level=context.get("applicant_experience_level", "mid"),  # Default to mid-level
+        github_username=github_username,
+        applicant_experience_level=context.get("applicant_experience_level", "mid"),
         desired_tone=context.get("desired_tone", "professional"),
-        resume_data=resume_dict, # Pass the structured resume data
-        github_data=github_dict,  
+        resume_data=resume_dict,
+        github_data=github_dict,
     )
     
     

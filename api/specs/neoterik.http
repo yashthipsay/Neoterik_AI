@@ -26,7 +26,7 @@ Content-Type: application/pdf
 
 < ./api/sample_resume/parag_cv.pdf
 --boundary--
-supabase.table("documents").upsert(doc, on_conflict=["user_id", "type"]).execute()
+
 
 ### Submit GitHub Username Command
 POST http://localhost:8000/submit-github
@@ -46,8 +46,7 @@ Content-Type: application/json
   "hiring_company": "Acme Corp",        
   "job_description": "We are looking for a Software Engineer...", 
   "preferred_qualifications": "Python, FastAPI, SQL",            
-  "company_culture_notes": "We value innovation and teamwork.", 
-  "github_username": "paragpurandare",     
+  "company_culture_notes": "We value innovation and teamwork.",     
   "applicant_name": "Parag Purandare",      
   "desired_tone": "professional"           
 }

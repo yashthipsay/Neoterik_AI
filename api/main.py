@@ -7,8 +7,8 @@ from pathlib import Path
 import shutil
 import tempfile
 from fastapi.middleware.cors import CORSMiddleware
-from agents.resume_parsing.workflow import create_resume_parsing_workflow
-from agents.repo_parsing.workflow import create_github_parsing_workflow 
+from agents.resume_parsing.agent import resume_agent
+from agents.repo_parsing.agent import github_agent 
 from agents.resume_parsing.agent import SAMPLE_RESUME_PATH
 # from agents.cover_letter_generator.agent import CoverLetterAgent, build_prompt
 from agents.cover_letter_generator.models import CoverLetterInput
@@ -43,6 +43,13 @@ class RegisterUserRequest(BaseModel):
 @app.post("/register-user")
 async def register_user(user: RegisterUserRequest):
     try:
+        # Check if user already exists
+        existing = supabase.table("users").select("*").eq("id", user.id).single().execute()
+        if existing.data:
+            print(f"User already exists: {user.id}")
+            return {"success": True, "user": existing.data, "message": "User already registered"}
+
+        # Insert new user
         data = {
             "id": user.id,
             "email": user.email,
@@ -50,10 +57,9 @@ async def register_user(user: RegisterUserRequest):
             "avatar_url": user.avatar_url,
             "github_username": user.github_username,
         }
-        print("Registering user with data:", data)
-        result = supabase.table("users").upsert(data, on_conflict="id").execute()
-        print("Supabase result:", result)
-        # No .error attribute; just return the data
+        print("Registering new user with data:", data)
+        result = supabase.table("users").insert(data).execute()
+        print("Supabase insert result:", result)
         return {"success": True, "user": result.data}
     except Exception as e:
         import traceback
@@ -65,6 +71,41 @@ async def register_user(user: RegisterUserRequest):
 def test_supabase():
     result = supabase.table("users").select("*").limit(1).execute()
     return result.data
+
+# Add this test endpoint after the existing test-supabase endpoint
+@app.get("/test-documents-table")
+def test_documents_table():
+    """Test endpoint to check the documents table structure"""
+    try:
+        # Try to get the table structure
+        result = supabase.table("documents").select("*").limit(1).execute()
+        return {"status": "success", "data": result.data, "columns": list(result.data[0].keys()) if result.data else []}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+@app.get("/test-db-connection")
+def test_db_connection():
+    """Test endpoint to check database connection and table existence"""
+    try:
+        # Test basic connection
+        users_result = supabase.table("users").select("*").limit(1).execute()
+        
+        # Test documents table
+        try:
+            docs_result = supabase.table("documents").select("*").limit(1).execute()
+            docs_status = "exists"
+        except Exception as docs_error:
+            docs_status = f"error: {str(docs_error)}"
+        
+        return {
+            "status": "connected",
+            "users_table": "exists" if users_result.data is not None else "error",
+            "documents_table": docs_status,
+            "supabase_url": SUPABASE_URL if SUPABASE_URL else "not_set",
+            "supabase_key": "set" if SUPABASE_KEY else "not_set"
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
 
 class URLCheckRequest(BaseModel):
     url: str
@@ -151,140 +192,188 @@ async def run_agent_api(data: URLCheckRequest):
     # print(f"Checking URL: {data.url} - Result: {'✓' if is_job_url else '✗'}")
     # return {"is_job_application": is_job_url, "checked_url": data.url}
 
-@app.post("/parse-resume")
-async def parse_resume(file: UploadFile = None):
-    """Parse resume from uploaded PDF file or use sample"""
-    # Initialize the workflow
-    workflow = create_resume_parsing_workflow()
+# @app.post("/parse-resume")
+# async def parse_resume(file: UploadFile = None):
+#     """Parse resume from uploaded PDF file or use sample"""
+#     # Initialize the workflow
+#     workflow = create_resume_parsing_workflow()
 
-    input_data = {}
-    temp_file_path = None
+#     input_data = {}
+#     temp_file_path = None
 
-    try:
-        if file:
-            # Save uploaded file to temporary location
-            # Ensure the suffix matches the file type if needed, or handle different types
-            suffix = Path(file.filename).suffix if file.filename else '.tmp'
-            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                shutil.copyfileobj(file.file, tmp)
-                temp_file_path = Path(tmp.name)
-                input_data = {"resume_path": temp_file_path}
-        else:
-            # Use sample resume path directly if no file uploaded
-            input_data = {"resume_path": None} # Or pass SAMPLE_RESUME_PATH if preferred
+#     try:
+#         if file:
+#             # Save uploaded file to temporary location
+#             # Ensure the suffix matches the file type if needed, or handle different types
+#             suffix = Path(file.filename).suffix if file.filename else '.tmp'
+#             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+#                 shutil.copyfileobj(file.file, tmp)
+#                 temp_file_path = Path(tmp.name)
+#                 input_data = {"resume_path": temp_file_path}
+#         else:
+#             # Use sample resume path directly if no file uploaded
+#             input_data = {"resume_path": None} # Or pass SAMPLE_RESUME_PATH if preferred
 
-        # Run workflow asynchronously
-        result = await workflow.ainvoke(input_data) # Use ainvoke for async workflow
+#         # Run workflow asynchronously
+#         result = await workflow.ainvoke(input_data) # Use ainvoke for async workflow
 
-    finally:
-        # Clean up temp file if it was created
-        if temp_file_path and temp_file_path.exists():
-            temp_file_path.unlink()
+#     finally:
+#         # Clean up temp file if it was created
+#         if temp_file_path and temp_file_path.exists():
+#             temp_file_path.unlink()
 
-    # Extract results safely using .get()
-    parsed_data = result.get("parsed_data", {})
-    validation_result = result.get("validation_result", {})
-    error = result.get("error")
+#     # Extract results safely using .get()
+#     parsed_data = result.get("parsed_data", {})
+#     validation_result = result.get("validation_result", {})
+#     error = result.get("error")
 
-    if error:
-        # Handle potential errors during the workflow
-        # You might want to return a different status code or error message
-        return {"error": error, "parsed_data": parsed_data, "validation_result": validation_result}
+#     if error:
+#         # Handle potential errors during the workflow
+#         # You might want to return a different status code or error message
+#         return {"error": error, "parsed_data": parsed_data, "validation_result": validation_result}
 
-    return {
-        "parsed_data": parsed_data,
-        "validation_result": validation_result,
-        # "enriched_data": result.get("enriched_data", {}) # Add back if you have an enrichment step
-    }
+#     return {
+#         "parsed_data": parsed_data,
+#         "validation_result": validation_result,
+#         # "enriched_data": result.get("enriched_data", {}) # Add back if you have an enrichment step
+#     }
 
 # --- Endpoint to upload resume and parse it ---
 @app.post("/upload-resume")
 async def upload_resume(user_id: str = Form(...), file: UploadFile = File(...)):
-    workflow = create_resume_parsing_workflow()
-    input_data = {}
+    print(f"[API] Received upload-resume for user_id={user_id}, filename={file.filename}")
     temp_file_path = None
     try:
-        # Save uploaded file to temp location
+        # Validate inputs
+        if not user_id or not file:
+            raise HTTPException(status_code=400, detail="user_id and file are required")
+        
+        # Save uploaded file to a temporary location
         suffix = Path(file.filename).suffix if file.filename else '.tmp'
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             shutil.copyfileobj(file.file, tmp)
             temp_file_path = Path(tmp.name)
-            input_data = {"resume_path": temp_file_path}
-        # Run workflow
-        result = await workflow.ainvoke(input_data)
-        parsed = result.get("parsed_data", {})
+        print(f"[API] Saved resume to temp path: {temp_file_path}")
+
+        # Parse resume using the agent (pass the temp file path directly)
+        from agents.resume_parsing.agent import parse_resume_from_pdf
+        parsed_data = await parse_resume_from_pdf(temp_file_path)
+        print(f"[API] Parsed resume data for user_id={user_id}: {parsed_data}")
+        
+        # Validate parsed data
+        if not parsed_data or isinstance(parsed_data, dict) and parsed_data.get("error"):
+            raise HTTPException(status_code=400, detail=f"Failed to parse resume: {parsed_data.get('error') if isinstance(parsed_data, dict) else 'Unknown error'}")
+        
+        # Store in Supabase - Fixed upsert operation
         doc = {
             "user_id": user_id,
             "type": "resume",
-            "raw_input": {"filename": file.filename},
-            "parsed_data": parsed,
+            "raw_input": {"filename": file.filename, "resume_path": str(temp_file_path)},
+            "parsed_data": parsed_data,
         }
-        supabase.table("documents").upsert(doc, on_conflict=["user_id", "type"]).execute()
-        return {"status": "ok", "parsed_data": parsed}
+        
+        # First try to delete existing record for this user and type
+        try:
+            supabase.table("documents").delete().eq("user_id", user_id).eq("type", "resume").execute()
+            print(f"[API] Deleted existing resume record for user_id={user_id}")
+        except Exception as delete_error:
+            print(f"[API] Warning: Could not delete existing record: {delete_error}")
+        
+        # Then insert the new record
+        try:
+            supabase.table("documents").insert(doc).execute()
+            print(f"[API] Successfully inserted resume data for user_id={user_id}")
+        except Exception as insert_error:
+            print(f"[API] Database insert error: {insert_error}")
+            raise HTTPException(status_code=500, detail=f"Database error: {str(insert_error)}")
+        
+        return {"status": "ok", "parsed_data": parsed_data}
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         import traceback
         print(f"Unhandled exception in /upload-resume endpoint: {e}")
         print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") 
-    finally:
-        if temp_file_path and temp_file_path.exists():
-            temp_file_path.unlink()
-   
-
-# --- New Endpoint for GitHub Parsing ---
-@app.post("/parse-github")
-async def parse_github(request: GitHubParseRequest):
-    """Parse GitHub profile using the dedicated GitHub workflow."""
-    workflow = create_github_parsing_workflow()
-    input_data = {"github_username": request.github_username}
-
-    try:
-        print(f"Invoking GitHub workflow with input: {input_data}")
-        result = await workflow.ainvoke(input_data)
-        print(f"GitHub workflow result: {result}")
-
-        error = result.get("error")
-        if error:
-            # Determine appropriate status code based on error type if possible
-            status_code = 404 if "not found" in error.lower() else 500
-            raise HTTPException(status_code=status_code, detail={"error": error, "parsed_github_data": result.get("parsed_github_data")})
-
-        return {
-            "parsed_github_data": result.get("parsed_github_data")
-        }
-    except Exception as e:
-        import traceback
-        print(f"Unhandled exception in /parse-github endpoint: {e}")
-        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    finally:
+        # Clean up temp file if it was created
+        if temp_file_path and Path(temp_file_path).exists():
+            Path(temp_file_path).unlink()
+   
+# --- New Endpoint for GitHub Parsing ---
+# @app.post("/parse-github")
+# async def parse_github(request: GitHubParseRequest):
+#     """Parse GitHub profile using the dedicated GitHub workflow."""
+#     workflow = create_github_parsing_workflow()
+#     input_data = {"github_username": request.github_username}
+
+#     try:
+#         print(f"Invoking GitHub workflow with input: {input_data}")
+#         result = await workflow.ainvoke(input_data)
+#         print(f"GitHub workflow result: {result}")
+
+#         error = result.get("error")
+#         if error:
+#             # Determine appropriate status code based on error type if possible
+#             status_code = 404 if "not found" in error.lower() else 500
+#             raise HTTPException(status_code=status_code, detail={"error": error, "parsed_github_data": result.get("parsed_github_data")})
+
+#         return {
+#             "parsed_github_data": result.get("parsed_github_data")
+#         }
+#     except Exception as e:
+#         import traceback
+#         print(f"Unhandled exception in /parse-github endpoint: {e}")
+#         print(traceback.format_exc())
+#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 # --- Endpoint to submit GitHub username, parse, and store in Supabase ---
 @app.post("/submit-github")
 async def submit_github(user_id: str = Form(...), github_username: str = Form(...)):
-    workflow = create_github_parsing_workflow()
-    input_data = {"github_username": github_username}
+    print(f"[API] Received submit-github for user_id={user_id}, github_username={github_username}")
     try:
-        print(f"Invoking GitHub workflow with input: {input_data}")
-        result = await workflow.ainvoke(input_data)
-        print(f"GitHub workflow result: {result}")
-
-        error = result.get("error")
-        parsed = result.get("parsed_github_data", {})
-        if error:
-            status_code = 404 if "not found" in error.lower() else 500
-            raise HTTPException(status_code=status_code, detail={"error": error, "parsed_github_data": parsed})
-
-        # Store in Supabase
+        # Validate inputs
+        if not user_id or not github_username:
+            raise HTTPException(status_code=400, detail="user_id and github_username are required")
+        
+        # Parse GitHub using the agent
+        github_result = await github_agent.run(github_username)
+        parsed_data = github_result.data if hasattr(github_result, "data") else github_result
+        print(f"[API] Parsed GitHub data for user_id={user_id}: {parsed_data}")
+        
+        # Validate parsed data
+        if not parsed_data or isinstance(parsed_data, dict) and parsed_data.get("error"):
+            raise HTTPException(status_code=400, detail=f"Failed to parse GitHub profile: {parsed_data.get('error') if isinstance(parsed_data, dict) else 'Unknown error'}")
+        
+        # Store in Supabase - Fixed upsert operation
         doc = {
             "user_id": user_id,
             "type": "github",
             "raw_input": {"github_username": github_username},
-            "parsed_data": parsed,
+            "parsed_data": parsed_data,
         }
-        supabase.table("documents").upsert(doc, on_conflict=["user_id", "type"]).execute()
-
-        return {"status": "ok", "parsed_data": parsed}
+        
+        # First try to delete existing record for this user and type
+        try:
+            supabase.table("documents").delete().eq("user_id", user_id).eq("type", "github").execute()
+            print(f"[API] Deleted existing GitHub record for user_id={user_id}")
+        except Exception as delete_error:
+            print(f"[API] Warning: Could not delete existing record: {delete_error}")
+        
+        # Then insert the new record
+        try:
+            supabase.table("documents").insert(doc).execute()
+            print(f"[API] Successfully inserted GitHub data for user_id={user_id}")
+        except Exception as insert_error:
+            print(f"[API] Database insert error: {insert_error}")
+            raise HTTPException(status_code=500, detail=f"Database error: {str(insert_error)}")
+        
+        return {"status": "ok", "parsed_data": parsed_data}
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
         import traceback
         print(f"Unhandled exception in /submit-github endpoint: {e}")
@@ -296,34 +385,20 @@ async def submit_github(user_id: str = Form(...), github_username: str = Form(..
 async def generate_cover_letter(input: CoverLetterInput):
     """Generate a cover letter using the unified workflow."""
 
-    # Fetch parsed resume and github from Supabase
-    try:
-        resume_doc = supabase.table("documents").select("*").eq("user_id", input.user_id).eq("type", "resume").single().execute()
-        github_doc = supabase.table("documents").select("*").eq("user_id", input.user_id).eq("type", "github").single().execute()
-    except Exception as e:
-        import traceback
-        print(f"Supabase fetch error in /generate-cover-letter: {e}")
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Failed to fetch user documents from Supabase.")
+    # Fetch user id to pass in unified workflow to get parsed resume and GitHub data
+    # try:
+    #     supabase.table("users").select("*").eq("user_id", input.user_id).single().execute()
+    #     print(f"[API] Received generate-cover-letter for user_id={input.user_id}")
+    # except Exception as e:
+    #     import traceback
+    #     print(f"Supabase fetch error in /generate-cover-letter: {e}")
+    #     print(traceback.format_exc())
+    #     raise HTTPException(status_code=500, detail="Failed to fetch user from Supabase.")
 
-    parsed_resume = resume_doc.data["parsed_data"] if resume_doc.data else None
-    parsed_github = github_doc.data["parsed_data"] if github_doc.data else None
-
-    if not parsed_resume or not parsed_github:
-        missing = []
-        if not parsed_resume:
-            missing.append("resume")
-        if not parsed_github:
-            missing.append("GitHub")
-        raise HTTPException(
-            status_code=400,
-            detail=f"No parsed {', '.join(missing)} info found for user. Please upload your resume and/or GitHub profile first."
-        )
-
-    # Prepare initial state for the workflow
+     # Prepare initial state for the workflow
     initial_state = {
-        "resume_data": parsed_resume,
-        "github_data": parsed_github,
+        "user_id": input.user_id,
+        # "github_username":  input.github_username,
         "context": {
             "job_title": input.job_title,
             "hiring_company": input.hiring_company,
@@ -340,8 +415,10 @@ async def generate_cover_letter(input: CoverLetterInput):
     # Build and run the workflow
     try:
         graph = build_graph()
+        print(f"[API] Starting workflow for user_id={input.user_id}")
         result = await graph.ainvoke(initial_state)
         cover_letter = result["context"]["cover_letter"]
+        print(f"[API] Generated cover letter for user_id={input.user_id}")
     except Exception as e:
         import traceback
         print(f"Error in cover letter workflow: {e}")

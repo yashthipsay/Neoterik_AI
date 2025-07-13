@@ -191,7 +191,7 @@ def build_prompt(
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="gemini-2.5-flash",  # Google Gemini 2.5 Pro model for advanced text generation
+    model="groq:deepseek-r1-distill-llama-70b",  # Google Gemini 2.5 Pro model for advanced text generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )
@@ -612,9 +612,9 @@ JOB DETAILS:
             base_prompt += f"COMPANY VALUES TO ALIGN WITH:\n{value_info}\n\n"
 
         base_prompt += """INSTRUCTIONS:
-- Write a compelling, professional cover letter that integrates the style guidance and retrieved information
+- Write a compelling, professional cover letter that integrates the style guidance and retrieved information strictly between 100-300 words
 - Use industry-specific phrases naturally within the content
-- Highlight relevant skills and experiences that match the job requirements
+- Highlight relevant skills and experiences that match the job requirements, but do not overstate them, or use them as fillers
 - Align with company values where appropriate
 - Maintain the specified tone throughout
 - Keep the letter between 200-400 words

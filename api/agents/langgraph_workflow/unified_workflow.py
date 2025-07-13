@@ -1,5 +1,5 @@
 from pathlib import Path
-from ..resume_parsing.agent import resume_agent
+from ..resume_parsing.agent import resume_agent, parse_resume_from_pdf
 from ..repo_parsing.agent import github_agent
 from ..cover_letter_generator.agent import cover_letter_agent
 from ..cover_letter_generator.models import CoverLetterInput, CoverLetterOutput # Import CoverLetterOutput
@@ -24,32 +24,17 @@ async def resume_node(state):
     print(">>> Entered resume_node")
     context = state["context"]
     resume_path = state["resume_path"]
-    print("Running Resume Parser...")
-
-    resume_text = ""
-    if resume_path:
-        suffix = Path(resume_path).suffix.lower()
-        if suffix == ".pdf":
-            loader = PyPDFLoader(resume_path)
-            docs = loader.load()
-            resume_text = "\n".join([doc.page_content for doc in docs])
-        elif suffix in [".docx", ".doc"]:
-            loader = Docx2txtLoader(resume_path)
-            docs = loader.load()
-            resume_text = "\n".join([doc.page_content for doc in docs])
-        else:
-            raise ValueError("Unsupported resume file type.")
-    else:
-        resume_text = ""  # Or load a sample resume text
-
-    # Call the agent with the resume text
-    result = await resume_agent.run(resume_text)
-    context["resume"] = result
-    # print(">>> Exiting resume_node with state:", {
-    #     "context": context,
-    #     "resume_path": resume_path,
-    #     "github_username": state["github_username"]
-    # })
+    
+    print("Running Resume Parser using parse_resume_from_pdf...")
+    # Convert resume_path to Path object if provided
+    path_obj = Path(resume_path) if resume_path else None
+    
+    # Call the resume parsing agent tool and capture the parsed data
+    parsed_resume = await parse_resume_from_pdf(path_obj)
+    
+    # Store the parsed resume in the context
+    context["resume"] = parsed_resume
+    
     return {"context": context, "resume_path": resume_path, "github_username": state["github_username"]}
 
 # --- Node 2: GitHub Repo Parsing ---
@@ -153,7 +138,7 @@ async def cover_letter_node(state):
     cover_letter_input_model = CoverLetterInput(
         job_title=context.get("job_title", ""),
         hiring_company=context.get("hiring_company", ""),
-        applicant_name=resume_dict.get("name", ""), # resume is now a dict
+        applicant_name=resume_dict.get("name", ""),
         job_description=context.get("job_description", ""),
         preferred_qualifications=context.get("preferred_qualifications", ""),
         working_experience="; ".join(
@@ -165,13 +150,16 @@ async def cover_letter_node(state):
             for edu in resume_dict.get("education", [])
             if isinstance(edu, dict)
         ) if resume_dict.get("education") else "",
-        skillsets=", ".join(resume_dict.get("skills", [])) if resume_dict.get("skills") else "",
+        # Combine all individual skills from each skill group into a comma-separated string.
+        skillsets=", ".join(
+            skill for s in resume_dict.get("skills", []) for skill in s.get("skills", [])
+        ) if resume_dict.get("skills") else "",
         company_culture_notes=context.get("company_culture_notes", ""),
-        github_username=github_username, # Use extracted username
-        applicant_experience_level=context.get("applicant_experience_level", "mid"),  # Default to mid-level
+        github_username=github_username,
+        applicant_experience_level=context.get("applicant_experience_level", "mid"),
         desired_tone=context.get("desired_tone", "professional"),
-        resume_data=resume_dict, # Pass the structured resume data
-        github_data=github_dict,  
+        resume_data=resume_dict,
+        github_data=github_dict,
     )
     
     

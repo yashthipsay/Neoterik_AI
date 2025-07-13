@@ -73,39 +73,39 @@ def test_supabase():
     return result.data
 
 # Add this test endpoint after the existing test-supabase endpoint
-@app.get("/test-documents-table")
-def test_documents_table():
-    """Test endpoint to check the documents table structure"""
-    try:
-        # Try to get the table structure
-        result = supabase.table("documents").select("*").limit(1).execute()
-        return {"status": "success", "data": result.data, "columns": list(result.data[0].keys()) if result.data else []}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.get("/test-documents-table")
+# def test_documents_table():
+#     """Test endpoint to check the documents table structure"""
+#     try:
+#         # Try to get the table structure
+#         result = supabase.table("documents").select("*").limit(1).execute()
+#         return {"status": "success", "data": result.data, "columns": list(result.data[0].keys()) if result.data else []}
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
-@app.get("/test-db-connection")
-def test_db_connection():
-    """Test endpoint to check database connection and table existence"""
-    try:
-        # Test basic connection
-        users_result = supabase.table("users").select("*").limit(1).execute()
+# @app.get("/test-db-connection")
+# def test_db_connection():
+#     """Test endpoint to check database connection and table existence"""
+#     try:
+#         # Test basic connection
+#         users_result = supabase.table("users").select("*").limit(1).execute()
         
-        # Test documents table
-        try:
-            docs_result = supabase.table("documents").select("*").limit(1).execute()
-            docs_status = "exists"
-        except Exception as docs_error:
-            docs_status = f"error: {str(docs_error)}"
+#         # Test documents table
+#         try:
+#             docs_result = supabase.table("documents").select("*").limit(1).execute()
+#             docs_status = "exists"
+#         except Exception as docs_error:
+#             docs_status = f"error: {str(docs_error)}"
         
-        return {
-            "status": "connected",
-            "users_table": "exists" if users_result.data is not None else "error",
-            "documents_table": docs_status,
-            "supabase_url": SUPABASE_URL if SUPABASE_URL else "not_set",
-            "supabase_key": "set" if SUPABASE_KEY else "not_set"
-        }
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+#         return {
+#             "status": "connected",
+#             "users_table": "exists" if users_result.data is not None else "error",
+#             "documents_table": docs_status,
+#             "supabase_url": SUPABASE_URL if SUPABASE_URL else "not_set",
+#             "supabase_key": "set" if SUPABASE_KEY else "not_set"
+#         }
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 class URLCheckRequest(BaseModel):
     url: str

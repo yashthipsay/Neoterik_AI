@@ -183,6 +183,7 @@ async def cover_letter_node(state):
     github_info_dict = github_dict if isinstance(github_dict, dict) and github_dict else {}
 
     cover_letter_input_model = CoverLetterInput(
+        user_id=state["user_id"],
         job_title=context.get("job_title", ""),
         hiring_company=context.get("hiring_company", ""),
         applicant_name=resume_dict.get("name", ""), # resume is now a dict

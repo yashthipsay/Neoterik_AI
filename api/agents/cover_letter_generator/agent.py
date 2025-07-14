@@ -191,7 +191,7 @@ def build_prompt(
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="groq:deepseek-r1-distill-llama-70b",  # Google Gemini 2.5 Pro model for advanced text generation
+    model="gemini-2.5-flash",  # Google Gemini 2.5 Pro model for advanced text generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )
@@ -517,6 +517,7 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
 
     # --- COVER LETTER GENERATION LOGIC ---
     input_data = CoverLetterInput(
+        user_id=getattr(ctx.deps, 'user_id' , ''),
         job_title=ctx.deps.job_title or "",
         hiring_company=ctx.deps.hiring_company or "",
         job_description=ctx.deps.job_description or "",
@@ -535,6 +536,7 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
         print(f"\n--- BUILDING GENERATION PROMPT ---")
         
         github_data = getattr(ctx.deps, 'github_data', None)
+        print("DEBUG: ctx.deps.github_data =", ctx.deps.github_data)
         used_github_info = {}
 
         # --- PATCH START ---
@@ -542,27 +544,29 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
         github_data = ctx.deps.github_data or {}
         used_github_info = {}
         if isinstance(github_data, dict) and github_data:
+            profile = github_data.get("profile_details", {})
             used_github_info = {
-                "name": github_data.get("name"),
-                "username": github_data.get("username"),
-                "bio": github_data.get("bio"),
-                "location": github_data.get("location"),
-                "repo_count": github_data.get("public_repos_count"),
+                "name": profile.get("name"),
+                "username": profile.get("username"),
+                "bio": profile.get("bio"),
+                "location": profile.get("location"),
+                "repo_count": profile.get("public_repos_count"),
                 "followers": github_data.get("followers"),
-                "following": github_data.get("following"),
+                "following": profile.get("following"),
                 "key_skills": github_data.get("skills_tags", []),
-                "notable_repositories": [
+                "notable_repositories": github_data.get("notable_repositories", [
                     {
                         "name": repo.get("name"),
                         "description": repo.get("description"),
                         "language": repo.get("language")
                     }
                     for repo in github_data.get("top_repositories", [])
-                ]
+                ])
             }
         else:
             used_github_info = None
         github_info_formatted = format_github_info(used_github_info)
+        print("DEBUG: github_info_formatted =", github_info_formatted)
 
         base_prompt = f"""Generate a personalized cover letter for {input_data.job_title} at {input_data.hiring_company}.
 

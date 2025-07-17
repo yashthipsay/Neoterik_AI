@@ -1,7 +1,7 @@
-import './globals.css';
+ import './globals.css';
 import { Metadata } from 'next';
 import { Providers } from "./providers";
-
+import { Navbar } from './components/Navbar';
 export const metadata: Metadata = {
   title: 'Neoterik.ai Cover Letter Assistant',
   description: 'AI-powered cover letter generator that helps you craft personalized cover letters based on job descriptions.',
@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}</Providers>
       </body>
     </html>
   );

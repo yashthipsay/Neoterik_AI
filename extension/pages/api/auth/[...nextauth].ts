@@ -1,6 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
+import { JWT } from "next-auth/jwt";
 
 export default NextAuth({
 	providers: [
@@ -15,15 +16,23 @@ export default NextAuth({
 	],
 	callbacks: {
 		async session({ session, token, user }) {
-			// Add user id to session
-			session.user.id = user?.id || token?.sub || "";
-			// Add GitHub username if available
-			if (user?.login) {
-				session.user.github_username = user.login;
-			} else if (token?.login) {
-				session.user.github_username = token.login;
+			// Extend session.user type
+			(session.user as any).id = user?.id || token?.sub || user?.email ||"";
+			// Type guard for login property
+			const userLogin =
+				user && typeof user === "object" && "login" in user
+					? (user as any).login
+					: undefined;
+			const tokenLogin =
+				token && typeof token === "object" && "login" in token
+					? (token as any).login
+					: undefined;
+			if (userLogin) {
+				(session.user as any).github_username = userLogin;
+			} else if (tokenLogin) {
+				(session.user as any).github_username = tokenLogin;
 			} else {
-				session.user.github_username = "";
+				(session.user as any).github_username = "";
 			}
 			return session;
 		},
@@ -39,3 +48,4 @@ export default NextAuth({
 		signOut: "/auth/signout",
 	},
 });
+ 

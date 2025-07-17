@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from pydantic import BaseModel, HttpUrl
 from supabase_client import supabase
 from models_supabase import UserIn, DocumentIn
@@ -16,7 +16,8 @@ from agents.langgraph_workflow.unified_workflow import build_graph, show_graph
 from company_research_graph import build_detect_only_graph, DetectOnlyState,  run_job_research  # Import the job research function
 import asyncio
 from fastapi.responses import JSONResponse
-
+from fastapi import Query
+from datetime import datetime
 
 app = FastAPI(
     title="Job URL Detector API",
@@ -44,9 +45,8 @@ class RegisterUserRequest(BaseModel):
 async def register_user(user: RegisterUserRequest):
     try:
         # Check if user already exists
-        existing = supabase.table("users").select("*").eq("id", user.id).single().execute()
-        if existing.data:
-            print(f"User already exists: {user.id}")
+        existing = supabase.table("users").select("*").eq("id", user.id).maybe_single().execute()
+        if existing and getattr(existing, 'data', None):
             return {"success": True, "user": existing.data, "message": "User already registered"}
 
         # Insert new user
@@ -57,10 +57,15 @@ async def register_user(user: RegisterUserRequest):
             "avatar_url": user.avatar_url,
             "github_username": user.github_username,
         }
-        print("Registering new user with data:", data)
         result = supabase.table("users").insert(data).execute()
-        print("Supabase insert result:", result)
-        return {"success": True, "user": result.data}
+        if getattr(result, 'error', None):
+            raise HTTPException(status_code=500, detail=f"Failed to insert user: {result.error}")
+
+        # Always fetch and return the user
+        user_row = supabase.table("users").select("*").eq("id", user.id).maybe_single().execute()
+        if not user_row or not getattr(user_row, 'data', None):
+            raise HTTPException(status_code=500, detail="User not found after insert.")
+        return {"success": True, "user": user_row.data}
     except Exception as e:
         import traceback
         print("Register user error:", e)
@@ -270,6 +275,7 @@ async def upload_resume(user_id: str = Form(...), file: UploadFile = File(...)):
             "type": "resume",
             "raw_input": {"filename": file.filename, "resume_path": str(temp_file_path)},
             "parsed_data": parsed_data,
+            "uploaded_at": datetime.utcnow().isoformat() + "Z",  
         }
         
         # First try to delete existing record for this user and type
@@ -384,7 +390,16 @@ async def submit_github(user_id: str = Form(...), github_username: str = Form(..
 @app.post("/generate-cover-letter")
 async def generate_cover_letter(input: CoverLetterInput):
     """Generate a cover letter using the unified workflow."""
+     # 1. Get user_id from session or token (example: session)
+    # user_id = request.session.get("user_id")
+    # if not user_id:
+    #     raise HTTPException(status_code=401, detail="User not authenticated")
 
+    # # 2. Fetch user info from Supabase
+    # user_row = supabase.table("users").select("*").eq("id", user_id).single().execute()
+    # if not user_row.data:
+    #     raise HTTPException(status_code=404, detail="User not found")
+    # applicant_name = user_row.data["name"]
     # Fetch user id to pass in unified workflow to get parsed resume and GitHub data
     # try:
     #     supabase.table("users").select("*").eq("user_id", input.user_id).single().execute()
@@ -439,6 +454,34 @@ async def generate_cover_letter(input: CoverLetterInput):
             "used_highlights": cover_letter.get("used_highlights"),
             "used_github_info": cover_letter.get("used_github_info"),
         }
+
+@app.get("/get-document")
+async def get_document(user_id: str = Query(...), type: str = Query(...)):
+    try:
+        # Fetch the document (resume) for the user
+        res = supabase.table("documents").select("*").eq("user_id", user_id).eq("type", type).single().execute()
+        if res.data:
+           return {
+                "filename": (res.data.get("raw_input") or {}).get("filename", ""),
+                "uploaded_at": res.data.get("uploaded_at", ""),
+}
+        return {}
+    except Exception as e:
+        print(f"[get-document] Error: {e}")
+        return {}
+
+@app.get("/get-github")
+async def get_github(user_id: str = Query(...)):
+    try:
+        # Fetch the github username for the user
+        res = supabase.table("documents").select("*").eq("user_id", user_id).eq("type", "github").single().execute()
+        if res.data: 
+            github_username = (res.data.get("raw_input") or {}).get("github_username", "")
+            return {"github_username": github_username}
+        return {}
+    except Exception as e:
+        print(f"[get-github] Error: {e}")
+        return {}
 
 @app.get("/")
 async def root():

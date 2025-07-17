@@ -15,7 +15,7 @@ from langgraph.graph import StateGraph, END, START
 # Define the state schema
 class AppState(TypedDict):
     context: Dict
-    user_id: Optional[str]  # Optional user ID for tracking
+    user_id: str  # Optional user ID for tracking
     # resume_path: Optional[str]
     # github_username: Optional[str]
     

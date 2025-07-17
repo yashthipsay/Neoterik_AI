@@ -21,6 +21,30 @@ function notifyLoginStatusChanged() {
 		});
 }
 
+// === Sign Out Handler ===
+function handleSignOut() {
+	console.log("[Extension] Initiating sign out...");
+	// Open signout in a new tab to clear NextAuth cookies
+	chrome.tabs.create(
+		{ url: "http://localhost:3000/api/auth/signout?callbackUrl=/" },
+		(tab) => {
+			// Wait a moment, then clear extension storage and reload home page
+			setTimeout(() => {
+				chrome.storage.local.clear(() => {
+					notifyLoginStatusChanged();
+					chrome.tabs.update(tab.id, {
+						url: "http://localhost:3000",
+						active: true,
+					});
+					console.log(
+						"[Extension] Sign out complete, storage cleared, home page opened."
+					);
+				});
+			}, 1500); // Give NextAuth time to clear cookies
+		}
+	);
+}
+
 // === Auth Callback Handler ===
 const handledAuthTabs = new Set();
 async function handleAuthCallback(tabId, url) {
@@ -40,6 +64,7 @@ async function handleAuthCallback(tabId, url) {
 				await chrome.storage.local.set({
 					isLoggedIn: true,
 					user: session.user,
+					userId: session.user.id,
 				});
 				console.log("🔑 Session result from server:", session);
 				notifyLoginStatusChanged();
@@ -69,10 +94,7 @@ async function handleAuthCallback(tabId, url) {
 function shouldProceedWithDetection(url, callback) {
 	chrome.storage.local.get("jobSession", (data) => {
 		const session = data.jobSession;
-		if (
-			session?.isLocked &&
-			!session?.isCoverLetterGenerated
-		) {
+		if (session?.isLocked && !session?.isCoverLetterGenerated) {
 			console.warn("🔒 Detection blocked due to locked session.");
 			return callback(false);
 		}
@@ -95,14 +117,13 @@ async function checkUrlWithApi(url, tabId) {
 		if (!response.ok) throw new Error(`Status ${response.status}`);
 
 		const data = await response.json();
-		
-		if (data.is_job_application) {
 
+		if (data.is_job_application) {
 			detectedJobsPerTab[tabId] = {
 				url,
 				jobData: data?.parsed_output || null,
 				detectedAt: Date.now(),
-			};	
+			};
 			chrome.action.setBadgeText({ text: "JOB", tabId });
 			chrome.action.setBadgeBackgroundColor({ color: "#419D78", tabId });
 
@@ -114,7 +135,7 @@ async function checkUrlWithApi(url, tabId) {
 					isAgentFinished: false,
 					isLocked: false,
 					isCoverLetterGenerated: false,
-					isCoverLetterGenerating:false,
+					isCoverLetterGenerating: false,
 					coverLetterError: null,
 					isUserConfirmed: null,
 					timestamp: Date.now(),
@@ -145,7 +166,11 @@ async function checkUrlWithApi(url, tabId) {
 
 async function handleGenerateCoverLetter(data) {
 	// Set flag in storage
-	const { jobSession, currentJobPage } = await chrome.storage.local.get(["jobSession", "currentJobPage"]);
+	const { jobSession, currentJobPage } = await chrome.storage.local.get([
+		"jobSession",
+		"currentJobPage",
+		"userId",
+	]);
 	await chrome.storage.local.set({
 		jobSession: {
 			...jobSession,
@@ -156,10 +181,11 @@ async function handleGenerateCoverLetter(data) {
 		},
 	});
 	try {
+		const payload = { user_id: userId, ...data };
 		const res = await fetch(`${API_BASE_URL}/generate-cover-letter`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(data),
+			body: JSON.stringify(payload),
 		});
 		const result = await res.json();
 		if (res.ok && result.cover_letter) {
@@ -186,7 +212,6 @@ async function handleGenerateCoverLetter(data) {
 				action: "coverLetterGenerated",
 				coverLetter: result.cover_letter,
 			});
-			
 		} else {
 			await chrome.storage.local.set({
 				jobSession: {
@@ -225,7 +250,6 @@ let isAgentRunning = false;
 
 // === Content Script Communication ===
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
 	if (request.action === "generateCoverLetter") {
 		console.log("[Background] Received generateCoverLetter message");
 		handleGenerateCoverLetter(request.data);
@@ -242,6 +266,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (!tabId) {
 		sendResponse({ success: false, error: "No tab ID" });
 		return false;
+	}
+
+	// === Listen for signOut action ===
+	if (request.action === "signOut") {
+		handleSignOut();
+		sendResponse({ success: true });
+		return true;
 	}
 
 	if (request.action === "checkUrl") {
@@ -484,7 +515,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		return true;
 	}
 
-
 	if (request.action === "authSuccess" && request.session) {
 		chrome.storage.local.set(
 			{
@@ -493,6 +523,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 				authToken: request.session.token,
 			},
 			() => {
+				chrome.tabs.query(
+					{ url: "http://localhost:3000/*" },
+					(tabs) => {
+						if (tabs.length > 0) {
+							chrome.tabs.update(tabs[0].id, { active: true });
+						} else {
+							chrome.tabs.create({
+								url: "http://localhost:3000",
+							});
+						}
+					}
+				);
 				notifyLoginStatusChanged();
 				if (request.tabId) {
 					setTimeout(() => {
@@ -544,8 +586,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 	const jobInfo = detectedJobsPerTab[tabId];
 	if (jobInfo) {
 		// Ask content script to iject the banner
-		chrome.tabs.sendMessage(tabId, { action: "injectBanner" })
-		
+		chrome.tabs.sendMessage(tabId, { action: "injectBanner" });
 	}
 });
 
@@ -553,16 +594,14 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
 	delete detectedJobsPerTab[tabId];
 	chrome.action.setBadgeText({ text: "", tabId });
-	if  (checkUrlTimers[tabId]) {
+	if (checkUrlTimers[tabId]) {
 		clearTimeout(checkUrlTimers[tabId]);
 		delete checkUrlTimers[tabId];
-		}
-	});
-
+	}
+});
 
 // function isPopupOpen(callback) {
 // 	chrome.extension.getViews({ type: "popup" }).length > 0
 // 		? callback(true)
 // 		: callback(false);
 // }
-

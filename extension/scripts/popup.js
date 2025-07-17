@@ -66,6 +66,18 @@ function setupEventListeners() {
 		.getElementById("do-something-link")
 		?.addEventListener("click", doSomething);
 
+	// Redirect to profile page when user profile is clicked
+	document.getElementById("user-info")?.addEventListener("click", () => {
+		chrome.tabs.create({ url: "http://localhost:3000/profile" });
+	});
+
+	// Redirect to about page when Neoterik logo is clicked
+	document.getElementById("neoterik-logo")?.addEventListener("click", (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		chrome.tabs.create({ url: "http://localhost:3000/about" });
+	});
+
 	chrome.storage.onChanged.addListener((changes, area) => {
 		if (
 			area === "local" &&
@@ -166,7 +178,7 @@ function updateUI(isLoggedIn, user) {
 		}
 	}
 }
- 
+
 function handleSignIn() {
 	console.log("🔐 Sign in initiated");
 	document.getElementById("loading-indicator")?.classList.remove("hidden");
@@ -184,41 +196,33 @@ function handleSignIn() {
 }
 
 function handleSignOut() {
-	chrome.storage.local.remove(
-		["isLoggedIn", "user", "jobSession", "currentJobPage"],
-		() => {
-			updateUI(false, null);
-			document
-				.getElementById("welcome-state")
-				?.classList.remove("hidden");
-			document
-				.getElementById("signin-btn-header")
-				?.classList.remove("hidden");
-			document
-				.getElementById("signin-btn-welcome")
-				?.classList.remove("hidden");
-			document.getElementById("signout-btn")?.classList.add("hidden");
-			document.getElementById("user-info")?.classList.add("hidden");
-			document.getElementById("generate-tab")?.classList.add("hidden");
-			[
-				"#company_name",
-				"#job_title",
-				"#job_description",
-				"#company_summary",
-				"#company_vision",
-				"#additional_notes",
-				"#preferred_skills",
-			].forEach((id) => {
-				const field = document.querySelector(id);
-				if (field) field.value = "";
-			});
-			document.getElementById("cover-letter-preview").innerHTML = "";
-			chrome.tabs.create({
-				url: "http://localhost:3000/api/auth/signout",
-				active: false,
-			});
-		}
-	);
+	// Send signOut message to background for tightly coupled sign-out
+	chrome.runtime.sendMessage({ action: "signOut" }, () => {
+		updateUI(false, null);
+		document.getElementById("welcome-state")?.classList.remove("hidden");
+		document
+			.getElementById("signin-btn-header")
+			?.classList.remove("hidden");
+		document
+			.getElementById("signin-btn-welcome")
+			?.classList.remove("hidden");
+		document.getElementById("signout-btn")?.classList.add("hidden");
+		document.getElementById("user-info")?.classList.add("hidden");
+		document.getElementById("generate-tab")?.classList.add("hidden");
+		[
+			"#company_name",
+			"#job_title",
+			"#job_description",
+			"#company_summary",
+			"#company_vision",
+			"#additional_notes",
+			"#preferred_skills",
+		].forEach((id) => {
+			const field = document.querySelector(id);
+			if (field) field.value = "";
+		});
+		document.getElementById("cover-letter-preview").innerHTML = "";
+	});
 }
 
 function populateFieldsFromGraph() {
@@ -400,27 +404,31 @@ function saveCoverLetter() {
 
 async function getJobDataForCoverLetter() {
 	return new Promise((resolve) => {
-		chrome.storage.local.get(["currentJobPage"], ({ currentJobPage }) => {
-			const job = currentJobPage?.jobData || {};
-			resolve({
-				job_title: job.job_title || "",
-				hiring_company: job.company_name || "",
-				applicant_name: "Yash Thipsay",
-				job_description: job.job_description || "",
-				preferred_qualifications: [
-					...(job.preferred_qualifications || []),
-					...(job.skillset || []),
-				].join("; "),
-				company_culture_notes: `${job.company_vision || ""}\n${
-					job.additional_notes || ""
-				}`,
-				github_username: "yashthipsay",
-				desired_tone:
-					document.getElementById("desired_tone")?.value ||
-					"professional",
-				company_url: "",
-			});
-		});
+		chrome.storage.local.get(
+			["currentJobPage", "user"],
+			({ currentJobPage, user }) => {
+				const job = currentJobPage?.jobData || {};
+				resolve({
+					user_id: user?.id || "",
+					job_title: job.job_title || "",
+					hiring_company: job.company_name || "",
+					applicant_name: user?.name?.split(" ")[0] || "",
+					job_description: job.job_description || "",
+					preferred_qualifications: [
+						...(job.preferred_qualifications || []),
+						...(job.skillset || []),
+					].join("; "),
+					company_culture_notes: `${job.company_vision || ""}\n${
+						job.additional_notes || ""
+					}`,
+					github_username: user?.github_username || "",
+					desired_tone:
+						document.getElementById("desired_tone")?.value ||
+						"professional",
+					company_url: "",
+				});
+			}
+		);
 	});
 }
 
@@ -489,23 +497,22 @@ function setUIFromStorage() {
 			// 6. Default: clear fields in generate tab if no jobData or after cover letter generated
 			clearGenerateTabFields();
 			setLoadingState(false, "");
-		})
+		}
+	);
 }
 
 // Helper to clear all fields in generate tab
 function clearGenerateTabFields() {
-    [
-        "#company_name",
-        "#job_title",
-        "#job_description",
-        "#company_summary",
-        "#company_vision",
-        "#additional_notes",
-        "#preferred_skills",
-    ].forEach((id) => {
-        const field = document.querySelector(id);
-        if (field) field.value = "";
-    });
+	[
+		"#company_name",
+		"#job_title",
+		"#job_description",
+		"#company_summary",
+		"#company_vision",
+		"#additional_notes",
+		"#preferred_skills",
+	].forEach((id) => {
+		const field = document.querySelector(id);
+		if (field) field.value = "";
+	});
 }
-
-

@@ -41,8 +41,7 @@ POST http://localhost:8000/generate-cover-letter
 Content-Type: application/json
 
 {
-  "user_id": "a86c2369-4f05-46f7-a186-48390b4f149d",
-  "github_username": "paragpurandare",                  
+  "user_id": "a86c2369-4f05-46f7-a186-48390b4f149d",                
   "job_title": "Crypto Fraud Investigator",
   "hiring_company": "BlockShield Analytics",
   "applicant_name": "Parag Purandare",

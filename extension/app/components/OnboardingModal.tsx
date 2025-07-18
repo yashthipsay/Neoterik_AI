@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Button } from './ui/Button';
+import { useSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 
 export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: () => void, userId: string, onClose?: () => void }) {
+    const { data: session } = useSession();
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [githubUsername, setGithubUsername] = useState('');
     const [loading, setLoading] = useState(false);
@@ -10,45 +13,74 @@ export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: (
     const [githubSubmitted, setGithubSubmitted] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const getAuthHeaders = () => {
+      // NextAuth stores it under either access_token or accessToken
+      const token = session?.access_token || session?.accessToken;
+      console.log("🔐 Uploading with JWT:", token);
+      return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+    };
+
     const handleResumeUpload = async () => {
-        if (!resumeFile) return;
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('user_id', userId);
-        formData.append('file', resumeFile);
-        try {
-            const res = await fetch('http://localhost:8000/upload-resume', {
-                method: 'POST',
-                body: formData,
-            });
-            if (!res.ok) throw new Error('Resume upload failed');
-            setResumeUploaded(true);
-        } catch (e: any) {
-            setError(e.message || 'Failed to upload resume');
+      if (!resumeFile) return;
+      setLoading(true);
+      setError(null);
+
+      const formData = new FormData();
+      formData.append("file", resumeFile);
+
+      try {
+        const headers = getAuthHeaders();
+        console.log("📤 resume upload headers:", headers);
+
+        const res = await fetch("http://localhost:8000/upload-resume", {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || "Resume upload failed");
         }
+        setResumeUploaded(true);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
         setLoading(false);
+      }
     };
 
     const handleGithubSubmit = async () => {
-        if (!githubUsername) return;
-        setLoading(true);
-        setError(null);
-        const params = new URLSearchParams();
-        params.append('user_id', userId);
-        params.append('github_username', githubUsername);
-        try {
-            const res = await fetch('http://localhost:8000/submit-github', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString(),
-            });
-            if (!res.ok) throw new Error('GitHub username submit failed');
-            setGithubSubmitted(true);
-        } catch (e: any) {
-            setError(e.message || 'Failed to submit GitHub username');
+      if (!githubUsername) return;
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      params.append("github_username", githubUsername);
+
+      try {
+        const headers = {
+          ...getAuthHeaders(),
+          "Content-Type": "application/x-www-form-urlencoded",
+        };
+        console.log("📤 github submit headers:", headers);
+
+        const res = await fetch("http://localhost:8000/submit-github", {
+          method: "POST",
+          headers,
+          body: params.toString(),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || "GitHub username submit failed");
         }
+        setGithubSubmitted(true);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
         setLoading(false);
+      }
     };
 
     return (

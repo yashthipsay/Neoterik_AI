@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Button } from './ui/Button';
+import { useSession } from "next-auth/react";
 
 export function ProfileUploads({ userId, resumeInfo, githubUsername, onRefresh }: {
     userId: string,
@@ -9,6 +10,7 @@ export function ProfileUploads({ userId, resumeInfo, githubUsername, onRefresh }
     githubUsername?: string,
     onRefresh: () => void
 }) {
+    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -17,6 +19,16 @@ export function ProfileUploads({ userId, resumeInfo, githubUsername, onRefresh }
     const [githubLoading, setGithubLoading] = useState(false);
     const [githubSuccess, setGithubSuccess] = useState<string | null>(null);
     const [githubError, setGithubError] = useState<string | null>(null);
+
+    const getAuthHeaders = () => {
+      // NextAuth stores token under access_token or accessToken
+      const token = session?.access_token || session?.accessToken;
+      console.log("🔐 Using JWT for ProfileUploads:", token);
+      return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+    };
+
 
     const handleUpdateResume = async () => {
         if (!newResumeFile) return;
@@ -27,11 +39,17 @@ export function ProfileUploads({ userId, resumeInfo, githubUsername, onRefresh }
         formData.append('user_id', userId);
         formData.append('file', newResumeFile);
         try {
+            const headers = getAuthHeaders();
+            // Do not set Content-Type header manually when sending FormData
             const res = await fetch('http://localhost:8000/upload-resume', {
                 method: 'POST',
+                headers,  // only Authorization header is sent
                 body: formData,
             });
-            if (!res.ok) throw new Error('Resume update failed');
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || 'Resume update failed');
+            }
             setSuccess('Resume updated successfully!');
             setNewResumeFile(null);
             onRefresh();
@@ -50,9 +68,10 @@ export function ProfileUploads({ userId, resumeInfo, githubUsername, onRefresh }
         params.append('user_id', userId);
         params.append('github_username', newGithub);
         try {
+            const headers = getAuthHeaders();
             const res = await fetch('http://localhost:8000/submit-github', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...headers },
                 body: params.toString(),
             });
             if (!res.ok) throw new Error('GitHub update failed');

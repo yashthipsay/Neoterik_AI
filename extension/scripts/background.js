@@ -65,6 +65,7 @@ async function handleAuthCallback(tabId, url) {
 					isLoggedIn: true,
 					user: session.user,
 					userId: session.user.id,
+    				authToken: session.accessToken
 				});
 				console.log("🔑 Session result from server:", session);
 				notifyLoginStatusChanged();
@@ -166,11 +167,12 @@ async function checkUrlWithApi(url, tabId) {
 
 async function handleGenerateCoverLetter(data) {
 	// Set flag in storage
-	const { jobSession, currentJobPage, user } = await chrome.storage.local.get([
+	const { jobSession, currentJobPage, user, authToken } = await chrome.storage.local.get([
 		"jobSession",
 		"currentJobPage",
 		"user",
 		"userId",
+		"authToken"
 	]);
 	await chrome.storage.local.set({
 		jobSession: {
@@ -185,7 +187,10 @@ async function handleGenerateCoverLetter(data) {
 		const payload = { user_id: user?.id, ...data };
 		const res = await fetch(`${API_BASE_URL}/generate-cover-letter`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${authToken}`    // 👈 send the JWT
+			},
 			body: JSON.stringify(payload),
 		});
 		const result = await res.json();

@@ -253,7 +253,11 @@ function populateFieldsFromGraph() {
 async function handleGenerateCoverLetter(e) {
 	e.preventDefault();
 	if (isGeneratingCoverLetter) return; // Prevent double submit
-	const { jobSession } = await chrome.storage.local.get("jobSession");
+    const { jobSession, currentJobPage, user } = await chrome.storage.local.get([
+        "jobSession",
+        "currentJobPage",
+        "user"
+    ]);
 	await chrome.storage.local.set({
 		jobSession: {
 			...jobSession,

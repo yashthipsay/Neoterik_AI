@@ -166,9 +166,10 @@ async function checkUrlWithApi(url, tabId) {
 
 async function handleGenerateCoverLetter(data) {
 	// Set flag in storage
-	const { jobSession, currentJobPage } = await chrome.storage.local.get([
+	const { jobSession, currentJobPage, user } = await chrome.storage.local.get([
 		"jobSession",
 		"currentJobPage",
+		"user",
 		"userId",
 	]);
 	await chrome.storage.local.set({
@@ -181,7 +182,7 @@ async function handleGenerateCoverLetter(data) {
 		},
 	});
 	try {
-		const payload = { user_id: userId, ...data };
+		const payload = { user_id: user?.id, ...data };
 		const res = await fetch(`${API_BASE_URL}/generate-cover-letter`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },

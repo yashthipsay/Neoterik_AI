@@ -1,6 +1,6 @@
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request, Depends
 from pydantic import BaseModel, HttpUrl
-from supabase_client import supabase
+from supabase_client import supabase, verify_jwt_token, get_current_user
 from models_supabase import UserIn, DocumentIn
 import re
 from pathlib import Path
@@ -245,7 +245,9 @@ async def run_agent_api(data: URLCheckRequest):
 
 # --- Endpoint to upload resume and parse it ---
 @app.post("/upload-resume")
-async def upload_resume(user_id: str = Form(...), file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    """Upload and parse resume - requires JWT authentication"""
+    user_id = current_user["id"]
     print(f"[API] Received upload-resume for user_id={user_id}, filename={file.filename}")
     temp_file_path = None
     try:
@@ -337,7 +339,11 @@ async def upload_resume(user_id: str = Form(...), file: UploadFile = File(...)):
 
 # --- Endpoint to submit GitHub username, parse, and store in Supabase ---
 @app.post("/submit-github")
-async def submit_github(user_id: str = Form(...), github_username: str = Form(...)):
+async def submit_github(
+    github_username: str = Form(...), 
+    current_user: dict = Depends(get_current_user)
+):
+    user_id = current_user["id"]
     print(f"[API] Received submit-github for user_id={user_id}, github_username={github_username}")
     try:
         # Validate inputs
@@ -388,7 +394,10 @@ async def submit_github(user_id: str = Form(...), github_username: str = Form(..
 
 # --- Endpoint to generate cover letter using unified workflow ---
 @app.post("/generate-cover-letter")
-async def generate_cover_letter(input: CoverLetterInput):
+async def generate_cover_letter(
+    input: CoverLetterInput,
+    current_user: dict = Depends(get_current_user)   # 👈 enforce JWT auth
+):
     """Generate a cover letter using the unified workflow."""
      # 1. Get user_id from session or token (example: session)
     # user_id = request.session.get("user_id")
@@ -412,7 +421,7 @@ async def generate_cover_letter(input: CoverLetterInput):
 
      # Prepare initial state for the workflow
     initial_state = {
-        "user_id": input.user_id,
+        "user_id": current_user["id"],
         # "github_username":  input.github_username,
         "context": {
             "job_title": input.job_title,

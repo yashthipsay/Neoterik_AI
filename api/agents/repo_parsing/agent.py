@@ -31,20 +31,20 @@ else:
 
 # --- LLM Setup (Reuse or define specific one) ---
 # Ensure DEEPSEEK_API_KEY is set in your .env
-DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
-if not DEEPSEEK_API_KEY:
-     raise ValueError("DEEPSEEK_API_KEY not found in environment variables.")
+# DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
+# if not DEEPSEEK_API_KEY:
+#      raise ValueError("DEEPSEEK_API_KEY not found in environment variables.")
 
 # Reusing the model definition style from resume agent
 # Ensure the API key is correctly passed
-model = OpenAIModel(
-    model_name='deepseek-chat',
-    provider=DeepSeekProvider(api_key=DEEPSEEK_API_KEY)
-)
+# model = OpenAIModel(
+#     model_name='deepseek-chat',
+#     provider=DeepSeekProvider(api_key=DEEPSEEK_API_KEY)
+# )
 
 github_agent = Agent(
     # model=model, # Use the pydantic-ai model instance if preferred
-    model="gemini-2.5-flash", # Or your preferred model string
+    model="gemini-1.5-flash", # Or your preferred model string
     deps_type=str, # Input to the agent run will be the prompt string
     system_prompt=(
         "You are an expert GitHub profile analyzer. Your task is to extract key information "
@@ -211,7 +211,7 @@ async def parse_github_profile(username: str) -> dict:
     """
 
     try:
-        print(f"Sending prompt to LLM for GitHub user: {username}")
+        # print(f"Sending prompt to LLM for GitHub user: {username}")
         agent_result = await github_agent.run(prompt)
 
         if not isinstance(agent_result.data, str):
@@ -227,9 +227,9 @@ async def parse_github_profile(username: str) -> dict:
             cleaned_json = cleaned_json[:-len("```")].strip()
 
         # Add extra print for debugging JSON issues
-        print("--- Cleaned GitHub LLM JSON START ---")
-        print(cleaned_json)
-        print("--- Cleaned GitHub LLM JSON END ---")
+        # print("--- Cleaned GitHub LLM JSON START ---")
+        # print(cleaned_json)
+        # print("--- Cleaned GitHub LLM JSON END ---")
 
         parsed_data = json.loads(cleaned_json)
 

@@ -1,0 +1,154 @@
+
+Important:
+Take all the information from the below you got , and return all required fields and all information properly and well structured, if any info missing tool call and search again and return all.
+Take skills mentioned properly and take only important, like be very specific if not found tavily search, also in preferred qualifications it should be educational qualifications and also if any experience of years asked,  mentioned and include it in preffered qualifications.
+Even company name has given you but check if its proper hiring company name and not the job boards/portal name. Avoid job portal names for e.g like wellfound, linkedIN, greenhouse, etc. You should give output based on Hiring company name, so cross check company name.
+
+JOB URL: https://job-boards.greenhouse.io/layerzerolabs/jobs/5554606004?source=web3.career&gh_src=web3.career#application_form
+JOB TITLE: Unknown Title
+COMPANY: Unknown
+
+=============================
+
+SCRAPED CONTENT:
+
+
+=============================
+
+COMPANY SEARCH RESULTS:
+About us ; Website: http://apps.unknown.com. External link for Unknown.com ; Industry: Software Development ; Company size: 201-500 employees ; Headquarters: Tampa,
+Tomah nursing and rehabilitation center is for profit to care for elderly disabled they are complete $#\!S running the place Brandi administrator is a dumb $#\! loser Lynn is a $#\! wad too they neglect incapacitated elderly and should be shut down for abuse of elderly and can $#\! OFF $#\!ES
+
+Just installed. Seems like good product. Cannot see product from ground and too old to climb ladder
+
+## Q&A (2)
+
+### Is Unknown.com a scam or a legit company? [...] ## Sitejabber for Business
+
+Gain trust and grow your business with customer reviews.
+
+### See reviews as you browse! Get the Chrome Extension.
+
+### Have a question about DNX.com?
+
+## Similar businesses you may also like
+
+logo
+google partner logo
+g2 users love us badge
+review management momentum leader badge
+review management high performer small business badge
+review management high performer spring badge
+nsf logo [...] Facebook pixel
+logo
+logo
+website thubmnail of DNX.com
+
+# DNX.com
+
+grey star
+grey star
+grey star
+grey star
+grey star
+Parts Unknown is for people who love an  upscale shopping experience with an attitude towards adventure, travel, leisure, sports, and the great outdoors. We believe that retail therapy is one of life’s greatest pleasures, which is why we’ve created a unique shopping destination where you can find  everything you need to fuel your next adventure. Our mission runs deeper; we strive to give both men and women unforgettable boutique shopping trips filled with diverse apparel and accessories that [...] ## Footer Start
+
+### Get Exclusive Offers + News
+
+Get Exclusive Offers + News
+
+### Store Locations
+
+## Contact Us
+
+### Phone
+
+### Customer Service
+
+### Shopping
+
+### Brands
+
+© 2025 Parts Unknown
+Footer. www.unknown.com. www.unknown.com · Support · Track Order · Contact Us · Refund Policy · Powered by. Country Picker country flag USD. Privacy Policy
+SOURCE UNKNOWN ONLINE SHOPPING SITE
+
+Source Unknown aims to inspire the women who enjoys affordable luxe-looking basics and seeking for trend-curious, unfussy and wallet-conscious pieces. 
+
+SOURCE UNKNOWN NEW ONLINE SHOPPING STORE LIKE ZARA
+
+SOURCE UNKNOWN NEW ONLINE SHOPPING STORE LIKE ZARA [...] Source Unknown is a multi-brand retailer, basically your one-stop destination where you can find minimal, flattering pieces that aren’t going to break to bank. Source Unknown is the new cult-favorite online store with a mix between what’s trending and what you should have in your closet with seasonless items that brings freshness and newness almost on a weekly basis versus focusing on the big seasonal trends. 
+
+Founded in March, 2020
+
+SOURCE UNKNOWN ONLINE SHOPPING SITE [...] Source Uknown
+submenu image
+submenu image
+submenu image
+user cabinet
+user cabinet
+user wishlist
+user bag
+
+# About
+
+=============================
+
+JOB SEARCH RESULTS:
+a16z, Sequoia, PayPal, Binance Ventures, Coinbase Ventures, Uniswap Labs, Circle Ventures, Delphi Digital, and many more.
+
+ABOUT THE ROLE
+==================
+
+We're seeking a talented Backend Engineer to join our team at LayerZero, where you'll play a pivotal role in revolutionizing blockchain interoperability and shaping the future of decentralized applications. As a Backend Engineer, you'll spearhead the development of robust and scalable backend systems that power our web3 technologies. [...] WHAT YOU'LL DO
+==================
+
+We're looking for an engineer experienced in building complex backend systems who is passionate about blockchain technology and is excited to bring new innovations. You don't have to have a background in blockchain, but you need to be keen to learn about it. [...] Experience working with workflow engines.
+   Previous experience with blockchain technologies, smart contracts, and decentralized finance is a strong plus.
+Product Strategy: Develop a clear product vision and strategy and continuously refine and communicate this vision to all stakeholders.
+   Market Research: Conduct market research, competitive analysis, and user feedback collection to identify trends, opportunities, and customer needs.
+   Roadmap Development: Create and maintain a product roadmap that prioritizes features, enhancements, and releases, taking into account business objectives and customer feedback. [...] Product Launch: Coordinate and execute product launches, working closely with marketing and sales teams to ensure successful go-to-market strategies.
+   Performance Analysis: Establish key performance indicators (KPIs) and regularly analyze product performance to identify areas for improvement.
+   Feedback Loop:Maintain a feedback loop with customers and stakeholders, gathering insights to iterate on the product and make data-driven decisions. [...] User-Centered Design: Work closely with the design and development teams to ensure user-centered product design, ensuring a seamless and delightful user experience.
+   Cross-Functional Collaboration:Collaborate with engineering, design, marketing, and other teams to ensure successful product development, launch, and ongoing support.
+   Project Management:Lead and drive the product development process, including sprint planning, backlog management, and agile project management.
+We are seeking a highly skilled and experienced Certified Global Mobility Specialist (GMS) to join our team and own the end-to-end global mobility experience—from pre-hire consultation to long-term settlement. This role is critical in supporting international hires relocating to Canada and other global locations, delivering high-touch, personalized relocation support to both candidates and their families. [...] GMS (Global Mobility Specialist) certification required.
+   Bachelor’s degree in Human Resources, Business, or related field; Master’s preferred.
+   5+ years of experience in global mobility or international HR, including end-to-end relocation and immigration support.
+   Proven track record supporting Canadian immigration, including work permits, PR, and family relocation. [...] Lead the end-to-end mobility process for international hires and internal transfers, from initial planning through relocation, onboarding, and long-term immigration support.
+   Serve as the primary point of contact for candidates and their families, offering high-touch, personalized relocation support to ensure a smooth transition into Canada and successful integration into the organization.
+Ventures, Delphi Digital, and many more.   ABOUT THE ROLE LayerZero is seeking an experienced and enthusiastic Head of DeFi to lead our strategy and engagement within the decentralized finance ecosystem. This is a critical role that will continue to drive the adoption of LayerZero within DeFi protocols, foster key partnerships, and shape our product roadmap to meet the evolving needs of the DeFi space. You will be responsible for identifying strategic opportunities, building relationships with [...] leading DeFi projects, and working closely with our product and engineering teams to ensure LayerZero remains at the forefront of cross-chain DeFi innovation. The ideal candidate will possess a deep understanding of the DeFi landscape, a proven track record of successful business development, and a passion for building the future of decentralized finance. Our team leaves egos at the door, works hard, has big ambitions, and is passionate about building the infrastructure interoperability layer [...] | Job Position | Company | Posted | Location | Salary | Tags |
+| --- | --- | --- | --- | --- | --- |
+| Head of DeFi Business Development | Layerzerolabs | 3d | Remote | $105k - $157k | business development     sales     non tech     executive     blockchain |
+| Global Mobility Specialist | Layerzerolabs | 5d | Remote |  | blockchain     remote |
+| Social Media Manager | Layerzerolabs | 5d | Remote | $77k - $112k | social media     non tech     blockchain     crypto     remote |
+We’re building the next generation of talent at LayerZero. As our Technical Recruiter, you’ll be one of the first people candidates meet—and one of the most critical. You’ll help shape the future of our engineering teams, identify world-class talent across frontier tech domains, and design candidate journeys that are fast, rigorous, and deeply aligned to our values.
+
+This role is based full-time in our Vancouver, BC office.
+
+WHAT YOU'LL DO
+================== [...] LayerZero Labs is committed to fostering a diverse and inclusive workplace. LayerZero Labs is an equal opportunity employer and does not discriminate on the basis of race, national origin, religion, gender, gender identity, sexual orientation, marital status, protected veteran status, disability, age, or any other legally protected status.
+
+Apply for this job
+------------------
+
+indicates a required field
+
+First Name 
+
+Last Name 
+
+Preferred First Name 
+
+Email 
+
+Phone 
+
+Resume/CV
+
+=============================
+
+LINKEDIN SEARCH RESULTS: From this search take company's vision, latest projects they are working, their milestones in very short.
+
+
+=============================

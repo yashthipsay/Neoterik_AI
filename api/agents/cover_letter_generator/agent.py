@@ -63,23 +63,11 @@ load_dotenv()
 
 # Simple system prompt that defines the agent's primary role
 SYSTEM_PROMPT = """
-You are an AI-powered expert cover letter writer and a strategic career advisor. Your primary objective is to craft personalized, professional, practical and humanized cover letters.
-The Cover Letter length should be not too long, and not too short, ideally around 200-400 words. DO NOT USE VERY DRAMATIC LANGUAGE, but be confident and persuasive.
-Your task is to analyze the provided job details, applicant's information (including resume highlights and GitHub data), and insights into the hiring company's culture. Based on this analysis, you must generate a cover letter that:
+You are an expert AI cover letter writer. Your goal is to create personalized, professional, and human-like cover letters that are 200-300 words. Be confident and persuasive, but not overly dramatic.
 
-1.  **Directly addresses and integrates** specific keywords and requirements from the `job_description` and `preferred_qualifications`.
-2.  **Articulates the applicant's value proposition** by clearly showing *how* their `skillsets` and `working_experience` align with, and will contribute to, the job's demands. Focus on impact and outcomes.
-3.  **Skill Presentation (Crucial!):**
-    * **Avoid lengthy, sequential lists of technologies.** Instead, seamlessly integrate relevant technologies into descriptions of projects, accomplishments, or specific problem-solving scenarios.
-    * **Prioritize relevance:** Only highlight technologies most pertinent to the job description.
-4.  **Demonstrates a genuine understanding** for the `hiring_company`'s mission, values, and `company_culture_notes`, weaving these elements naturally into the narrative to create an authentic connection. But don't be too dramatic or verbose.
-5.  **Maintains a confident, persuasive, and naturally flowing tone** throughout. The letter should sound like it was written by a human, conveying personality and interest.
-6.  **Is structured logically** with a concise introduction, compelling body paragraphs showcasing relevant experience and company fit (with technical skills integrated contextually), and a strong, polite call to action.
-7.  **Avoids generic phrases** and instead focuses on concrete connections between the applicant and the role/company, making every sentence purposeful. Do not directly copy phrases from the job description. It's instantly noticable and unprofessional. Do it subtly if required.
-8.  **Handles all provided information gracefully**, integrating it where relevant and omitting or generalizing if a specific piece of information is missing from the input.
+**Crucial Instruction:** Before writing, you must determine the correct style and tone by using the RAG functions.
 
-**Output Format:** Your response must be the complete text of the cover letter, ready for immediate use, without any additional conversational text, placeholders, or introductory/concluding remarks from you.
-
+**Output Format:** Respond with only the complete, ready-to-use cover letter text.
 """
 
 # ⚠️ Do not compose letters manually. Always invoke the proper toolchain.
@@ -104,21 +92,22 @@ COVER_LETTER_TEMPLATE = (
     "[/INST]"
 )
 
-STYLE_SYSTEM_PROMPT = """
-You are a style selection assistant for a cover letter generator. Your task is to identify the most appropriate writing style based on the user's request or job context.
+STYLE_SYSTEM_PROMPT =  """
+You are a style selection assistant. Your task is to choose the most appropriate writing style from the list below based on the user's request and job context.
 
 **Available Styles:**
-- **Professional & Formal:** Emphasizes traditional business language, clarity, and precision.
-- **Enthusiastic & Dynamic:** Conveys high energy, passion, and a proactive attitude.
-- **Concise & Direct:** Focuses on brevity, impactful statements, and getting straight to the point.
-- **Innovative & Creative:** Highlights unique problem-solving, forward-thinking, and unconventional approaches (use with caution for formal roles).
+- **professional**: Formal and polished, ideal for traditional corporate or structured roles.
+- **most-improved**: Highlights personal growth, resilience, and learning from experience.
+- **fun-loving**: Light-hearted, creative tone suited for startups or informal workplaces.
+- **short-and-sweet**: Brief, impactful, and to the point—great when attention spans are short.
+- **unique**: Distinctive, creative, and unconventional to help the user stand out.
+- **career-change**: Emphasizes transferable skills and adaptability for pivoting careers.
+- **enthusiastic**: High-energy, passionate tone showing excitement and motivation.
 
 **Instructions:**
-1.  Analyze the provided `job_description`, `company_culture_notes`, and any explicit `style_preference` from the user.
-2.  Select the single most suitable style from the "Available Styles" list that best aligns with the job's requirements and company's expected tone.
-3.  If no specific style is indicated or implied, default to "Professional & Formal."
+- Analyze the job details and user's desired tone. If a specific tone is provided, use it to filter styles strictly. If the tone is "auto", select the most practical, realistic, and context-appropriate style.
 
-**Output Format:** Provide only the name of the chosen style (e.g., "Professional & Formal", "Enthusiastic & Dynamic").
+**Output Format:** Provide only the name of the chosen style.
 """
 
 def build_prompt(
@@ -158,52 +147,51 @@ def build_prompt(
         resume_highlights=resume_highlights
     )
     
-def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_data) -> str:
-    prompt_parts = []
+# def build_prompt_for_gemini(input_data: CoverLetterInput, github_info, resume_data) -> str:
+#     prompt_parts = []
 
-    # 1. Start with the System Prompt
-    prompt_parts.append(SYSTEM_PROMPT) # Ensure this is the improved system prompt
+#     # 1. Start with the System Prompt
+#     # prompt_parts.append(SYSTEM_PROMPT) # Ensure this is the improved system prompt
 
-    # 2. Clearly delineate sections for the LLM
-    prompt_parts.append("\n--- JOB APPLICATION DETAILS ---")
-    prompt_parts.append(f"Job Title: {input_data.job_title}")
-    prompt_parts.append(f"Hiring Company: {input_data.hiring_company}")
-    # prompt_parts.append(f"Company Website: {input_data.company_url}")
+#     # 2. Clearly delineate sections for the LLM
+#     prompt_parts.append("\n--- JOB APPLICATION DETAILS ---")
+#     prompt_parts.append(f"Job Title: {input_data.job_title}")
+#     prompt_parts.append(f"Hiring Company: {input_data.hiring_company}")
+#     # prompt_parts.append(f"Company Website: {input_data.company_url}")
 
-    prompt_parts.append("\n--- JOB REQUIREMENTS ---")
-    prompt_parts.append(f"Job Description:\n{input_data.job_description}")
-    if input_data.preferred_qualifications:
-        prompt_parts.append(f"Preferred Qualifications:\n{input_data.preferred_qualifications}")
+#     prompt_parts.append("\n--- JOB REQUIREMENTS ---")
+#     prompt_parts.append(f"Job Description:\n{input_data.job_description}")
+#     if input_data.preferred_qualifications:
+#         prompt_parts.append(f"Preferred Qualifications:\n{input_data.preferred_qualifications}")
 
-    prompt_parts.append("\n--- APPLICANT BACKGROUND ---")
-    prompt_parts.append(f"Applicant Name: {input_data.applicant_name}")
-    if input_data.skillsets:
-        prompt_parts.append(f"Applicant Skillsets:\n{input_data.skillsets}")
-    if input_data.working_experience: # Assuming this is derived from resume parsing
-        prompt_parts.append(f"Applicant Working Experience Highlights:\n{input_data.working_experience}")
-    if resume_data: # If you pass the full resume text
-        # Consider truncating or summarizing if very long to save tokens
-        prompt_parts.append(f"Full Resume Content (for additional context):\n{resume_data[:2000]}...")
-    if github_info:
-        prompt_parts.append(f"GitHub Profile Information for {input_data.github_username or 'applicant'}:")
-        prompt_parts.append(f"- GitHub Summary: {github_info}")
+#     prompt_parts.append("\n--- APPLICANT BACKGROUND ---")
+#     prompt_parts.append(f"Applicant Name: {input_data.applicant_name}")
+#     if input_data.skillsets:
+#         prompt_parts.append(f"Applicant Skillsets:\n{input_data.skillsets}")
+#     if input_data.working_experience: # Assuming this is derived from resume parsing
+#         prompt_parts.append(f"Applicant Working Experience Highlights:\n{input_data.working_experience}")
+#     if resume_data: # If you pass the full resume text
+#         # Consider truncating or summarizing if very long to save tokens
+#         prompt_parts.append(f"Full Resume Content (for additional context):\n{resume_data[:2000]}...")
+#     if github_info:
+#         prompt_parts.append(f"GitHub Profile Information for {input_data.github_username or 'applicant'}:")
+#         prompt_parts.append(f"- GitHub Summary: {github_info}")
 
-    prompt_parts.append("\n--- COMPANY CULTURE & CONTEXTUAL NOTES ---")
-    if input_data.company_culture_notes:
-        prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
+#     prompt_parts.append("\n--- COMPANY CULTURE & CONTEXTUAL NOTES ---")
+#     if input_data.company_culture_notes:
+#         prompt_parts.append(f"Company Culture Notes:\n{input_data.company_culture_notes}")
 
-    # prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
-    # prompt_parts.append(
-    #     "Generate the cover letter now, strictly adhering to the System Prompt guidelines. "
-    #     "Focus on integrating all relevant information to demonstrate the applicant's ideal fit."
-    # )
+#     prompt_parts.append("\n--- COVER LETTER GENERATION TASK ---")
+#     prompt_parts.append(
+#         "Focus on integrating all relevant information to demonstrate the applicant's ideal fit. Use the styles filter before generating the cover letter, to ensure the desired tone for the cover letter is set."
+#     )
 
-    return "\n\n".join(prompt_parts)
+#     return "\n\n".join(prompt_parts)
 
 # Initialize the pydantic-ai Agent for cover letter generation
 # Uses Google's Gemini model for high-quality text generation
 cover_letter_agent = Agent(
-    model="gemini-2.5-flash",  # Google Gemini 2.0 Flash model for fast, quality generation
+    model="gemini-2.5-flash",  # Google Gemini 2.5 Pro model for advanced text generation
     deps_type=CoverLetterInput,           # Input type dependency for the agent
     system_prompt=SYSTEM_PROMPT,          # System prompt defining the agent's role
 )
@@ -238,224 +226,437 @@ def get_style_retriever(persist_dir: str = "rag_store", collection: str = "neote
         embedding_function=embed_model
     )
     
-    
-# ----------------------------------------------------------------------------
-# Tool: retrieve style templates via RAG
-# ----------------------------------------------------------------------------
-@cover_letter_agent.tool
-async def retrieve_styles(
-    ctx: RunContext[StyleSelectionInput]
-) -> StyleSelectionOutput:
+def get_style_retriever_cloud(collection: str = "cover-letter-templates") -> Chroma:
     """
-    RAG tool to fetch top style templates based on job description and preferences.
+    Returns a Chroma vectorstore instance using Chroma Cloud for the specified collection.
     """
-    retriever = get_style_retriever()
-    # similarity search on job description
-    docs = retriever.similarity_search(
-        query=ctx.deps.job_description or ctx.deps.job_title,
-        k=3,
-        filter={"type": "template"}
-    )
-    
-    retrieved_docs = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
-    # collect raw page_contents
-    retrieved_texts = [d.page_content for d in docs]
+    import os
+    import chromadb
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+    from langchain_community.vectorstores import Chroma
+    from dotenv import load_dotenv
 
-    # call a separate style selector agent for structured output
-    style_agent = Agent(
-        model=cover_letter_agent.model,
-        deps_type=StyleSelectionInput,
-        system_prompt=STYLE_SYSTEM_PROMPT,
+    # === Load environment variables from .env ===
+    load_dotenv()
+
+    # === Retrieve credentials securely ===
+    CHROMA_API_KEY = "ck-J8EfrmcW4TPquPQW4CVshQDWtqSBDtAz7KHgDRmXLtxy"
+    CHROMA_TENANT = "f1e0c47a-7d1c-4e4c-9bb6-df2879d6a1d8"
+    CHROMA_DATABASE = "neoterik-rag-test"
+
+    # === Initialize embedding model ===
+    embed_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
+
+    # === Initialize Chroma Cloud client ===
+    client = chromadb.CloudClient(
+        api_key="ck-J8EfrmcW4TPquPQW4CVshQDWtqSBDtAz7KHgDRmXLtxy",
+        tenant="f1e0c47a-7d1c-4e4c-9bb6-df2879d6a1d8",
+        database="neoterik-rag-test"
     )
-    rag_input = StyleSelectionInput(
-        job_title=ctx.deps.job_title,
-        hiring_company=ctx.deps.hiring_company,
-        job_description=ctx.deps.job_description,
-        preferred_qualifications=ctx.deps.preferred_qualifications,
-        company_culture_notes=ctx.deps.company_culture_notes,
-        applicant_experience_level=ctx.deps.applicant_experience_level,
-        desired_tone=ctx.deps.desired_tone,
-        retrieved_documents=retrieved_docs
+
+    # === Return Chroma vectorstore ===
+    return Chroma(
+        collection_name=collection,
+        embedding_function=embed_model,
+        client=client
     )
-    style_result = await style_agent.run(deps=rag_input)
-    structured = style_result.data if hasattr(style_result, "data") else style_result
+
+def format_github_info(info):
+    if not info:
+        return "No GitHub information available."
+    lines = []
+    if info.get("name"):
+        lines.append(f"Name: {info['name']}")
+    if info.get("username"):
+        lines.append(f"Username: {info['username']}")
+    if info.get("bio"):
+        lines.append(f"Bio: {info['bio']}")
+    if info.get("location"):
+        lines.append(f"Location: {info['location']}")
+    if info.get("repo_count") is not None:
+        lines.append(f"Public Repos: {info['repo_count']}")
+    if info.get("followers") is not None:
+        lines.append(f"Followers: {info['followers']}")
+    if info.get("following") is not None:
+        lines.append(f"Following: {info['following']}")
+    if info.get("key_skills"):
+        lines.append(f"Key Skills: {', '.join(info['key_skills'])}")
+    if info.get("notable_repositories"):
+        lines.append("Notable Repositories:")
+        for repo in info["notable_repositories"]:
+            repo_line = f"  - {repo['name']}"
+            if repo.get("description"):
+                repo_line += f": {repo['description']}"
+            if repo.get("language"):
+                repo_line += f" [{repo['language']}]"
+            lines.append(repo_line)
+    return "\n".join(lines)
+
+@cover_letter_agent.tool
+async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOutput:
+    """
+    RAG tool to fetch top style templates and generate cover letter based on job description and preferences.
+    """
+    print("\n=== Debug: retrieve_styles (enhanced version) ===")
+    print(f"Desired tone from input: {ctx.deps.desired_tone}")
+    print(f"Job title: {ctx.deps.job_title}")
+    print(f"Hiring company: {ctx.deps.hiring_company}")
+    print(f"Job description length: {len(ctx.deps.job_description or '')}")
+
+    retriever = get_style_retriever_cloud()
     
-    # Fix: Better JSON parsing with error handling
-    if isinstance(structured, str):
-        try:
-            if structured.strip():  # Check if string is not empty
-                structured = json.loads(structured)
-            else:
-                # Return default structure for empty responses
-                structured = {
-                    "selected_template": {"style": "professional", "content": ""},
-                    "tone": "professional",
-                    "style": "professional", 
-                    "industry": "general",
-                    "level": "mid",
-                    "retrieved_documents": retrieved_docs
-                }
-        except json.JSONDecodeError as e:
-            print(f"JSON parsing error in retrieve_styles: {e}")
-            # Return default structure for invalid JSON
-            structured = {
-                "selected_template": {"style": "professional", "content": ""},
-                "tone": "professional", 
+    # Retrieve multiple types of data for comprehensive cover letter generation
+    all_retrieved_data = {
+        "templates": [],
+        "tones": [],
+        "phrases": [],
+        "skills": [],
+        "values": []
+    }
+
+    # If desired_tone is specified and not auto/none/empty, use tone-specific filter
+    if ctx.deps.desired_tone and ctx.deps.desired_tone.lower() not in ["auto", "none", ""]:
+        print(f"\n--- TONE-SPECIFIC RETRIEVAL ---")
+        
+        # 1. Get templates with specific tone
+        template_filter = {"tone": ctx.deps.desired_tone}
+        print(f"Searching templates with filter: {template_filter}")
+        
+        template_docs = retriever.similarity_search(
+            query=ctx.deps.job_description or ctx.deps.job_title,
+            k=2,
+            filter=template_filter
+        )
+        all_retrieved_data["templates"] = [{"content": d.page_content, "metadata": d.metadata} for d in template_docs]
+        print(f"Retrieved {len(all_retrieved_data['templates'])} template documents")
+        
+        # 2. Get tone guidelines
+        tone_filter = {"tone": ctx.deps.desired_tone}
+        print(f"Searching tones with filter: {tone_filter}")
+        
+        tone_docs = retriever.similarity_search(
+            query=f"tone {ctx.deps.desired_tone}",
+            k=1,
+            filter=tone_filter
+        )
+        all_retrieved_data["tones"] = [{"content": d.page_content, "metadata": d.metadata} for d in tone_docs]
+        print(f"Retrieved {len(all_retrieved_data['tones'])} tone documents")
+
+        # Create style selection from retrieved template
+        if all_retrieved_data["templates"]:
+            metadata = all_retrieved_data["templates"][0].get("metadata", {})
+            selected_style = StyleSelectionOutput(
+                selected_template={
+                    "style": metadata.get("style", "professional"),
+                    "content": all_retrieved_data["templates"][0]["content"]
+                },
+                tone=metadata.get("tone", ctx.deps.desired_tone),
+                style=metadata.get("style", "professional"),
+                industry=metadata.get("industry", "general"),
+                level=metadata.get("level", "mid"),
+                retrieved_documents=all_retrieved_data["templates"]
+            )
+        else:
+            selected_style = None
+            print("WARNING: No templates found for specified tone")
+    else:
+        print(f"\n--- DEFAULT RETRIEVAL WITH STYLE AGENT ---")
+        
+        # 1. Get general templates
+        template_filter = {"type": "template"}
+        print(f"Searching templates with filter: {template_filter}")
+        
+        template_docs = retriever.similarity_search(
+            query=ctx.deps.job_description or ctx.deps.job_title,
+            k=3,
+            filter=template_filter
+        )
+        all_retrieved_data["templates"] = [{"content": d.page_content, "metadata": d.metadata} for d in template_docs]
+        print(f"Retrieved {len(all_retrieved_data['templates'])} template documents")
+
+        # Default style structure
+        default_style = {
+            "selected_template": {
                 "style": "professional",
-                "industry": "general",
-                "level": "mid",
-                "retrieved_documents": retrieved_docs
-            }
-            
-    # Ensure structured dict has all required fields
-    if isinstance(structured, dict):
-        structured.setdefault("style", "professional")
-        structured.setdefault("retrieved_documents", retrieved_docs)
-    
-    return StyleSelectionOutput(**structured)
+                "content": all_retrieved_data["templates"][0]["content"] if all_retrieved_data["templates"] else ""
+            },
+            "tone": "professional",
+            "style": "professional",
+            "industry": "general",
+            "level": "mid",
+            "retrieved_documents": all_retrieved_data["templates"]
+        }
 
-# ----------------------------------------------------------------------------
-# Main tool: generate cover letter using chosen style
-# ----------------------------------------------------------------------------
-@cover_letter_agent.tool
-async def generate_with_style(
-    ctx: RunContext[CoverLetterInput]
-) -> CoverLetterOutput:
-    """
-    Generates a cover letter after retrieving the best style using RAG.
-    """
-    input_data = ctx.deps
+        if all_retrieved_data["templates"]:
+            metadata = all_retrieved_data["templates"][0].get("metadata", {})
+            default_style.update({
+                "tone": metadata.get("tone", "professional"),
+                "style": metadata.get("style", "professional"),
+                "industry": metadata.get("industry", "general"),
+                "level": metadata.get("level", "mid"),
+            })
+            default_style["selected_template"]["style"] = metadata.get("style", "professional")
+
+        # Run style agent for nuanced selection
+        try:
+            style_agent = Agent(
+                model=cover_letter_agent.model,
+                deps_type=StyleSelectionInput,
+                system_prompt=STYLE_SYSTEM_PROMPT,
+            )
+            rag_input = StyleSelectionInput(
+                job_title=ctx.deps.job_title,
+                hiring_company=ctx.deps.hiring_company,
+                job_description=ctx.deps.job_description,
+                preferred_qualifications=ctx.deps.preferred_qualifications,
+                company_culture_notes=ctx.deps.company_culture_notes,
+                applicant_experience_level=getattr(ctx.deps, 'applicant_experience_level', None),
+                desired_tone="auto",
+                # Add the missing parsed data
+                applicant_name=getattr(ctx.deps, 'applicant_name', ''),
+                working_experience=getattr(ctx.deps, 'working_experience', ''),
+                qualifications=getattr(ctx.deps, 'qualifications', ''),
+                skillsets=getattr(ctx.deps, 'skillsets', ''),
+                github_username=getattr(ctx.deps, 'github_username', ''),
+                resume_data=getattr(ctx.deps, 'resume_data', None),
+                github_data=getattr(ctx.deps, 'github_data', None)
+            )
+            style_result = await style_agent.run(deps=rag_input)
+            structured = style_result.data if hasattr(style_result, "data") else style_result
+            print(f"Style agent output: {structured}")
+
+            if isinstance(structured, str):
+                stripped = structured.strip()
+                if stripped in ["professional", "fun-loving", "most-improved", "short-and-sweet", "unique", "career-change", "enthusiastic"]:
+                    structured = {
+                        "selected_template": {
+                            "style": stripped,
+                            "content": default_style["selected_template"]["content"]
+                        },
+                        "tone": stripped,
+                        "style": stripped,
+                        "industry": default_style["industry"],
+                        "level": default_style["level"],
+                        "retrieved_documents": all_retrieved_data["templates"]
+                    }
+                elif stripped == "":
+                    print("Empty style result, using default.")
+                    structured = default_style
+                else:
+                    try:
+                        structured = json.loads(stripped)
+                        print(f"Parsed JSON: {structured}")
+                    except json.JSONDecodeError as e:
+                        print(f"JSON parsing error: {e}")
+                        structured = default_style
+            elif not isinstance(structured, dict):
+                structured = default_style
+
+            # Ensure required fields
+            for key in ["style", "tone", "industry", "level"]:
+                if key not in structured:
+                    structured[key] = default_style[key]
+            structured["retrieved_documents"] = all_retrieved_data["templates"]
+            structured.setdefault("selected_template", default_style["selected_template"])
+            
+            selected_style = StyleSelectionOutput(**structured)
+        except Exception as e:
+            print(f"Style agent error: {e}")
+            selected_style = StyleSelectionOutput(**default_style)
+
+    # 3. Retrieve additional supporting data regardless of path taken
+    print(f"\n--- RETRIEVING SUPPORTING DATA ---")
+    
+    # Get industry-specific phrases
+    try:
+        phrase_docs = retriever.similarity_search(
+            query=f"{ctx.deps.job_description or ctx.deps.job_title} industry phrases",
+            k=2,
+            filter={"type": "phrase"}
+        )
+        all_retrieved_data["phrases"] = [{"content": d.page_content, "metadata": d.metadata} for d in phrase_docs]
+        print(f"Retrieved {len(all_retrieved_data['phrases'])} phrase documents")
+    except Exception as e:
+        print(f"Error retrieving phrases: {e}")
+        all_retrieved_data["phrases"] = []
+
+    # Get relevant skills
+    try:
+        skill_docs = retriever.similarity_search(
+            query=f"{ctx.deps.job_description or ctx.deps.job_title} skills",
+            k=3,
+            filter={"type": "skill"}
+        )
+        all_retrieved_data["skills"] = [{"content": d.page_content, "metadata": d.metadata} for d in skill_docs]
+        print(f"Retrieved {len(all_retrieved_data['skills'])} skill documents")
+    except Exception as e:
+        print(f"Error retrieving skills: {e}")
+        all_retrieved_data["skills"] = []
+
+    # Get company values
+    try:
+        value_docs = retriever.similarity_search(
+            query=f"{ctx.deps.company_culture_notes or ctx.deps.hiring_company} values",
+            k=2,
+            filter={"type": "value"}
+        )
+        all_retrieved_data["values"] = [{"content": d.page_content, "metadata": d.metadata} for d in value_docs]
+        print(f"Retrieved {len(all_retrieved_data['values'])} value documents")
+    except Exception as e:
+        print(f"Error retrieving values: {e}")
+        all_retrieved_data["values"] = []
+
+    # Print detailed retrieval results
+    print(f"\n--- RETRIEVAL SUMMARY ---")
+    for data_type, items in all_retrieved_data.items():
+        print(f"{data_type.upper()}: {len(items)} items")
+        for i, item in enumerate(items):
+            print(f"  {i+1}. Metadata: {item.get('metadata', {})}")
+            content_preview = item.get('content', '')[:100] + '...' if len(item.get('content', '')) > 100 else item.get('content', '')
+            print(f"     Content: {content_preview}")
+
+    # --- COVER LETTER GENERATION LOGIC ---
+    input_data = CoverLetterInput(
+        user_id=getattr(ctx.deps, 'user_id' , ''),
+        job_title=ctx.deps.job_title or "",
+        hiring_company=ctx.deps.hiring_company or "",
+        job_description=ctx.deps.job_description or "",
+        preferred_qualifications=ctx.deps.preferred_qualifications or "",
+        company_culture_notes=ctx.deps.company_culture_notes or "",
+        applicant_name=getattr(ctx.deps, 'applicant_name', ''),
+        working_experience=getattr(ctx.deps, 'working_experience', ''),
+        qualifications=getattr(ctx.deps, 'qualifications', ''),
+        skillsets=getattr(ctx.deps, 'skillsets', ''),
+        github_username=getattr(ctx.deps, 'github_username', ''),
+        desired_tone=ctx.deps.desired_tone or 'auto'
+    )
 
     try:
-        # Get RAG retriever
-        retriever = get_style_retriever()
+        # Build enhanced generation prompt using all retrieved data
+        print(f"\n--- BUILDING GENERATION PROMPT ---")
         
-        # If RAG is available, perform similarity search for templates
-        retrieved_texts = []
-        retrieved_docs = []
-        if retriever:
-            try:
-                docs = retriever.similarity_search(
-                    query=input_data.job_description or input_data.job_title or "professional cover letter",
-                    k=3,
-                    filter={"type": "template"}
-                )
-                retrieved_texts = [d.page_content for d in docs]
-                retrieved_docs = [{"content": d.page_content, "metadata": d.metadata} for d in docs]
-            except Exception as e:
-                print(f"RAG search error: {e}")
-                retrieved_texts = []
-                retrieved_docs = []
+        github_data = getattr(ctx.deps, 'github_data', None)
+        print("DEBUG: ctx.deps.github_data =", ctx.deps.github_data)
+        used_github_info = {}
 
-        # Create style selection input
-        style_input = StyleSelectionInput(
-            job_title=input_data.job_title or "",
-            hiring_company=input_data.hiring_company or "",
-            job_description=input_data.job_description or "",
-            preferred_qualifications=input_data.preferred_qualifications or "",
-            company_culture_notes=input_data.company_culture_notes or "",
-            applicant_experience_level=getattr(input_data, 'applicant_experience_level', 'mid'),
-            desired_tone=getattr(input_data, 'desired_tone', 'professional'),
-            retrieved_documents=retrieved_docs,  # Use retrieved_docs instead of retrieved_texts
-        )
-
-        # If we have retrieved documents, use style agent for selection
-        selected_style = None
-        if retrieved_texts:
-            try:
-                style_agent = Agent(
-                    model="gemini-2.5-flash",
-                    deps_type=StyleSelectionInput,
-                    system_prompt=STYLE_SYSTEM_PROMPT,
-                )
-                
-                style_result = await style_agent.run(
-                    "Select the best template and style based on the job description and retrieved documents.", deps=style_input
-                )
-                
-                structured = style_result.data if hasattr(style_result, "data") else str(style_result)
-                if isinstance(structured, str):
-                    try:
-                        structured = json.loads(structured)
-                    except json.JSONDecodeError:
-                        # If JSON parsing fails, use default structure
-                        structured = {
-                            "selected_template": {"style": "professional", "content": ""},
-                            "tone": "professional",
-                            "style": "professional",  # Add required field
-                            "industry": "general",
-                            "level": "mid",
-                            "retrieved_documents": retrieved_docs  # Add required field
-                        }
-                
-                # Ensure all required fields are present
-                if isinstance(structured, dict):
-                    structured.setdefault("style", "professional")
-                    structured.setdefault("retrieved_documents", retrieved_docs)
-                    structured.setdefault("selected_template", {"style": "professional", "content": ""})
-                    structured.setdefault("tone", "professional")
-                    structured.setdefault("industry", "general")
-                    structured.setdefault("level", "mid")
-                
-                selected_style = StyleSelectionOutput(**structured) if isinstance(structured, dict) else None
-            except Exception as e:
-                print(f"Style selection error: {e}")
-                selected_style = None
-
-        # Build the generation prompt
-        if selected_style and selected_style.selected_template:
-            prompt = (
-                f"Using the '{selected_style.selected_template.get('style', 'professional')}' template and a '{selected_style.tone}' tone, "
-                f"generate a personalized cover letter for {input_data.job_title} at {input_data.hiring_company}. "
-                f"Here are the details:\n\n"
-                f"Job Description: {input_data.job_description}\n"
-                f"Applicant Name: {input_data.applicant_name}\n"
-                f"Working Experience: {input_data.working_experience}\n"
-                f"Qualifications: {input_data.qualifications}\n"
-                f"Skillsets: {input_data.skillsets}\n"
-                f"Company Culture Notes: {input_data.company_culture_notes}\n"
-            )
-            if selected_style.selected_template.get('content'):
-                prompt += f"\nTemplate Content for reference:\n{selected_style.selected_template['content']}"
+        # --- PATCH START ---
+        # Always use the same logic for both output and prompt
+        github_data = ctx.deps.github_data or {}
+        used_github_info = {}
+        if isinstance(github_data, dict) and github_data:
+            profile = github_data.get("profile_details", {})
+            used_github_info = {
+                "name": profile.get("name"),
+                "username": profile.get("username"),
+                "bio": profile.get("bio"),
+                "location": profile.get("location"),
+                "repo_count": profile.get("public_repos_count"),
+                "followers": github_data.get("followers"),
+                "following": profile.get("following"),
+                "key_skills": github_data.get("skills_tags", []),
+                "notable_repositories": github_data.get("notable_repositories", [
+                    {
+                        "name": repo.get("name"),
+                        "description": repo.get("description"),
+                        "language": repo.get("language")
+                    }
+                    for repo in github_data.get("top_repositories", [])
+                ])
+            }
         else:
-            # Fallback prompt without RAG
-            prompt = (
-                f"Generate a professional cover letter for {input_data.job_title} at {input_data.hiring_company}. "
-                f"Use the following information:\n\n"
-                f"Job Description: {input_data.job_description}\n"
-                f"Applicant Name: {input_data.applicant_name}\n"
-                f"Working Experience: {input_data.working_experience}\n"
-                f"Qualifications: {input_data.qualifications}\n"
-                f"Skillsets: {input_data.skillsets}\n"
-                f"Company Culture Notes: {input_data.company_culture_notes}\n"
-                f"\nWrite a compelling, professional cover letter that highlights the candidate's relevant experience and enthusiasm for the role."
-            )
+            used_github_info = None
+        github_info_formatted = format_github_info(used_github_info)
+        print("DEBUG: github_info_formatted =", github_info_formatted)
 
-        # Generate the letter using a simple text generation approach
+        base_prompt = f"""Generate a personalized cover letter for {input_data.job_title} at {input_data.hiring_company}.
+
+APPLICANT INFORMATION:
+- Name: {input_data.applicant_name}
+- Working Experience: {input_data.working_experience}
+- Qualifications: {input_data.qualifications}
+- Skillsets: {input_data.skillsets}
+- Company Culture Notes: {input_data.company_culture_notes}
+
+GITHUB PROFILE INFORMATION:
+{github_info_formatted}
+
+JOB DETAILS:
+- Job Description: {input_data.job_description}
+- Preferred Qualifications: {input_data.preferred_qualifications}
+
+"""
+
+        # Add selected style and template info
+        if selected_style and selected_style.selected_template:
+            base_prompt += f"""STYLE GUIDANCE:
+- Selected Style: {selected_style.selected_template.get('style', 'professional')}
+- Tone: {selected_style.tone}
+- Industry: {selected_style.industry}
+- Level: {selected_style.level}
+
+"""
+            if selected_style.selected_template.get('content'):
+                base_prompt += f"TEMPLATE REFERENCE:\n{selected_style.selected_template['content']}\n\n"
+
+        # Add retrieved supporting data
+        if all_retrieved_data["tones"]:
+            tone_info = "\n".join([item["content"] for item in all_retrieved_data["tones"]])
+            base_prompt += f"TONE GUIDELINES:\n{tone_info}\n\n"
+
+        if all_retrieved_data["phrases"]:
+            phrase_info = "\n".join([item["content"] for item in all_retrieved_data["phrases"]])
+            base_prompt += f"INDUSTRY PHRASES TO CONSIDER:\n{phrase_info}\n\n"
+
+        if all_retrieved_data["skills"]:
+            skill_info = "\n".join([item["content"] for item in all_retrieved_data["skills"]])
+            base_prompt += f"RELEVANT SKILLS TO HIGHLIGHT:\n{skill_info}\n\n"
+
+        if all_retrieved_data["values"]:
+            value_info = "\n".join([item["content"] for item in all_retrieved_data["values"]])
+            base_prompt += f"COMPANY VALUES TO ALIGN WITH:\n{value_info}\n\n"
+
+        base_prompt += """INSTRUCTIONS:
+- Write a compelling, professional cover letter that integrates the style guidance and retrieved information strictly between 100-300 words
+- Use industry-specific phrases naturally within the content
+- Highlight relevant skills and experiences that match the job requirements, but do not overstate them, or use them as fillers
+- Align with company values where appropriate
+- Maintain the specified tone throughout
+- Keep the letter between 200-400 words
+- Make it feel personal and authentic, not template-driven
+
+Write only the complete cover letter text."""
+
+        print(f"Generated prompt length: {len(base_prompt)} characters")
+        print(f"Prompt preview: {base_prompt[:5000]}...")
+
         generation_agent = Agent(
             model=cover_letter_agent.model,
             deps_type=str,
-            system_prompt="You are a professional cover letter writer. Generate clear, compelling cover letters based on the provided information."
+            system_prompt=SYSTEM_PROMPT
         )
-        # Add prompt from the context here
-        llm_result = await generation_agent.run(prompt, deps=prompt)
+        llm_result = await generation_agent.run(base_prompt, deps=base_prompt)
         text = llm_result.data if hasattr(llm_result, "data") else str(llm_result)
 
-        # FIX: Ensure used_github_info is always a dictionary
+        print(f"\n--- GENERATION COMPLETE ---")
+        print(f"Generated cover letter length: {len(text)} characters")
+
         github_info_dict = {}
         if hasattr(input_data, 'github_username') and input_data.github_username:
             github_info_dict = {"username": input_data.github_username}
 
         return CoverLetterOutput(
             cover_letter=text,
-            summary=f"Generated cover letter for {input_data.job_title} at {input_data.hiring_company}",
+            summary=f"Generated cover letter for {input_data.job_title} at {input_data.hiring_company} using {selected_style.tone if selected_style else 'professional'} tone with {sum(len(v) for v in all_retrieved_data.values())} retrieved references",
             used_highlights=input_data.working_experience.split("; ") if input_data.working_experience else [],
-            used_github_info=github_info_dict  # Always pass a dictionary
+            used_github_info=github_info_dict
         )
 
     except Exception as e:
-        print(f"Error in generate_with_style: {e}")
-        # Return a basic fallback cover letter
+        print(f"Error in cover letter generation: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Fallback generation
         fallback_text = (
             f"Dear Hiring Manager,\n\n"
             f"I am writing to express my interest in the {input_data.job_title or 'position'} "
@@ -466,15 +667,13 @@ async def generate_with_style(
             f"Thank you for considering my application.\n\n"
             f"Sincerely,\n{input_data.applicant_name or 'Applicant'}"
         )
-        
-        # FIX: Ensure fallback also uses dictionary for used_github_info
         github_info_dict = {}
         if hasattr(input_data, 'github_username') and input_data.github_username:
             github_info_dict = {"username": input_data.github_username}
-        
         return CoverLetterOutput(
             cover_letter=fallback_text,
             summary="Fallback cover letter generated due to processing error",
             used_highlights=[],
-            used_github_info=github_info_dict  # Always pass a dictionary
+            used_github_info=github_info_dict
         )
+

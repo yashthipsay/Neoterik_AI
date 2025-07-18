@@ -1,876 +1,815 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Neoterik.ai Cover Letter Assistant</title>
-    <style>
-      :root {
-        --primary-color: #2D3047;
-        --secondary-color: #419D78;
-        --accent-color: #E0A458;
-        --text-color: #2D3047;
-        --background-color: #F6F7F9;
-        --card-background: #FFFFFF;
-        --shadow-color: rgba(45, 48, 71, 0.1);
-        --success-color: #10B981;
-        --warning-color: #F59E0B;
-        --error-color: #EF4444;
-        --parametric-primary: #419D78;
-        --parametric-secondary: #E0A458;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f6f7f9 0%, #e9ecef 100%);
-        color: var(--text-color);
-        width: 375px;
-        height: 500px;
-        overflow: hidden;
-        line-height: 1.6;
-      }
-
-      .container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        position: relative;
-      }
-
-      /* Parametric background pattern */
-      .container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: 
-          radial-gradient(circle at 20% 20%, rgba(65, 157, 120, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(224, 164, 88, 0.05) 0%, transparent 50%),
-          linear-gradient(45deg, transparent 49%, rgba(65, 157, 120, 0.02) 50%, transparent 51%);
-        background-size: 60px 60px, 60px 60px, 20px 20px;
-        pointer-events: none;
-        z-index: 1;
-      }
-
-      /* Header Styles with Parametric Elements */
-      .header {
-        background: linear-gradient(135deg, var(--secondary-color), #37876A);
-        color: white;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        position: relative;
-        z-index: 10;
-      }
-
-      .header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--parametric-secondary), transparent, var(--parametric-secondary));
-        animation: parametricFlow 3s linear infinite;
-      }
-
-      @keyframes parametricFlow {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-      }
-
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .logo {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: white;
-        padding: 4px;
-        position: relative;
-      }
-
-      .logo::after {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, var(--parametric-secondary), var(--parametric-primary));
-        border-radius: 10px;
-        z-index: -1;
-        opacity: 0.3;
-      }
-
-      .title-section h1 {
-        font-size: 16px;
-        font-weight: 700;
-        margin: 0;
-        position: relative;
-      }
-
-      .title-section p {
-        font-size: 11px;
-        opacity: 0.9;
-        margin: 0;
-      }
-
-      .auth-section {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-      }
-
-      .user-avatar {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .status-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 500;
-        position: relative;
-      }
-
-      .status-badge::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        border-radius: 12px;
-        animation: parametricGlow 2s ease-in-out infinite;
-      }
-
-      @keyframes parametricGlow {
-        0%, 100% { opacity: 0; }
-        50% { opacity: 1; }
-      }
-
-      /* Enhanced Button Styles */
-      .btn {
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 12px;
-        padding: 8px 16px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, #3B82F6, #2563EB);
-        color: white;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-      }
-
-      .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-      }
-
-      .btn-primary:hover::before {
-        left: 100%;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-      }
-
-      .btn-outline {
-        background: transparent;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        position: relative;
-      }
-
-      .btn-outline::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.1);
-        transition: width 0.3s ease;
-        z-index: -1;
-      }
-
-      .btn-outline:hover::after {
-        width: 100%;
-      }
-
-      .btn-outline:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      /* Enhanced Tab Navigation */
-      .tab-nav {
-        display: flex;
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-bottom: 1px solid #e9ecef;
-        position: relative;
-        z-index: 5;
-      }
-
-      .tab-nav::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary), var(--parametric-primary));
-        opacity: 0.3;
-      }
-
-      .tab-btn {
-        flex: 1;
-        padding: 12px 8px;
-        background: none;
-        border: none;
-        font-size: 11px;
-        font-weight: 500;
-        color: #6c757d;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-bottom: 2px solid transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        position: relative;
-      }
-
-      .tab-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 8px;
-        width: 3px;
-        height: 3px;
-        background: var(--parametric-primary);
-        border-radius: 50%;
-        transform: translateY(-50%) scale(0);
-        transition: transform 0.2s ease;
-      }
-
-      .tab-btn.active::before {
-        transform: translateY(-50%) scale(1);
-      }
-
-      .tab-btn.active {
-        color: var(--secondary-color);
-        border-bottom-color: var(--secondary-color);
-        background: linear-gradient(135deg, white, rgba(65, 157, 120, 0.05));
-      }
-
-      .tab-btn:hover:not(.active) {
-        color: #495057;
-        background: linear-gradient(135deg, #f1f3f4, rgba(65, 157, 120, 0.02));
-      }
-
-      /* Enhanced Content Area */
-      .content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px;
-        background: linear-gradient(135deg, #fafbfc, rgba(65, 157, 120, 0.02));
-        position: relative;
-        z-index: 5;
-      }
-
-      .content::-webkit-scrollbar {
-        width: 4px;
-      }
-
-      .content::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .content::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, var(--parametric-primary), var(--parametric-secondary));
-        border-radius: 2px;
-      }
-
-      /* Enhanced Card Styles */
-      .card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(65, 157, 120, 0.1);
-        margin-bottom: 16px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary));
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-      }
-
-      .card:hover::before {
-        transform: scaleX(1);
-      }
-
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-        border-color: rgba(65, 157, 120, 0.2);
-      }
-
-      .card h2 {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-      }
-
-      .card h2::before {
-        content: '';
-        position: absolute;
-        left: -8px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 3px;
-        height: 3px;
-        background: var(--parametric-primary);
-        border-radius: 50%;
-        animation: parametricPulse 2s ease-in-out infinite;
-      }
-
-      @keyframes parametricPulse {
-        0%, 100% { opacity: 0.3; transform: translateY(-50%) scale(1); }
-        50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
-      }
-
-      /* Enhanced Form Styles */
-      .form-group {
-        margin-bottom: 16px;
-        position: relative;
-      }
-
-      .form-label {
-        display: block;
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-color);
-        margin-bottom: 6px;
-        position: relative;
-      }
-
-      .form-label::before {
-        content: '';
-        position: absolute;
-        left: -8px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 2px;
-        height: 2px;
-        background: var(--parametric-primary);
-        border-radius: 50%;
-        opacity: 0.6;
-      }
-
-      .form-input {
-        width: 100%;
-        padding: 10px 12px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        background: white;
-        position: relative;
-      }
-
-      .form-input:focus {
-        outline: none;
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 0 3px rgba(65, 157, 120, 0.1);
-        transform: translateY(-1px);
-      }
-
-      .form-textarea {
-        min-height: 80px;
-        resize: vertical;
-        font-family: inherit;
-      }
-
-      /* Enhanced Progress Bar */
-      .progress-container {
-        margin: 16px 0;
-      }
-
-      .progress-bar {
-        width: 100%;
-        height: 6px;
-        background: #e9ecef;
-        border-radius: 3px;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .progress-bar::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(65, 157, 120, 0.3), transparent);
-        animation: parametricFlow 2s linear infinite;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
-        transition: width 0.3s ease;
-        border-radius: 3px;
-        position: relative;
-      }
-
-      .progress-fill::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 10px;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
-        border-radius: 3px;
-      }
-
-      .progress-text {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 11px;
-        color: #6c757d;
-        margin-top: 4px;
-      }
-
-      /* Enhanced Status Indicators */
-      .status-indicator {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 500;
-        position: relative;
-        overflow: hidden;
-      }
 
-      .status-indicator::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.5s;
-      }
-
-      .status-indicator:hover::before {
-        left: 100%;
-      }
-
-      .status-success {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-        color: var(--success-color);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-      }
-
-      .status-warning {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-        color: var(--warning-color);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-      }
-
-      .status-error {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-        color: var(--error-color);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-      }
-
-      /* Enhanced Loading States */
-      .loading-spinner {
-        width: 20px;
-        height: 20px;
-        border: 2.5px solid rgba(255, 255, 255, 0.3);
-        border-top: 2.5px solid white;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin: 0 4px;
-        position: relative;
-      }
-
-      .loading-spinner::after {
-        content: '';
-        position: absolute;
-        top: -2.5px;
-        left: -2.5px;
-        right: -2.5px;
-        bottom: -2.5px;
-        border: 1px solid var(--parametric-secondary);
-        border-radius: 50%;
-        opacity: 0.3;
-      }
-
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-
-      /* Enhanced Welcome State */
-      .welcome-card {
-        text-align: center;
-        padding: 40px 20px;
-        position: relative;
-      }
-
-      .welcome-card::before {
-        content: '';
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        border: 1px dashed rgba(65, 157, 120, 0.3);
-        border-radius: 8px;
-        animation: parametricPulse 3s ease-in-out infinite;
-      }
-
-      .welcome-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-        position: relative;
-        display: inline-block;
-      }
-
-      .welcome-icon::after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: -5px;
-        right: -5px;
-        bottom: -5px;
-        background: radial-gradient(circle, rgba(65, 157, 120, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: parametricGlow 2s ease-in-out infinite;
-      }
-
-      .welcome-card h3 {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--primary-color);
-      }
-
-      .welcome-card p {
-        font-size: 13px;
-        color: #6c757d;
-        margin-bottom: 20px;
-        line-height: 1.5;
-      }
-
-      /* Enhanced Footer */
-      .footer {
-        padding: 12px 16px;
-        text-align: center;
-        font-size: 10px;
-        color: #6c757d;
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-top: 1px solid #e9ecef;
-        position: relative;
-        z-index: 5;
-      }
-
-      .footer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--parametric-primary), transparent);
-        opacity: 0.3;
-      }
-
-      /* Animations */
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .animate-fadeIn {
-        animation: fadeIn 0.3s ease-out;
-      }
 
-      /* Hidden states */
-      .hidden {
-        display: none !important;
-      }
-
-      /* Responsive adjustments */
-      @media (max-height: 500px) {
-        .card {
-          padding: 16px;
-          margin-bottom: 12px;
-        }
-        
-        .content {
-          padding: 12px;
-        }
-      }
-
-      /* Parametric circuit patterns */
-      .circuit-pattern {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: 
-          radial-gradient(circle at 2px 2px, rgba(65, 157, 120, 0.15) 1px, transparent 0);
-        background-size: 20px 20px;
-        opacity: 0.3;
-        pointer-events: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <!-- Parametric background pattern -->
-      <div class="circuit-pattern"></div>
-      
-      <!-- Header -->
-      <header class="header">
-        <div class="header-left">
-          <img src="Neoterik-Genesis.png" alt="Neoterik.ai Logo" class="logo">
-          <div class="title-section">
-            <h1>Neoterik AI</h1>
-            <p>AI Job Assistant</p>
+<head>
+  <meta charset="UTF-8" />
+  <title>Neoterik.ai Cover Letter Assistant</title>
+  <style>
+    :root {
+      --primary-color: #2D3047;
+      --secondary-color: #419D78;
+      --accent-color: #E0A458;
+      --text-color: #2D3047;
+      --background-color: #F6F7F9;
+      --card-background: #FFFFFF;
+      --shadow-color: rgba(45, 48, 71, 0.1);
+      --success-color: #10B981;
+      --warning-color: #F59E0B;
+      --error-color: #EF4444;
+      --parametric-primary: #419D78;
+      --parametric-secondary: #E0A458;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f6f7f9 0%, #e9ecef 100%);
+      color: var(--text-color);
+      width: 420px;
+      height: 600px;
+      overflow: hidden;
+      line-height: 1.6;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(65, 157, 120, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(224, 164, 88, 0.05) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 49%, rgba(65, 157, 120, 0.02) 50%, transparent 51%);
+      background-size: 60px 60px, 60px 60px, 20px 20px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--secondary-color), #37876A);
+      color: white;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--parametric-secondary), transparent, var(--parametric-secondary));
+      animation: parametricFlow 3s linear infinite;
+    }
+
+    @keyframes parametricFlow {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f6fff9 60%, #e9ecef 100%);
+      padding: 4px;
+      position: relative;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--parametric-secondary), var(--parametric-primary));
+      border-radius: 10px;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
+    .title-section h1 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+    }
+
+    .title-section p {
+      font-size: 11px;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .auth-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #419D78;
+      box-shadow: 0 2px 8px rgba(65, 157, 120, 0.10);
+    }
+
+    .status-badge {
+      background: linear-gradient(90deg, #419D78 30%, #E0A458 100%);
+      color: white;
+      padding: 2px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+    .status-badge::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      border-radius: 12px;
+      animation: parametricGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes parametricGlow {
+
+      0%,
+      100% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      font-size: 14px;
+      padding: 10px 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: linear-gradient(135deg, #2563EB, #3B82F6);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--secondary-color);
+      border: 1.5px solid #419D78;
+      box-shadow: none;
+      position: relative;
+    }
+
+    .btn-outline:hover {
+      background: #f6fff9;
+    color: #2563EB;
+    border-color: #2563EB;
+    }
+
+    .tab-nav {
+      display: flex;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-bottom: 1px solid #e9ecef;
+      position: relative;
+      z-index: 5;
+    }
+
+    .tab-nav::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--parametric-primary), var(--parametric-secondary), var(--parametric-primary));
+      opacity: 0.3;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6c757d;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .tab-btn.active {
+      color: var(--secondary-color);
+      border-bottom-color: var(--secondary-color);
+      background: linear-gradient(135deg, white, rgba(65, 157, 120, 0.05));
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: #495057;
+      background: linear-gradient(135deg, #f1f3f4, rgba(65, 157, 120, 0.02));
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: linear-gradient(135deg, #fafbfc, rgba(65, 157, 120, 0.02));
+      position: relative;
+      z-index: 5;
+    }
+
+    .content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--parametric-primary), var(--parametric-secondary));
+      border-radius: 2px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(65, 157, 120, 0.1);
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-color);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: white;
+      position: relative;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(65, 157, 120, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .progress-container {
+      margin: 16px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+      transition: width 0.3s ease;
+      border-radius: 3px;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+      border-radius: 3px;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 4px;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-success {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+      color: var(--success-color);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top: 2.5px solid white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 4px;
+      position: relative;
+    }
+
+    .loading-spinner::after {
+      content: '';
+      position: absolute;
+      top: -2.5px;
+      left: -2.5px;
+      right: -2.5px;
+      bottom: -2.5px;
+      border: 1px solid var(--parametric-secondary);
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .welcome-card {
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .welcome-card::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 1px dashed rgba(65, 157, 120, 0.3);
+      border-radius: 8px;
+      animation: parametricPulse 3s ease-in-out infinite;
+    }
+
+    .welcome-logo {
+      display: block;
+      margin: 0 auto 16px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(65, 157, 120, 0.10);
+      width: 64px;
+    }
+
+    .welcome-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .welcome-card p {
+      font-size: 15px;
+      color: #419D78;
+      margin-bottom: 18px;
+    }
+
+    .footer {
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 10px;
+      color: #6c757d;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-top: 1px solid #e9ecef;
+      position: relative;
+      z-index: 5;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--parametric-primary), transparent);
+      opacity: 0.3;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .preview-btn {
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+    min-width: 0;
+    border-radius: 6px;
+  }
+  /* Welcome tab sign in button */
+  #signin-btn-welcome {
+    font-size: 14px !important;
+    padding: 8px 22px !important;
+    margin-top: 10px;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+  /* Fix sign out button visibility */
+  #signout-btn {
+    color: #fbfffe !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+    border: 1.5px solid #419D78 !important;
+    padding: 8px 22px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+    margin-left: 6px;
+    animation: none !important;
+  }
+  #signout-btn:hover {
+  background: linear-gradient(135deg, #2563EB, #3B82F6) !important;
+  color: #fff !important;
+}
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="circuit-pattern"></div>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <img src="Neoterik-Genesis.png" alt="Neoterik.ai Logo" class="logo">
+        <div class="title-section">
+          <h1>Neoterik AI</h1>
+          <p>AI Job Assistant</p>
+        </div>
+      </div>
+      <div class="auth-section">
+        <div id="loading-indicator" class="loading-spinner hidden"></div>
+        <div id="user-info" class="user-info hidden">
+          <img id="user-avatar" class="user-avatar" src="" alt="Profile">
+          <div>
+            <div id="user-name" style="font-weight: 600; font-size: 15px;"></div>
+            <div class="status-badge">Pro</div>
           </div>
         </div>
-        <div class="auth-section">
-          <div id="loading-indicator" class="loading-spinner hidden"></div>
-          <div id="user-info" class="user-info hidden">
-            <img id="user-avatar" class="user-avatar" src="" alt="Profile">
-            <div>
-              <div id="user-name" style="font-weight: 500;"></div>
-              <div class="status-badge">Pro</div>
+        <button id="signin-btn-header" class="btn btn-primary">Sign in</button>
+        <button id="signout-btn" class="btn btn-outline hidden">Sign out</button>
+      </div>
+    </header>
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="generate"><span>✨</span> Generate</button>
+      <button class="tab-btn" data-tab="preview"><span>📄</span> Preview</button>
+      <button class="tab-btn" data-tab="dashboard"><span>📊</span> Dashboard</button>
+      <button class="tab-btn" data-tab="library"><span>📚</span> Library</button>
+    </nav>
+    <!-- Content Area -->
+    <main class="content">
+      <!-- Agent Progress Container -->
+      <div id="agent-progress-container" class="hidden" style="margin-bottom: 16px;">
+        <div class="card" style="background: #f6fff9; border: 1px solid #419D78;">
+          <h2 style="color: #419D78; font-size: 15px; margin-bottom: 8px;">
+            <span style="margin-right: 6px;">⏳</span>Analyzing job posting...
+          </h2>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 80%;"></div>
             </div>
-          </div>
-          <button id="signin-btn-header" class="btn btn-primary">Sign in</button>
-          <button id="signout-btn" class="btn btn-outline hidden">Sign out</button>
-        </div>
-      </header>
-
-      <!-- Tab Navigation -->
-      <nav class="tab-nav">
-        <button class="tab-btn active" data-tab="generate">
-          <span>✨</span> Generate
-        </button>
-        <button class="tab-btn" data-tab="preview">
-          <span>📄</span> Preview
-        </button>
-        <button class="tab-btn" data-tab="dashboard">
-          <span>📊</span> Dashboard
-        </button>
-        <button class="tab-btn" data-tab="library">
-          <span>📚</span> Library
-        </button>
-      </nav>
-
-      <!-- Content Area -->
-      <main class="content">
-        <!-- Welcome State (shown when not authenticated) -->
-        <div id="welcome-state" class="card welcome-card">
-          <div class="welcome-icon">🚀</div>
-          <h3>Welcome to Neoterik.ai</h3>
-          <p>Create personalized, AI-powered cover letters that help you stand out from the competition.</p>
-          <button id="signin-btn-welcome" class="btn btn-primary">Sign in</button>
-        </div>
-
-        <!-- Generate Tab -->
-        <div id="generate-tab" class="hidden animate-fadeIn">
-          <div class="card">
-            <h2><span>✨</span> Generate Your Cover Letter</h2>
-            
-            <div id="progress-container" class="progress-container hidden">
-              <div class="progress-bar">
-                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
-              </div>
-              <div class="progress-text">
-                <span>Generating your personalized cover letter...</span>
-                <span id="progress-percent">0%</span>
-              </div>
-            </div>
-
-            <form id="cover-letter-form">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <div class="form-group">
-                  <label class="form-label">Company Name</label>
-                  <input type="text" class="form-input" placeholder="e.g., Google, Microsoft" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Job Title</label>
-                  <input type="text" class="form-input" placeholder="e.g., Software Engineer" required>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Job Description</label>
-                <textarea class="form-input form-textarea" placeholder="Paste the complete job description here..." required></textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Resume Highlights (Optional)</label>
-                <textarea class="form-input form-textarea" placeholder="Key achievements, skills, or experiences..."></textarea>
-              </div>
-
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                <div style="display: flex; gap: 8px;">
-                  <span class="status-indicator status-success">✓ AI-Powered</span>
-                  <span class="status-indicator status-success">✓ Personalized</span>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                  <span id="generate-btn-text">Generate Cover Letter</span>
-                  <div id="generate-btn-spinner" class="loading-spinner hidden"></div>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Preview Tab -->
-        <div id="preview-tab" class="hidden animate-fadeIn">
-          <div id="preview-content" class="card">
-            <h2><span>📄</span> Your Cover Letter</h2>
-            <div id="cover-letter-preview" style="background: linear-gradient(135deg, #f8f9fa, rgba(65, 157, 120, 0.05)); padding: 16px; border-radius: 8px; margin: 16px 0; max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.6; border: 1px solid rgba(65, 157, 120, 0.1);">
-              <p style="text-align: center; color: #6c757d; padding: 40px 20px;">
-                📄<br><br>
-                <strong>No Cover Letter Yet</strong><br>
-                Generate your first cover letter to see the preview here.
-              </p>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn btn-outline" onclick="copyToClipboard()">
-                <span>📋</span> Copy
-              </button>
-              <button class="btn btn-outline" onclick="editCoverLetter()">
-                <span>✏️</span> Edit
-              </button>
-              <button class="btn btn-primary" onclick="saveCoverLetter()">
-                <span>💾</span> Save
-              </button>
+            <div class="progress-text" style="margin-top: 6px; color: #419D78;">
+              Our AI agent is gathering job and company insights...
             </div>
           </div>
         </div>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard-tab" class="hidden animate-fadeIn">
-          <div class="card">
-            <h2><span>📊</span> Your Dashboard</h2>
+      </div>
+      <!-- Welcome State -->
+      <div id="welcome-state" class="card welcome-card">
+        <img src="Neoterik-Genesis.png" alt="Neoterik.ai Logo" class="welcome-logo">
+        <h3>Welcome to Neoterik.ai</h3>
+        <p>
+          Your AI-powered assistant for crafting standout cover letters.<br>
+          Sign in to get started and unlock your career potential!
+        </p>
+        <button id="signin-btn-welcome" class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;">Sign
+          in</button>
+      </div>
+      <!-- Generate Tab -->
+      <div id="generate-tab" class="hidden animate-fadeIn">
+        <div class="card">
+          <h2><span>✨</span> Generate Your Cover Letter</h2>
+          <div id="progress-container" class="progress-container hidden">
+            <div class="progress-bar">
+              <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+              <span>Generating your personalized cover letter...</span>
+              <span id="progress-percent">0%</span>
+            </div>
+          </div>
+          <form id="cover-letter-form">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-              <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(65, 157, 120, 0.1), rgba(224, 164, 88, 0.05)); border-radius: 8px; border: 1px solid rgba(65, 157, 120, 0.2); position: relative;">
-                <div style="font-size: 24px; font-weight: 700; color: var(--secondary-color);">12</div>
-                <div style="font-size: 11px; color: #6c757d;">Cover Letters</div>
+              <div class="form-group">
+                <label class="form-label">Company Name</label>
+                <input type="text" id="company_name" class="form-input" placeholder="e.g., Google, Microsoft" required>
               </div>
-              <div style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(224, 164, 88, 0.1), rgba(65, 157, 120, 0.05)); border-radius: 8px; border: 1px solid rgba(224, 164, 88, 0.2); position: relative;">
-                <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">85%</div>
-                <div style="font-size: 11px; color: #6c757d;">Success Rate</div>
+              <div class="form-group">
+                <label class="form-label">Job Title</label>
+                <input type="text" id="job_title" class="form-input" placeholder="e.g., Software Engineer" required>
               </div>
             </div>
-            <div class="progress-container">
-              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
-                <span>Monthly Usage</span>
-                <span style="font-weight: 600; color: var(--secondary-color);">12/50</span>
+            <div class="form-group">
+              <label class="form-label">Job Description</label>
+              <textarea id="job_description" class="form-input form-textarea"
+                placeholder="Paste the complete job description here..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Resume Highlights (Optional)</label>
+              <textarea id="resume_highlights" class="form-input form-textarea"
+                placeholder="Key achievements, skills, or experiences..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Summary </label>
+              <textarea id="company_summary" class="form-input form-textarea"
+                placeholder="Company overview fetched by AI..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vision & Mission </label>
+              <textarea id="company_vision" class="form-input form-textarea"
+                placeholder="Vision or mission of the company..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Additional Notes </label>
+              <textarea id="additional_notes" class="form-input form-textarea"
+                placeholder="Perks, culture, hybrid policy, etc..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preferred Skills </label>
+              <textarea id="preferred_skills" class="form-input form-textarea"
+                placeholder="AI-extracted preferred qualifications & skills..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Desired Tone</label>
+              <select id="desired_tone" class="form-input">
+                <option value="professional">Professional</option>
+                <option value="most-improved">Most Improved</option>
+                <option value="fun-loving">Fun-Loving</option>
+                <option value="short-and-sweet">Short & Sweet</option>
+                <option value="unique">Unique</option>
+                <option value="career-change">Career Change</option>
+                <option value="enthusiastic">Enthusiastic</option>
+              </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+              <div style="display: flex; gap: 8px;">
+                <span class="status-indicator status-success">✓ AI-Powered</span>
+                <span class="status-indicator status-success">✓ Personalized</span>
               </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 24%"></div>
-              </div>
+              <button type="submit" class="btn btn-primary">
+                <span id="generate-btn-text">Generate Cover Letter</span>
+                <div id="generate-btn-spinner" class="loading-spinner hidden"></div>
+              </button>
+            </div>
+          </form>
+          <div id="status-message" style="margin: 16px 0 0 0; text-align: center; font-size: 13px; color: #419D78;">
+          </div>
+        </div>
+      </div>
+      <!-- Preview Tab -->
+      <div id="preview-tab" class="hidden animate-fadeIn">
+        <div id="preview-content" class="card"
+          style="background: linear-gradient(135deg, #f8f9fa, rgba(65, 157, 120, 0.05));">
+          <h2><span>📄</span> Your Cover Letter</h2>
+          <div id="cover-letter-preview"
+            style="background: white; padding: 20px; border-radius: 10px; margin: 16px 0; max-height: 260px; overflow-y: auto; font-size: 15px; line-height: 1.7; border: 1px solid rgba(65, 157, 120, 0.1); box-shadow: 0 2px 12px rgba(65,157,120,0.06);">
+            <p style="text-align: center; color: #6c757d; padding: 40px 20px;">📄<br><br><strong>No Cover Letter
+                Yet</strong><br>Generate your first cover letter to see the preview here.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+            <button class="btn btn-outline preview-btn">📋 Copy</button>
+            <button class="btn btn-outline preview-btn">✏️ Edit</button>
+            <button class="btn btn-primary preview-btn">💾 Save</button>
+            <button class="btn btn-outline preview-btn" id="view-large-btn">🔍 View Large</button>
+          </div>
+        </div>
+      </div>
+      <!-- Dashboard Tab -->
+      <div id="dashboard-tab" class="hidden animate-fadeIn">
+        <div class="card">
+          <h2><span>📊</span> Your Dashboard</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div
+              style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(65, 157, 120, 0.1), rgba(224, 164, 88, 0.05)); border-radius: 8px; border: 1px solid #419D78;">
+              <div style="font-size: 24px; font-weight: 700; color: var(--secondary-color);">12</div>
+              <div style="font-size: 11px; color: #6c757d;">Cover Letters</div>
+            </div>
+            <div
+              style="text-align: center; padding: 16px; background: linear-gradient(135deg, rgba(224, 164, 88, 0.1), rgba(65, 157, 120, 0.05)); border-radius: 8px; border: 1px solid #E0A458;">
+              <div style="font-size: 24px; font-weight: 700; color: var(--accent-color);">85%</div>
+              <div style="font-size: 11px; color: #6c757d;">Success Rate</div>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+              <span>Monthly Usage</span>
+              <span style="font-weight: 600; color: var(--secondary-color);">12/50</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 24%"></div>
             </div>
           </div>
         </div>
-
-        <!-- Library Tab -->
-        <div id="library-tab" class="hidden animate-fadeIn">
-          <div class="card welcome-card">
-            <div class="welcome-icon">📚</div>
-            <h3>Your Cover Letter Library</h3>
-            <p>Save and organize your generated cover letters here.</p>
-            <button class="btn btn-outline">Coming Soon</button>
-          </div>
+      </div>
+      <!-- Library Tab -->
+      <div id="library-tab" class="hidden animate-fadeIn">
+        <div class="card welcome-card">
+          <div class="welcome-icon">📚</div>
+          <h3>Your Cover Letter Library</h3>
+          <p>Save and organize your generated cover letters here.</p>
+          <button class="btn btn-outline">Coming Soon</button>
         </div>
-      </main>
-
-      <!-- Footer -->
-      <footer class="footer">
-        &copy; 2025 Neoterik.ai | AI-powered career tools
-      </footer>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer class="footer">
+      &copy; 2025 Neoterik.ai | AI-powered career tools
+    </footer>
+  </div>
+  <div id="large-modal"
+    style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(45,48,71,0.75); align-items:center; justify-content:center;">
+    <div
+      style="background:#fff; border-radius:12px; max-width:90vw; max-height:80vh; overflow:auto; padding:32px; box-shadow:0 8px 32px rgba(0,0,0,0.25); position:relative;">
+      <button id="close-large-modal-btn"
+        style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:22px; color:#2D3047; cursor:pointer;">&times;</button>
+      <pre id="large-modal-content"
+        style="font-size:18px;line-height:2;color:#2D3047;white-space:pre-wrap;word-break:break-word;"></pre>
     </div>
+  </div>
+  <script src="scripts/popup.js"></script>
+  <script>
+    function viewLargeCoverLetter() {
+      const text = document.getElementById("cover-letter-preview")?.textContent;
+      if (text) {
+        document.getElementById("large-modal-content").textContent = text;
+        document.getElementById("large-modal").style.display = "flex";
+      }
+    }
+    function closeLargeModal() {
+      document.getElementById("large-modal").style.display = "none";
+    }
 
-    <script src="scripts/popup.js"></script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Open modal
+      const viewLargeBtn = document.getElementById("view-large-btn");
+      if (viewLargeBtn) {
+        viewLargeBtn.addEventListener("click", viewLargeCoverLetter);
+      }
+      // Close modal by button
+      const closeBtn = document.getElementById("close-large-modal-btn");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", closeLargeModal);
+      }
+      // Close modal by background click
+      const modal = document.getElementById("large-modal");
+      if (modal) {
+        modal.addEventListener("click", function (e) {
+          if (e.target === modal) closeLargeModal();
+        });
+      }
+    });
+  </script>
   </body>
-</html>
+  </html>
+  

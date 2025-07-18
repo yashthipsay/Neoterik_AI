@@ -18,11 +18,14 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  
   "permissions": [
     "activeTab",
     "storage",
     "scripting",
     "tabs",
+    "windows",
+    "notifications",
     "cookies"
   ],
   "host_permissions": [
@@ -34,13 +37,21 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["scripts/content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
       "run_at": "document_end"
     },
     {
-      "matches": ["http://localhost:3000/auth/extension-callback*"],
-      "js": ["scripts/auth-bridge.js"],
+      "matches": [
+        "http://localhost:3000/auth/extension-callback*"
+      ],
+      "js": [
+        "scripts/auth-bridge.js"
+      ],
       "run_at": "document_end"
     }
   ],

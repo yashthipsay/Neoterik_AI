@@ -1,94 +1,292 @@
 {
     "templates": [
-        {
-            "tone": "formal",
-            "industry": "general",
-            "level": "general",
-            "style": "best_candidate",
-            "content": "Dear Hiring Manager,\nI am writing to express my strong interest in the [Position Title] at your company. Your commitment to [Company’s Mission or Focus Area] is truly inspiring. The opportunity to work [Location/Flexibility Detail] aligns perfectly with my current [Current Situation or Objective] and my genuine enthusiasm for contributing to impactful projects. As someone passionate about the [Industry/Field], I am eager to contribute to your team’s initiatives and gain valuable insights into the evolving landscape of [Relevant Domain].\n\nMy educational background as a [Current Educational Status or Degree] in a [Field of Study], combined with my experience in [Relevant Skills or Technologies], makes me a strong candidate for this role. I possess a solid foundation in [Key Tools/Languages], which allows me to [Key Capability or Responsibility]. My previous experience at [Type of Organization or Role] equipped me with practical skills in [Skill Area], as well as experience in independently undertaking [Type of Projects]. These skills align well with the responsibilities outlined in the job description and will enable me to make a meaningful impact from the outset.\n\nI believe that my [Strengths/Qualities] would fit well with your company’s culture of [Company Values or Work Ethic]. I am particularly drawn to your approach of [Company’s Strategy or Vision], as it aligns closely with my career goals. I am confident that my proactive approach and dedication to high standards of professionalism will contribute positively to your team. I am excited about the prospect of working alongside talented professionals who share my enthusiasm for [Industry/Technology] and look forward to the opportunity to support your team’s efforts.\n\nSincerely,\n[Your Name]",
-            "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
-            "metadata": {"source": "user_provided"}
-        },
 {
-    "tone": "formal",
-    "industry": "tech",
-    "level": "entry-level",
-    "style": "professional",
-    "content": "Dear Hiring Manager,\n\nI am drawn to the [Position Title] role because of your firm's innovative approach to [Industry/Domain, e.g., decentralized finance and blockchain technologies]. Your commitment to exploring groundbreaking [Field/Focus Area] aligns seamlessly with my passion for developing impactful solutions in this space. Having followed your work, I am impressed by your dedication to advancing [Industry Objective or Contribution].\n\nDuring my previous role at a [Type of Organization], I focused on developing and implementing [Relevant Responsibilities] that significantly improved [Measured Outcome or Process]. One key achievement was leading a project that utilized [Technical Tools/Skills] to build a [Brief Description of Tool or Solution], which resulted in a measurable improvement in [Outcome]. This experience sharpened my technical capabilities and deepened my understanding of [Key Skills or Domain], while also reinforcing my adaptability in a fast-evolving landscape.\n\nMy academic background in [Field of Study], coupled with hands-on experience in [Technical/Industry Area], has equipped me with a solid foundation in [Relevant Technologies or Frameworks]. I have recently dedicated a significant portion of my work to understanding [Relevant Field/Technologies], allowing me to contribute meaningfully to collaborative efforts through strategic insights and timely identification of opportunities within the market.\n\nI am eager to bring my [Core Strengths] to your team and contribute to initiatives that push the boundaries of [Industry or Technology]. I would welcome the opportunity to discuss my application further and am available for an interview at your earliest convenience to explore how I can support your mission.\n\nSincerely,\n[Your Name]",
-    "keywords": ["technical", "professional", "blockchain"],
-    "metadata": {"source": "custom_tech"}
-},
-        {
-"tone": "formal",
-"industry": "tech",
-"level": "entry-level",
-"style": "solution_focused",
-"content": "Dear Hiring Manager,\n\nIn the rapidly evolving landscape of [Industry/Domain], a major challenge lies in effectively researching and developing innovative solutions that align with current and emerging trends. Addressing this challenge requires a deep understanding of [Relevant Technologies or Concepts] and the ability to implement strategies that are both adaptive and data-driven. The [Position Title] role at your organization is uniquely positioned to tackle these demands by leveraging advanced [Skill Area, e.g., quantitative research] methodologies.\n\nDuring my previous experience at a [Type of Organization], I engaged deeply with [Relevant Domain], specifically focusing on designing and optimizing strategies for [Specific Challenge or Objective]. This role refined my ability to independently conduct research while maintaining a rigorous and results-oriented approach. My proficiency in [Technical Tools or Languages] empowers me to develop and evaluate practical solutions that enhance performance and generate actionable insights.\n\nBeyond technical expertise, I bring a strong sense of self-motivation and a research-driven mindset, essential for navigating complex systems and ecosystems. My academic training, combined with a genuine passion for [Industry or Technology], positions me to contribute meaningfully to forward-looking initiatives within your team. Additionally, my familiarity with remote collaboration—including accommodating meetings across time zones—ensures smooth and productive communication in globally distributed environments.\n\nWith a well-rounded background in [Field/Skillset], hands-on problem-solving experience, and a commitment to continuous improvement, I am eager to contribute to addressing real-world challenges in your domain. I am confident in my ability to support your team’s mission with professionalism, insight, and technical rigor.\n\nThank you for considering my application. I look forward to the opportunity to bring my skills and drive to your esteemed organization.\n\nSincerely,\n[Your Name]",
-"keywords": ["solution", "technical", "research"],
-"metadata": {"source": "custom_tech"}
-        },          
-             
-{
-    "tone": "formal",
-    "industry": "tech",
-    "level": "entry-level",
-    "style": "narrative",
-    "content": "To the [Department/Team Name],\n\nAs an aspiring professional with a strong foundation in [Relevant Discipline] and a deep interest in [Industry or Field], I am excited to apply for the [Position Title] role. I am currently pursuing a [Degree Program] with a focus on [Specialization], which has equipped me with the analytical skills and technical expertise essential for this position.\n\nDuring a recent internship at a [Type of Organization], I was responsible for developing a strategic framework to analyze [Relevant Subject Area] in order to support [Organizational Goal, e.g., alpha generation or operational efficiency]. Leading a collaborative project, I conducted in-depth research into emerging trends, which uncovered key insights for optimizing performance. This hands-on experience enhanced my capacity to work independently on complex research tasks and deepened my understanding of the evolving [Industry/Domain] landscape. My proficiency in [Technical Tools or Languages] played a critical role in building automated tools that monitored and improved system performance—mirroring the responsibilities outlined for this position.\n\nThis experience illustrates my ability to blend technical skills with research-driven thinking to develop tools and strategies that support innovative projects. With a strong foundation in [Key Technologies], I am confident in my readiness to contribute meaningfully to your ongoing initiatives and to grow within an environment focused on exploration and advancement.\n\nI believe that my combined experience in research, enthusiasm for [Industry/Field], and commitment to continuous learning make me a strong fit for this opportunity. I am excited by the challenges this role presents and eager to support your team’s mission with curiosity, precision, and creativity. This opportunity represents a meaningful convergence of my academic interests and professional goals in an ever-evolving space.\n\nSincerely,\n[Your Name]",
-    "keywords": ["research", "technical", "narrative"],
-    "metadata": {"source": "custom_tech"}
+    "tone": "professional",
+    "industry": "Information Technology, Project Management, Digital Transformation",
+    "level": "all levels",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI'm writing to apply for the IT Project Manager position at your company, as advertised. I'm confident that my 3 years of solid experience and diverse capabilities in project management make me an ideal candidate to fulfill this position.\n\nDuring my time working as a Junior IT Project Manager at a previous organization, I was the second-in-charge to the Project Manager in leading a medium-sized development team. I was charged with the responsibility of helping oversee a range of critical projects from conception to delivery.\n\nFrom my conversation with a member of your team, I understand that your company is actively seeking to expand its operations, with a strong focus on digital integration.\n\nTo that end, I believe my experience would be valuable to your current goals. During my time in my previous role, I was noted for having achieved the following:\n\n- Executing several highly profitable projects with budgets over $200,000\n- Working with my team to manage the accounts of prestigious international brands and clients\n- Helping direct a $500,000 digital transformation project, reducing the rate of incidents by 5%\n- Successfully contributing to Q&A testing, product SOW, integration, and user documentation\n\nI believe that the above qualities and experiences would make me a valuable addition to your company. If there's any more information about my qualifications or past experience you'd like me to provide, please don't hesitate to reach out.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["project management", "digital transformation", "stakeholder engagement", "team leadership", "IT solutions"],
+    "metadata": {"source": "user_provided"}
 },
 {
-    "tone": "formal",
-    "industry": "tech",
+    "tone": "most-improved",
+    "industry": "Publishing, Editorial, Media",
+    "level": "all levels",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nYour organization has been top of mind for me from the moment I picked up one of your publications. My appreciation of production editors has grown upon learning about your commitment to producing high-quality, uniform books while preserving each book's unique features and challenges. It is a precarious balance to manage, as I learned in my prior production associate role.\n\nThe publishing industry is rapidly changing, with the evolution of e-books and other online learning content. You are likely seeking a production editor who can manage multiple projects at once, adapt quickly, and work within a variety of programs and data systems. While working in a previous role, there were two-week periods in which I was managing 20 authors, multiple deadlines, and many schedules to produce 10 books.\n\nMy love for the editorial business and a lot of coffee kept my momentum strong through these periods of time. I am eager to bring my insight and my eye for detail to your team as a production editor. I have vivid memories of working on a project where I wrote about the history of bathtub creation during my time in college. I was forced to thoroughly research disciplines far outside of my comfort zone and problem-solve to deliver high-quality writing.\n\nA colleague in the industry has shared more insight with me about how your team deeply cares about its members. I'm really excited about the potential of joining your production-editorial team.\n\nPlease let me know how I can further illustrate my candidacy for the production editor role. You are welcome to contact me by phone at [Your Phone Number].\n\nAll the best,\n\n[Your Name]",
+  "keywords": ["project management", "digital transformation", "stakeholder engagement", "team leadership", "IT solutions"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "fun-loving",
+    "industry": "Digital Marketing, Social Media, Content Creation",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nAs a creative online native who's obsessed with your platform, I was thrilled to see your listing for the Social Media Associate position. Whether it's racking up retweets or designing instagrammable graphics, I'm confident I have the social media skills to create the perfect online content for your team.\n\nBut don't just take my word for it: in two years as an online brand manager, I've spent a truly shocking number of hours online, accomplishing the following:\n\n- Boosted engagement on Instagram, Twitter, and Snapchat by 240% in 13 months\n- Singlehandedly launched an official TikTok account, accumulating 200,000+ followers\n- Spearheaded 13 viral social media campaigns\n\nI'm competitive, up-to-date on all the latest trends, and can clean up the worst social media messes. I'm positive my knack for creating clickable content is what your team is looking for.\n\nI look forward to discussing the Social Media Associate position and my qualifications with you in more detail. I'm available to talk at your soonest convenience, and I'll follow up next week just to make sure you've received my application!\n\nWarm regards,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "short-and-sweet",
+    "industry": "Healthcare, Nursing, Patient Care",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nAs a state-qualified registered nurse with 12 years of experience tending to the infirm, I'm confident that I'm the ideal candidate for your open nursing position.\n\nIn my present role, I evaluate the conditions of 24+ patients daily, developing personalized support plans for each of them, all the while interfacing with colleagues to ensure effective care.\n\nI'm responsive to emergency medical situations and provide sympathetic support to patients as well as their friends and families. I've been recognized by the state for these qualities, and believe I'd be a valuable addition to your facility.\n\nI look forward to speaking to you about this position. I can be reached at [Your Phone Number] or [Your Email Address].\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "unique",
+    "industry": "Sales, Business Development, Client Relations",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nSalesmanship as defined by Merriam-Webster:\n\n1. \"the skill or art of selling.\"\n2. \"the ability or effectiveness in selling or presenting persuasively.\"\n\nOne thing rings true: selling is not for the faint of heart. And if you are looking for a sales representative to join your organization, they should not only possess salesmanship but also the experience to back up those skills. As an experienced sales representative with a strong focus on driving outside sales, please allow me to demonstrate two key traits that I believe qualify me for this position.\n\nI am willing to explore unknown territory: Perhaps the biggest opportunity for business lies in the willingness to take risks and explore uncharted waters. This is the greatest way to build a pipeline that boosts company growth. In a previous role, I embarked on a journey to acquire business in a new region where there was no previous brand recognition. As a result, we exceeded our business strategic objectives, while I personally exceeded my quota by $200K in year one and $300K in year two.\n\nI build relationships with existing clients: I am someone who has a consistent track record of driving sales. My method builds lasting relationships, even if they take time to nurture. In another role, I was asked to step in and manage a territory that had no strategic direction. The area was completely unmanaged, and I spent my time developing relationships with designers and other key decision makers during events and business presentations. As a result, we doubled our territory sales and partnered with several notable brands.\n\nI have cultivated my experiences in driving sales and building relationships to maximize business success. I see a great parallel between the skills required to lead my current team and those needed in your organization. I believe that my path has helped me develop a unique expertise that is a strong match for this sales representative role.\n\nIf you have time to chat by phone or email, my contact details are on my resume. Thanks for your time and consideration, and I look forward to hearing from you.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "unique",
+    "industry": "Design, Technology, User Experience",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nSalesmanship as defined by Merriam-Webster:\n\n1. \"the skill or art of selling.\"\n2. \"the ability or effectiveness in selling or presenting persuasively.\"\n\nOne thing rings true: selling is not for the faint of heart. And if you are looking for a sales representative to join your organization, they should not only possess salesmanship but also the experience to back up those skills. As an experienced sales representative with a strong focus on driving outside sales, please allow me to demonstrate two key traits that I believe qualify me for this position.\n\nI am willing to explore unknown territory: Perhaps the biggest opportunity for business lies in the willingness to take risks and explore uncharted waters. This is the greatest way to build a pipeline that boosts company growth. In a previous role, I embarked on a journey to acquire business in a new region where there was no previous brand recognition. As a result, we exceeded our business strategic objectives, while I personally exceeded my quota by $200K in year one and $300K in year two.\n\nI build relationships with existing clients: I am someone who has a consistent track record of driving sales. My method builds lasting relationships, even if they take time to nurture. In another role, I was asked to step in and manage a territory that had no strategic direction. The area was completely unmanaged, and I spent my time developing relationships with designers and other key decision makers during events and business presentations. As a result, we doubled our territory sales and partnered with several notable brands.\n\nI have cultivated my experiences in driving sales and building relationships to maximize business success. I see a great parallel between the skills required to lead my current team and those needed in your organization. I believe that my path has helped me develop a unique expertise that is a strong match for this sales representative role.\n\nIf you have time to chat by phone or email, my contact details are on my resume. Thanks for your time and consideration, and I look forward to hearing from you.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "career-change",
+    "industry": "Sales, Business Development, Client Relations",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI'm excited to apply for the UI/UX Designer position as advertised. My background in fashion design has equipped me with a strong sense of color theory, composition, and attention to detail, which I believe are highly transferable skills to the world of UI/UX design.\n\nThroughout my career in fashion design, I have cultivated a deep appreciation for aesthetics, usability, and the power of visual communication. My experience in creating clothing and accessory designs has taught me how design choices can impact user experiences and brand perception. I'm passionate about applying these principles to the digital realm to create intuitive, user-centered, and visually engaging interfaces.\n\nTo prepare for my transition into UI/UX design, I completed a year-long program in Interaction Design & Social Entrepreneurship. Along with my background in fashion, this has given me a unique perspective and skill set that I believe can bring a fresh approach to the role.\n\nI would love the opportunity to discuss how my background in fashion design and my emerging skills in UI/UX design can benefit your team and further your mission in an interview. Thank you for considering my application.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "enthusiastic",
+    "industry": "Education, Teaching, Academic",
+    "level": "general",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nWhen I saw the job opening for the English Teacher position, I knew I had to apply.\n\nI'm very impressed with your institution's reputation for academic excellence and its commitment to holistic student development. With an unwavering dedication to fostering a love for literature and language in young minds, I'm eager to contribute to your mission of nurturing well-rounded individuals who are equipped to make a positive impact on society.\n\nIn addition to striving to empower my students to discover their unique strengths, I'm dedicated to ongoing professional development and staying abreast of the latest educational research. With 7+ years of experience teaching English to middle school students in diverse educational settings, I have honed my ability to tailor instruction to meet the individual needs of each student, ensuring that every learner feels supported on their educational journey.\n\nSome of my proudest achievements include:\n\n- Implementing a comprehensive literacy program resulting in a 15% improvement in test scores among my students over the course of one year\n- Establishing a creative writing club where students published their own literary magazine, showcasing their original works and fostering a sense of pride and ownership in their writing\n- Receiving the \"Teacher of the Year\" award in 2023 in recognition of outstanding dedication to student success, innovative teaching methods, and positive contributions to the school community\n\nThank you for considering my application. I'm excited about the opportunity to bring my passion for teaching and my dedication to student success to your team. Don't hesitate to reach out to me at [Your Phone Number] if you'd like to further discuss how my skills and experiences align with the needs of your school.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["professional", "impactful", "enthusiastic", "alignment", "teaching", "student development", "literacy"],
+    "metadata": {"source": "user_provided"}
+},
+{
+    "tone": "professional",
+    "industry": "Administration, Office Management, Executive Support",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the Administrative Assistant position at your organization. With over three years of experience in office administration and a strong ability to manage multiple priorities, I am eager to contribute to your team's efficiency and success.\n\nIn my previous role at a consulting firm, I streamlined office operations, reducing administrative delays by 20% through improved scheduling and document management systems while coordinating meetings and travel logistics for a team of 15, ensuring seamless execution of company events and schedules.\n\nThese accomplishments reflect my attention to detail, organizational skills, and dedication to supporting team productivity. I am proficient in Microsoft Office Suite, Google Workspace, and project management tools like Asana, which I have used to ensure smooth day-to-day operations.\n\nWhat excites me most about your organization is your commitment to innovation and fostering a collaborative environment. I am particularly drawn to the opportunity to support your dynamic team by ensuring administrative tasks are handled efficiently, allowing them to focus on strategic goals.\n\nI pride myself on being a proactive and dependable team member, always ready to tackle challenges and maintain a positive office atmosphere. I am confident that my skills and experience align with your needs for this role.\n\nThank you for considering my application. I would welcome the opportunity to discuss how I can support your team. Please feel free to contact me at [Your Email Address] or [Your Phone Number].\n\nI look forward to the possibility of contributing to your team's success.\n\nBest regards,\n\n[Your Name]",
+    "keywords": ["administrative support", "office management", "organizational skills", "team coordination", "process improvement"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Sales, Business Development, Client Relations",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am thrilled to apply for the Sales Agent position at your organization. With over three years of experience driving revenue growth and building client relationships, I am confident in my ability to contribute to your team's success by delivering exceptional results.\n\nIn my current role at a technology company, I increased territory sales by 35% within 12 months by identifying untapped market opportunities and implementing targeted sales strategies. By securing 50+ new accounts, I exceeded quarterly sales targets consistently by 15% or more through effective pipeline management and negotiation.\n\nMy approach combines analytical thinking and relationship-building to exceed expectations and create value for clients. I take pride in staying informed about industry trends and tailoring solutions to meet client needs, ensuring both customer satisfaction and business growth.\n\nWhat excites me most about your organization is your commitment to innovative solutions and customer-focused sales strategies. Your recent product launches demonstrate a forward-thinking approach to solving client challenges.\n\nI am proficient in CRM tools such as Salesforce, HubSpot, and Zoho, enabling me to manage pipelines effectively and maintain accurate client records. My proven ability to close deals and exceed goals positions me as a valuable addition to your team.\n\nI would love the opportunity to discuss how my skills and accomplishments align with your organization's goals. Thank you for considering my application.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["sales performance", "revenue growth", "client relationships", "territory management", "CRM systems"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Human Resources, Talent Management, Employee Relations",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the Human Resources Specialist position at your organization. With over five years of experience in HR operations and employee relations, I am eager to contribute to your team by fostering a productive and inclusive work environment.\n\nIn my current role at a manufacturing company, I:\n\n- Reduced employee turnover by 15% by implementing an updated onboarding program and enhancing employee engagement initiatives\n- Improved recruitment efficiency by streamlining hiring processes, reducing time-to-fill by 20%\n- Spearheaded a diversity and inclusion initiative that increased representation across departments and improved company culture\n\nThese accomplishments reflect my ability to align HR strategies with organizational goals, ensuring both employee satisfaction and operational success. I bring expertise in talent acquisition, employee relations, and compliance, alongside proficiency in HR software like Workday and BambooHR.\n\nWhat excites me most about your organization is your dedication to fostering innovation and prioritizing employee development. Your recent recognition as a top employer resonates with my passion for creating positive workplace experiences and driving organizational growth through people-centered strategies.\n\nI am confident that my proven track record in HR operations, combined with my ability to build strong relationships across all levels of an organization, makes me a strong fit for this role.\n\nThank you for considering my application. I look forward to discussing how I can contribute to your team's success.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["human resources", "employee relations", "talent acquisition", "diversity and inclusion", "HR systems"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "enthusiastic",
+    "industry": "Human Resources, Non-Profit, Community Development",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI recently read about your organization's impressive fundraising achievements and congratulations on this milestone in your mission! Your dedication to empowering communities and creating positive change truly resonates with me.\n\nChallenges always accompany achievements, and because of recent growth, I imagine that your organization will need more integrated employment tools and support services going forward.\n\nYour job posting noted that you require a professional to coach clients in developing job skills and provide them with comprehensive support services. As a Case Manager at a youth services organization, I worked as part of a community empowerment project, where I helped ten individuals develop essential skills, create opportunities, and ultimately achieve their goals. I also supported each client's individual empowerment through job training, increasing the job placement rate from 35% to 50%.\n\nAs someone who cares deeply about community impact, your organization's work of providing individuals with tools to overcome challenges and achieve success is extremely important to me. I would be an effective contributor to that work and plan to exceed expectations in this role.\n\nI will follow up with you next week. Meanwhile, you can contact me at [Your Phone Number] or via email at [Your Email Address].\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["community development", "case management", "client empowerment", "job placement", "social services"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Legal, Paralegal, Law Firm Support",
     "level": "entry-level",
-    "style": "skills_focused",
-    "content": "Dear Hiring Manager,\n\nAs an avid researcher in the field of [Industry/Technology Area], I am excited to apply for the [Position Title] position. With a solid foundation in [Relevant Technical Skills] and hands-on experience in [Relevant Domain], I am confident in my ability to make meaningful contributions to your team.\n\nIn my previous role as a [Previous Title or Role], I led multiple projects that required conducting in-depth analysis to inform strategic decisions. My technical proficiency in [Languages/Tools] enabled me to build tools that enhanced performance tracking and improved visibility into operational workflows. Through this work, I developed a keen ability to identify opportunities and craft data-driven strategies within [Relevant Domain or Ecosystem].\n\nMy enthusiasm for [Industry/Field] extends beyond the workplace. I actively participate in relevant communities, including forums, events, or competitions, which keeps me current on emerging trends and allows me to apply my skills in practical, innovative contexts. Additionally, I take pride in my ability to work independently, consistently delivering results on complex research assignments while upholding high standards of quality and professionalism.\n\nI am enthusiastic about the opportunity to collaborate with a forward-thinking team focused on innovation and impact. I look forward to discussing how my skill set aligns with the goals of this role and how I can contribute to your continued success.\n\nSincerely,\n[Your Name]",
-    "keywords": ["skills", "technical", "proactive"],
-    "metadata": {"source": "custom_tech"}
-        }
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nAs a recent graduate with a Bachelor's degree in Legal Studies and hands-on experience from my internship at a law firm, I am excited to apply for the Paralegal position at your organization. Your firm's dedication to providing exceptional legal services aligns with my passion for supporting attorneys and ensuring cases are handled efficiently and accurately.\n\nDuring my internship, I conducted extensive legal research, drafted client correspondence, and assisted in preparing case files for litigation. My attention to detail ensured that all documents were meticulously reviewed and formatted according to court standards, contributing to the successful resolution of several cases. Additionally, I managed the firm's case management software, streamlining document organization and improving retrieval efficiency by 20%. These experiences strengthened my ability to work in fast-paced environments and reinforced my commitment to delivering high-quality support to legal teams.\n\nWhat draws me most to your organization is your focus on client advocacy and the impact you make in your practice area. I am particularly inspired by your commitment to excellence, and I am eager to contribute my skills to support your team in achieving similar successes. My proficiency in legal research tools such as LexisNexis and Westlaw, combined with my strong organizational skills and ability to prioritize tasks effectively, position me well to excel in this role.\n\nThank you for considering my application. I would welcome the opportunity to discuss how my academic background and practical experience can contribute to your team's continued success.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["legal research", "case management", "litigation support", "legal documentation", "paralegal skills"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Executive Leadership, Operations Management, Strategic Planning",
+    "level": "senior-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nThroughout my 20-year career as a strategic leader in global business operations, I have consistently driven growth, improved profitability, and led teams to exceed organizational objectives. As a candidate for the Senior Vice President of Operations role at your organization, I am eager to bring my expertise in scaling businesses, optimizing processes, and fostering innovation to your esteemed organization.\n\nHighlights of my achievements include:\n\n- Driving $50M in revenue growth within three years by restructuring business development strategies as COO of a major enterprise\n- Implementing cost-saving initiatives that reduced operational expenses by 25% without compromising quality or customer satisfaction\n- Leading a 200-person global team to deliver a 15% improvement in project turnaround time through streamlined workflows and enhanced cross-departmental collaboration\n\nYour organization's mission to revolutionize sustainable business practices resonates deeply with my commitment to creating lasting impact through innovation and strategic execution. I am particularly impressed by your recent success in expanding operations into emerging markets, an area where I have firsthand experience driving profitable growth.\n\nI am confident that my ability to align operational strategies with organizational goals can contribute significantly to your continued success. My track record of leading high-performing teams and delivering measurable results positions me as an ideal candidate for this executive role.\n\nI would welcome the opportunity to discuss how my leadership experience and strategic vision can drive your organization's next phase of growth.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["executive leadership", "operations management", "strategic planning", "revenue growth", "team leadership"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Operations Management, Manufacturing, Process Improvement",
+    "level": "senior-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nIn response to your advertisement for Vice President, Operations, please consider the following:\n\nDeveloped and implemented strategic operational plans:\n15+ years of aggressive manufacturing and production management experience. Planned, implemented, coordinated, and revised all production operations in a facility of 250+ employees.\n\nManaged people, resources, and processes:\nDeveloped and published weekly processing and packaging schedules to meet annual corporate sales demands of up to $50 million. Met all production requirements and minimized inventory costs.\n\nCoached and developed direct reports:\nDesigned and presented training programs for corporate, divisional, and plant management personnel. Created employee involvement program resulting in $100,000+ savings annually.\n\nEnsured operational service groups met needs of external and internal customers:\nChaired a cross-functional committee of 16 associates that developed and implemented processes, systems, and procedures facility-wide. Achieved year-end results of a 12% increase in production, a 6% reduction in direct operational costs, and an increased customer satisfaction rating from 85% to 93.5%.\n\nI welcome the opportunity to visit with you about this position. My resume has been uploaded, per your instructions. I may be reached at [Your Email Address] and my phone number is [Your Phone Number]. Thanks again for your consideration.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["operations management", "manufacturing", "process improvement", "production planning", "cost reduction"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "enthusiastic",
+    "industry": "Digital Marketing, Content Creation, Social Media",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nAs a digital marketing professional with a knack for creativity and a proven record of driving results, I am thrilled to apply for the Digital Marketing Manager role at your organization. Your reputation for delivering bold, innovative campaigns resonates with my passion for crafting memorable brand experiences.\n\nIn my role as Digital Marketing Specialist at a marketing agency, I:\n\n- Increased client web traffic by 50% in six months through an award-winning SEO strategy that earned recognition for Content Innovation\n- Boosted campaign ROI by 40% by optimizing paid media strategies and leveraging advanced analytics to refine targeting\n- Spearheaded a social media campaign for a global e-commerce client that achieved 1M+ impressions and a 20% engagement rate within two weeks\n\nYour organization's focus on creativity and impact is the perfect match for my approach to marketing. I'm particularly impressed by your recent innovative campaigns, which showcase the kind of bold storytelling I admire. With expertise in SEO, PPC, content marketing, and analytics, I am confident in my ability to elevate your team's results even further.\n\nWhat sets me apart is my ability to blend data-driven insights with creative storytelling to craft campaigns that truly resonate. From ideation to execution, I thrive on delivering innovative strategies that exceed expectations.\n\nI would love the opportunity to bring my skills and passion for digital marketing to your team and contribute to your continued success.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["digital marketing", "SEO", "social media", "content creation", "campaign management"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Career Development, Job Placement, Consulting",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI was hoping to learn about any potential employment opportunities at your organization. I think highly of your company and would love to learn more about it. Based on what I already know, your company culture and approach to client service are what interest me most.\n\nAs a career consultant, I've worn many hats but am most excited about my success in client-facing roles. I've helped over 250,000 job seekers optimize their career strategies and have facilitated comprehensive career development programs. I've helped my clients achieve better career outcomes faster, which is where my passion lies.\n\nI look forward to hearing back from you. If there are no current openings or upcoming opportunities, please feel free to hang on to my resume and contact me in the future. I can be reached at [Your Email Address] or by phone at [Your Phone Number]. Thank you!\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["career consulting", "job placement", "client services", "career development", "professional coaching"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "career-change",
+    "industry": "Human Resources, Career Transition, Employee Development",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI'm writing to express my interest in the HR Specialist role and provide context to my resume. Although I've spent most of my career in the public education system, I know my skills, experience, and achievements can translate to the specialist role and add exceptional value to your HR team.\n\nHere's what caught my eye about your job posting and how I think my unique experience can benefit your organization:\n\nAdministration: My work as a guidance counselor required me to take on many administrative projects at once, including performance tracking, planning, and event coordination for school-wide programs. I believe these skills will bring value to performance reviews, company event planning, and career growth planning.\n\nBuilding Culture: Like all organizations, educational institutions have their own culture. I contributed to my institution's culture by executing organization-wide programs such as wellness initiatives and professional development campaigns and planned various events and assemblies.\n\nDesigning Talent Cultivation Programs: Encouraging individuals to put forth their best efforts and learn as much as possible was a big part of my job. My contributions to improving workplace environments as a member of leadership teams have prepared me to think about what both your organization and its individual team members can do to cultivate their talents.\n\nI'm excited about your organization's growth and your innovative approach to people management. I would love the opportunity to discuss how my transferable skills and passion for employee development can contribute to your team's success.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["career transition", "transferable skills", "employee development", "organizational culture", "talent management"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Marketing, Brand Management, Customer Acquisition",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI read your advertisement for a marketing manager position with great interest. If you are seeking to augment your leadership team with an experienced and accomplished marketing professional, please consider my enclosed resume.\n\nAs a marketing manager since 2018, I directed all phases of both the creative and technical elements of marketing initiatives including data mining, brand creation, print/web collateral development, lead generation, channel partner cultivation, customer segmentation/profiling, as well as CRM and acquisition strategies.\n\nI offer a history of proven results, as evidenced by the following marketing accomplishments for my current employer:\n\n- Captured a 28% expansion in customer base since 2018, achieved during a period of overall decline in the retail industry\n- Led national marketing campaign (comprised of trade show, media, and PR initiatives) of my company's newly launched technology services division\n- Developed and executed SEO strategy that achieved and sustained top 3 rankings on Google (organic, nonpaid results) for key product search terms\n\nGiven the opportunity, I'm confident in my ability to achieve similar groundbreaking marketing results for your organization.\n\nFeel free to call me at [Your Phone Number] or email me at [Your Email Address] to arrange a meeting. I look forward to speaking with you.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["marketing management", "brand development", "customer acquisition", "digital marketing", "campaign management"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "enthusiastic",
+    "industry": "Education, Teaching, Curriculum Development",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am thrilled to apply for the English Teacher position at your school. With over five years of teaching experience and a deep passion for fostering creativity and critical thinking in students, I am eager to contribute to your school's mission of cultivating lifelong learners.\n\nIn my previous role at a public high school, I developed and implemented an innovative literature curriculum that improved reading comprehension scores by 25% over two years. My classroom environment emphasized inclusivity and engagement, leading to increased participation and a 20% rise in student satisfaction survey results. I also spearheaded a creative writing program that inspired students to publish their work in a school-wide anthology, showcasing their talents and building their confidence.\n\nWhat excites me most about your school is your focus on integrating technology into the classroom to enhance student learning. I have extensive experience using tools like Google Classroom and interactive whiteboards to create dynamic and collaborative lesson plans. I am also committed to staying current with educational trends and frequently share insights and strategies with educators.\n\nBeyond academic success, I am dedicated to fostering meaningful relationships with students, parents, and colleagues. I believe that creating a supportive and respectful learning environment is the key to helping students reach their full potential.\n\nThank you for considering my application. I would welcome the opportunity to discuss how my teaching philosophy and experience align with your school's vision.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["education", "curriculum development", "student engagement", "classroom management", "educational technology"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Information Technology, System Administration, Technical Support",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the IT Specialist position at your organization. With over five years of experience managing IT systems and implementing technical solutions, I am eager to contribute my expertise to your team and support your mission of delivering cutting-edge technology services.\n\nBeyond my technical expertise in network management, system security, and cloud infrastructure, I bring strong problem-solving and collaboration skills. Whether troubleshooting hardware issues or training employees on new technologies, I excel at bridging the gap between technical solutions and user needs.\n\nI am particularly impressed by your organization's dedication to innovation, especially your initiatives to integrate AI-powered tools into IT operations. I am confident my experience with cloud computing platforms like AWS and Azure, coupled with my Python and PowerShell scripting skills, can contribute to your forward-thinking projects.\n\nI invite you to explore my portfolio and GitHub repository, where I showcase projects ranging from network automation scripts to custom-built monitoring dashboards.\n\nThank you for considering my application. I would welcome the opportunity to discuss how my technical skills and innovative mindset align with your organization's goals. Please feel free to contact me at [Your Email Address] or [Your Phone Number].\n\nI look forward to contributing to your team's continued success.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["information technology", "system administration", "cloud computing", "network management", "technical support"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Software Development, Programming, Technical Innovation",
+    "level": "senior-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nAre you searching for a software engineer with a proven ability to develop high-performance applications and technical innovations? If so, please consider my enclosed resume.\n\nSince 2020, I have served as a software engineer for a technology company, where I have been repeatedly recognized for developing innovative solutions for multimillion-dollar, globally deployed software and systems. I am responsible for the full lifecycle development of next-generation software, from initial requirement gathering to design, coding, testing, documentation, and implementation.\n\nKnown for excellent client-facing skills, I have participated in proposals and presentations that have landed six-figure contracts. I also excel in merging business and user needs into high-quality, cost-effective design solutions while keeping within budgetary constraints.\n\nMy technical expertise includes cross-platform proficiency (Windows, Unix, Linux, and VxWorks); fluency in 13 scripting/programming languages (including C, C++, VB, Java, Perl, and SQL); and advanced knowledge of developer applications, tools, methodologies, and best practices (including OOD, client/server architecture, and self-test automation).\n\nI will follow up with you next week, and you may reach me at [Your Phone Number] or [Your Email Address]. I look forward to speaking with you.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["software engineering", "application development", "programming", "technical innovation", "full-stack development"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Project Management, Team Leadership, Process Improvement",
+    "level": "senior-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nWhen I led the implementation of a $2M software upgrade project at a technology company, it came in 10% under budget and two weeks ahead of schedule—a result of strong leadership, meticulous planning, and effective communication. It's this same commitment to delivering exceptional outcomes that I would bring to the Project Manager position at your organization.\n\nIn my current role as Senior Project Coordinator, I've successfully managed cross-functional teams of up to 20 people on complex initiatives that improved efficiency and reduced costs. One project reduced production downtime by 15% through process improvements, saving the company $500,000 annually. I also pride myself on maintaining clear and open lines of communication with stakeholders, ensuring alignment on goals and expectations.\n\nWhat excites me most about your organization is your focus on innovation and delivering tailored solutions to clients. Your recent expansion into sustainability consulting caught my attention, as I've managed green initiatives such as implementing energy-efficient workflows that reduced operational carbon footprints by 12%. I am eager to bring my expertise in project management tools like Jira and Asana, as well as my ability to foster collaboration and ensure timely deliverables, to support your continued success.\n\nBeyond my technical expertise, I bring a passion for mentoring and team development. I've guided junior project managers to take on increasingly complex responsibilities, contributing to both individual growth and organizational success.\n\nThank you for considering my application. I look forward to discussing how my experience and leadership approach can contribute to your team's achievements.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["project management", "team leadership", "process improvement", "stakeholder management", "budget management"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "enthusiastic",
+    "industry": "Design, Creative Services, Visual Communication",
+    "level": "entry-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI'm excited to apply for the Junior Graphic Designer position at your creative studio. As a recent graduate with a Bachelor's degree in Graphic Design, I am eager to bring my creativity, technical skills, and fresh perspective to your innovative team.\n\nDuring my time at university, I completed an internship with a marketing agency, where I:\n\n- Redesigned a client's branding materials, leading to a 20% increase in audience engagement\n- Collaborated on a social media campaign, producing graphics that garnered over 50,000 impressions in two weeks\n- Streamlined the production workflow, reducing project turnaround times by 15%\n\nThese experiences, combined with my academic foundation in typography, digital illustration, and motion graphics, have equipped me to create visually compelling designs that resonate with target audiences.\n\nWhat excites me most about your organization is your dedication to delivering bold, creative solutions that push boundaries. Your recent innovative campaigns stand out as examples of how great design can inspire and connect. I am eager to contribute my skills in Adobe Creative Suite, Figma, and motion design to continue that tradition of excellence.\n\nI invite you to explore my portfolio to see examples of my work, including branding projects, digital illustrations, and web designs. I would love the opportunity to discuss how my skills align with your creative vision.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["graphic design", "creative services", "visual communication", "branding", "digital design"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Business Management, Operations, Strategic Planning",
+    "level": "senior-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the Business Manager position at your organization. With 10 years of experience driving operational success and leading cross-functional teams, I am eager to contribute my skills to your mission of delivering innovative solutions to clients.\n\nIn my previous role as Operations Manager at a consulting firm, I:\n\n- Increased revenue by 30% by implementing a customer retention program and optimizing sales processes\n- Led a team of 25 employees, improving productivity by 20% through enhanced training and development initiatives\n- Streamlined operations, reducing overhead costs by $150,000 annually while maintaining high service quality\n\nThese experiences have equipped me with the leadership, strategic planning, and problem-solving skills needed to thrive in a dynamic environment.\n\nHere's how I can add value to your organization:\n\n- Strategic Growth: Identify and execute opportunities for market expansion and operational efficiency\n- Team Empowerment: Develop high-performing teams through mentorship and clear goal alignment\n- Data-Driven Insights: Leverage analytics to drive informed decision-making and improve business outcomes\n\nYour organization's focus on delivering tailored client solutions resonates with me, and I am excited about the opportunity to bring my expertise to your team.\n\nI look forward to connecting to discuss how my background aligns with your goals.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["business management", "operations", "strategic planning", "team leadership", "revenue growth"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "professional",
+    "industry": "Consulting, Strategic Planning, Business Analysis",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the Consultant position at your consulting firm. With a strong foundation in strategic problem-solving and data-driven decision-making, I am eager to help clients overcome challenges and achieve measurable growth.\n\nMy experience spans industries including technology, healthcare, and retail, where I have worked on cross-functional teams to deliver impactful insights and innovative strategies. These experiences have strengthened my ability to adapt quickly, communicate effectively, and drive results in dynamic environments.\n\nWhat excites me most about your organization is your commitment to creating tailored strategies that prioritize sustainable growth for your clients. I am particularly inspired by your recent work in helping organizations scale efficiently—a challenge I am eager to tackle by applying my analytical skills and collaborative mindset.\n\nBeyond my professional achievements, I bring a passion for helping organizations unlock their potential and succeed in competitive markets. My ability to analyze complex data, identify actionable solutions, and communicate findings effectively makes me confident that I can contribute meaningfully to your mission.\n\nI would welcome the opportunity to discuss how my experience and enthusiasm align with your goals for this role. Please feel free to reach out to me at [Your Email Address] or [Your Phone Number] to schedule a conversation.\n\nThank you for considering my application.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["consulting", "strategic planning", "business analysis", "data analysis", "client solutions"],
+    "metadata": {"source": "docx_extracted"}
+},
+{
+    "tone": "confident",
+    "industry": "Real Estate, Sales, Property Management",
+    "level": "mid-level",
+    "style": "best_candidate",
+    "content": "Dear Hiring Manager,\n\nI am excited to apply for the Real Estate Agent position at your agency. With a strong background in sales, exceptional communication skills, and a passion for helping clients find their perfect property, I am confident in my ability to contribute to your team's continued success.\n\nIn my previous role at a real estate firm, I successfully closed over $5M in property sales within a year, consistently exceeding quarterly sales targets by 20%. I cultivated strong client relationships, which resulted in a 95% client satisfaction rate and repeat business referrals. Additionally, I organized and hosted more than 30 open houses, effectively showcasing properties and driving buyer interest. These achievements reflect my ability to identify client needs, negotiate deals, and deliver exceptional service throughout the home-buying or selling process.\n\nWhat draws me most to your agency is your commitment to providing a personalized experience for clients in the local real estate market. I am particularly inspired by your recent community outreach initiatives, and I would love the opportunity to contribute to your mission.\n\nIn addition to my real estate experience, I bring expertise in CRM tools, digital marketing strategies, and market analysis, which allow me to stay ahead of trends and connect with potential clients effectively. My proactive approach to problem-solving and dedication to achieving results align perfectly with your agency's values.\n\nThank you for considering my application. I look forward to discussing how my experience and passion for real estate can benefit your team.\n\nSincerely,\n\n[Your Name]",
+    "keywords": ["real estate", "sales", "property management", "client relations", "market analysis"],
+    "metadata": {"source": "docx_extracted"}
+}
     ],
   "tones": [
-    {
-      "tone": "formal",
-      "description": "Professional and structured, suitable for corporate roles.",
-      "keywords": ["confident", "proven", "contribute"],
-      "example": "I am confident in my ability to contribute to your organization’s success."
-    },
-    {
-      "tone": "friendly",
-      "description": "Conversational and warm, ideal for startups or creative roles.",
-      "keywords": ["excited", "thrilled", "team-oriented"],
-      "example": "I’m super excited to bring my skills to your awesome team!"
-    }
+    { "tone": "professional", "description": "Polished, achievement-focused, and businesslike. Used in most business, admin, HR, legal, and consulting templates." },
+    { "tone": "confident", "description": "Assertive, results-driven, and leadership-oriented. Used in sales, management, project management, and business roles." },
+    { "tone": "enthusiastic", "description": "High-energy, passionate, and motivational. Used in education, non-profit, creative, and people-focused roles." },
+    { "tone": "career-change", "description": "Highlights transferable skills and adaptability for those changing industries or roles." },
+    { "tone": "unique", "description": "Distinctive, creative, or unconventional. Used in design, creative, or standout applications." },
+    { "tone": "fun-loving", "description": "Casual, upbeat, and creative. Used in digital marketing, social media, and creative content roles." },
+    { "tone": "most-improved", "description": "Emphasizes growth, learning, and improvement. Used in editorial, publishing, and media roles." },
+    { "tone": "short-and-sweet", "description": "Concise, direct, and to the point. Used in healthcare and similar fields." }
   ],
   "phrases": [
-    {
-      "industry": "blockchain",
-      "phrases": ["Built scalable smart contracts", "Optimized DeFi protocols"]
-    },
-    {
-      "industry": "tech",
-      "phrases": ["Developed AI models", "Enhanced system scalability"]
-    }
+    { "industry": "Information Technology, Project Management, Digital Transformation", "phrases": ["project management", "digital transformation", "stakeholder engagement", "team leadership", "IT solutions"] },
+    { "industry": "Sales, Business Development, Client Relations", "phrases": ["sales performance", "revenue growth", "client relationships", "territory management", "CRM systems"] },
+    { "industry": "Education, Teaching, Academic", "phrases": ["teaching", "student development", "literacy", "curriculum development", "classroom management"] },
+    { "industry": "Human Resources, Talent Management, Employee Relations", "phrases": ["human resources", "employee relations", "talent acquisition", "diversity and inclusion", "HR systems"] },
+    { "industry": "Digital Marketing, Content Creation, Social Media", "phrases": ["digital marketing", "SEO", "social media", "content creation", "campaign management"] },
+    { "industry": "Legal, Paralegal, Law Firm Support", "phrases": ["legal research", "case management", "litigation support", "legal documentation", "paralegal skills"] },
+    { "industry": "Consulting, Strategic Planning, Business Analysis", "phrases": ["consulting", "strategic planning", "business analysis", "data analysis", "client solutions"] },
+    { "industry": "Design, Creative Services, Visual Communication", "phrases": ["graphic design", "creative services", "visual communication", "branding", "digital design"] },
+    { "industry": "Real Estate, Sales, Property Management", "phrases": ["real estate", "sales", "property management", "client relations", "market analysis"] },
+    { "industry": "Operations Management, Manufacturing, Process Improvement", "phrases": ["operations management", "manufacturing", "process improvement", "production planning", "cost reduction"] }
   ],
   "skills": [
-    {
-      "skill": "Python",
-      "description": "Developed scalable AI solutions using Python and TensorFlow."
-    },
-    {
-      "skill": "Rust",
-      "description": "Built high-performance blockchain applications using Rust."
-    }
+    { "skill": "Project Management", "description": "Led cross-functional teams, managed budgets, schedules, and deliverables using tools like Jira and Asana." },
+    { "skill": "Salesforce", "description": "Managed pipelines, tracked sales, and maintained client records using Salesforce CRM." },
+    { "skill": "Python", "description": "Developed automation scripts, data analysis, and backend systems using Python." },
+    { "skill": "Microsoft Office", "description": "Created documents, managed schedules, and performed data analysis using Word, Excel, and PowerPoint." },
+    { "skill": "Google Workspace", "description": "Collaborated on documents, managed schedules, and coordinated teams using Google Docs, Sheets, and Calendar." },
+    { "skill": "Adobe Creative Suite", "description": "Designed graphics, branding, and marketing materials using Photoshop, Illustrator, and InDesign." },
+    { "skill": "Figma", "description": "Created UI/UX designs, prototypes, and visual assets for web and mobile applications." },
+    { "skill": "Leadership", "description": "Managed, mentored, and developed teams to achieve organizational goals." },
+    { "skill": "Strategic Planning", "description": "Developed and executed business strategies to drive growth and efficiency." },
+    { "skill": "Communication", "description": "Effectively conveyed ideas, built relationships, and facilitated collaboration across teams." }
   ],
   "values": [
-    {
-      "value": "Innovation",
-      "example_sentence": "I’m passionate about driving innovation through cutting-edge solutions."
-    },
-    {
-      "value": "Collaboration",
-      "example_sentence": "I thrive in collaborative environments to achieve shared goals."
-    }
+    { "value": "Collaboration", "example_sentence": "I thrive in collaborative environments, working with diverse teams to achieve shared goals and deliver results." },
+    { "value": "Innovation", "example_sentence": "I embrace new ideas and creative solutions to drive progress and solve complex challenges." },
+    { "value": "Excellence", "example_sentence": "I pursue excellence by setting high standards, paying attention to detail, and delivering quality outcomes." },
+    { "value": "Integrity", "example_sentence": "I act with honesty and transparency, building trust through ethical decision-making and accountability." },
+    { "value": "Adaptability", "example_sentence": "I adapt quickly to new environments, technologies, and challenges, maintaining productivity and a positive attitude." }
   ]
 }
+
+
+
+

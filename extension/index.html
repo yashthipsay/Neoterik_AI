@@ -626,6 +626,39 @@
         <button id="signin-btn-welcome" class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;">Sign
           in</button>
       </div>
+      <!-- Add this after the welcome-state div and before generate-tab -->
+      <div id="upload-status-section" class="hidden">
+        <div class="card" style="background: linear-gradient(135deg, #f8f9fa, rgba(65, 157, 120, 0.05)); border: 1px solid rgba(65, 157, 120, 0.2);">
+          <h2 style="font-size: 16px; margin-bottom: 12px;"><span>📋</span> Upload Status</h2>
+          
+          <!-- Resume Status -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 500;">Resume:</span>
+              <div id="resume-status" style="display: flex; align-items: center; gap: 6px;">
+                <span class="status-indicator" id="resume-status-indicator">⏳ Checking...</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- GitHub Status -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 500;">GitHub:</span>
+              <div id="github-status" style="display: flex; align-items: center; gap: 6px;">
+                <span class="status-indicator" id="github-status-indicator">⏳ Checking...</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Action Button -->
+          <div style="text-align: center; margin-top: 16px;">
+            <button id="upload-redirect-btn" class="btn btn-outline" style="font-size: 12px; padding: 6px 16px;">
+              Go to Profile to Upload
+            </button>
+          </div>
+        </div>
+      </div>
       <!-- Generate Tab -->
       <div id="generate-tab" class="hidden animate-fadeIn">
         <div class="card">

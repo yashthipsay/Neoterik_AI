@@ -465,7 +465,11 @@ async def generate_cover_letter(
         }
 
 @app.get("/get-document")
-async def get_document(user_id: str = Query(...), type: str = Query(...)):
+async def get_document(user_id: str = Query(...), type: str = Query(...), current_user: dict = Depends(get_current_user)):
+    # Ensure user can only access their own documents
+    if current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     try:
         # Fetch the document (resume) for the user
         res = supabase.table("documents").select("*").eq("user_id", user_id).eq("type", type).single().execute()
@@ -480,7 +484,11 @@ async def get_document(user_id: str = Query(...), type: str = Query(...)):
         return {}
 
 @app.get("/get-github")
-async def get_github(user_id: str = Query(...)):
+async def get_github(user_id: str = Query(...), current_user: dict = Depends(get_current_user)):
+    # Ensure user can only access their own data
+    if current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     try:
         # Fetch the github username for the user
         res = supabase.table("documents").select("*").eq("user_id", user_id).eq("type", "github").single().execute()

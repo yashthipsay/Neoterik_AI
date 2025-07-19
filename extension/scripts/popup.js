@@ -65,6 +65,11 @@ function setupEventListeners() {
 	document
 		.getElementById("do-something-link")
 		?.addEventListener("click", doSomething);
+    document
+        .getElementById("upload-redirect-btn")
+        ?.addEventListener("click", () => {
+            chrome.tabs.create({ url: "http://localhost:3000/profile" });
+        });
 
 	// Redirect to profile page when user profile is clicked
 	document.getElementById("user-info")?.addEventListener("click", () => {
@@ -167,6 +172,10 @@ function updateUI(isLoggedIn, user) {
 		.getElementById("generate-tab")
 		?.classList.toggle("hidden", !isLoggedIn);
 	document.getElementById("loading-indicator")?.classList.add("hidden");
+    document
+        .getElementById("upload-status-section")  // Add this line
+        ?.classList.toggle("hidden", !isLoggedIn);
+    document.getElementById("loading-indicator")?.classList.add("hidden");
 
 	if (isLoggedIn && user) {
 		document.getElementById("user-name").textContent =
@@ -176,6 +185,11 @@ function updateUI(isLoggedIn, user) {
 			avatar.src = user.image;
 			avatar.style.display = "block";
 		}
+
+        // Check upload status when user is logged in
+        if (user.id) {
+            checkUploadStatus(user.id);
+        }
 	}
 }
 
@@ -519,4 +533,72 @@ function clearGenerateTabFields() {
 		const field = document.querySelector(id);
 		if (field) field.value = "";
 	});
+}
+
+async function checkUploadStatus(userId) {
+    console.log("🔍 Checking upload status for user:", userId);
+    
+    try {
+        // Get auth token
+        const { authToken } = await chrome.storage.local.get("authToken");
+        const headers = authToken ? { "Authorization": `Bearer ${authToken}` } : {};
+        
+        // Check resume status
+        const resumeResponse = await fetch(`http://localhost:8000/get-document?user_id=${userId}&type=resume`, {
+            headers
+        });
+        const resumeData = await resumeResponse.json();
+        
+        // Check GitHub status  
+        const githubResponse = await fetch(`http://localhost:8000/get-github?user_id=${userId}`, {
+            headers
+        });
+        const githubData = await githubResponse.json();
+        
+        // Update UI
+        updateUploadStatusUI(resumeData, githubData);
+        
+    } catch (error) {
+        console.error("❌ Error checking upload status:", error);
+        updateUploadStatusUI({}, {});
+    }
+}
+
+function updateUploadStatusUI(resumeData, githubData) {
+    const resumeIndicator = document.getElementById("resume-status-indicator");
+    const githubIndicator = document.getElementById("github-status-indicator");
+    const uploadBtn = document.getElementById("upload-redirect-btn");
+    
+    // Update resume status
+    if (resumeData.filename) {
+        resumeIndicator.textContent = "✅ Uploaded";
+        resumeIndicator.className = "status-indicator status-success";
+        resumeIndicator.style.color = "#10B981";
+    } else {
+        resumeIndicator.textContent = "❌ Not uploaded";
+        resumeIndicator.className = "status-indicator";
+        resumeIndicator.style.color = "#EF4444";
+    }
+    
+    // Update GitHub status
+    if (githubData.github_username) {
+        githubIndicator.textContent = "✅ Added";
+        githubIndicator.className = "status-indicator status-success";
+        githubIndicator.style.color = "#10B981";
+    } else {
+        githubIndicator.textContent = "❌ Not added";
+        githubIndicator.className = "status-indicator";
+        githubIndicator.style.color = "#EF4444";
+    }
+    
+    // Show/hide upload button based on status
+    const bothUploaded = resumeData.filename && githubData.github_username;
+    if (bothUploaded) {
+        uploadBtn.style.display = "none";
+    } else {
+        uploadBtn.style.display = "block";
+        uploadBtn.textContent = resumeData.filename ? "Add GitHub Username" : 
+                               githubData.github_username ? "Upload Resume" : 
+                               "Go to Profile to Upload";
+    }
 }

@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '../components/ui/Button';
-import { PricingCard } from '../components/PricingCard';
-import { Card, CardContent } from '../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { PricingCard } from '../../components/PricingCard';
+import { Card, CardContent } from '../../components/ui/Card';
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');

@@ -6,8 +6,8 @@ import type { ClientSafeProvider, LiteralUnion } from "next-auth/react"
 import type { BuiltInProviderType } from "next-auth/providers/index"
 import { LucideChrome, Github } from 'lucide-react'
 import Image from "next/image"
-import { Button } from "../../components/ui/Button"
-import { Card, CardContent } from "../../components/ui/Card"
+import { Button } from "../../../components/ui/Button"
+import { Card, CardContent } from "../../../components/ui/Card"
 
 interface ProviderDetails {
   id: string;

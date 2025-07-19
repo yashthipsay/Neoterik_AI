@@ -2,10 +2,10 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Button } from "../components/ui/Button";
-import { Card, CardContent } from "../components/ui/Card";
-import { fetchUserProfile } from "../lib/profile";
-import { ProfileUploads } from "../components/ProfileUploads";
+import { Button } from "../../components/ui/Button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { fetchUserProfile } from "../../lib/profile";
+import { ProfileUploads } from "../../components/ProfileUploads";
 
 type ProfileData = {
     resumeInfo: any;

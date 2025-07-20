@@ -781,10 +781,10 @@
                 Yet</strong><br>Generate your first cover letter to see the preview here.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
-            <button class="btn btn-outline preview-btn">📋 Copy</button>
-            <button class="btn btn-outline preview-btn">✏️ Edit</button>
-            <button class="btn btn-primary preview-btn">💾 Save</button>
-            <button class="btn btn-outline preview-btn" id="view-large-btn">🔍 View Large</button>
+            <button id="copy-btn" class="btn btn-outline preview-btn">📋 Copy</button>
+            <button id="edit-btn" class="btn btn-outline preview-btn">✏️ Edit</button>
+            <button id="save-btn" class="btn btn-primary preview-btn">💾 Save</button>
+            <button id="view-large-btn" class="btn btn-outline preview-btn">🔍 View Large</button>
           </div>
         </div>
       </div>
@@ -869,6 +869,26 @@
       }
     });
   </script>
+
+    <div id="save-as-modal" style="display:none; position:fixed; z-index:10000; left:0; top:0; width:100%; height:100%; align-items:center; justify-content:center; background:rgba(0,0,0,0.7);">
+    <div style="background: var(--card-background); color: var(--text-color); border-radius:12px; padding:24px; width: 320px; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+      <h3 style="margin-top:0; margin-bottom: 20px; font-size: 18px;">Save Cover Letter As...</h3>
+      
+      <div class="form-group">
+        <label class="form-label" for="file-type-select">File Type:</label>
+        <select id="file-type-select" class="form-input">
+          <option value="pdf" selected>PDF Document (*.pdf)</option>
+          <option value="txt">Text File (*.txt)</option>
+          <option value="docx" disabled>Word Document (*.docx) - Coming Soon</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button id="cancel-save-btn" class="btn btn-outline" style="border-color: #8B949E; color: #8B949E;">Cancel</button>
+        <button id="confirm-save-btn" class="btn btn-primary">Confirm & Save</button>
+      </div>
+    </div>
+  </div>
   </body>
   </html>
   

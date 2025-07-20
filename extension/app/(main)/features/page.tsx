@@ -123,41 +123,18 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Navigation */}
-      {/* <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/Neoterik-Genesis.png"
-                alt="Neoterik.ai Logo"
-                width={40}
-                height={40}
-                className="rounded-lg"
-              />
-              <span className="text-xl font-bold text-gray-900">Neoterik.ai</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
-              <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</Link>
-              <Link href="/auth/signin">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
+    <div className="min-h-screen bg-[#111111] text-gray-300">
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative text-center py-24 sm:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Subtle background glow for atmosphere */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-gradient-to-t from-[#419D78]/10 to-transparent blur-3xl -z-0"></div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-50 tracking-tight">
             Powerful Features for
-            <span className="bg-gradient-to-r from-[#419D78] to-[#E0A458] bg-clip-text text-transparent"> Career Success</span>
+            <span className="bg-gradient-to-r from-[#419D78] to-[#6ddaa8] bg-clip-text text-transparent block mt-2"> Career Success</span>
           </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-8">
             Discover how our advanced AI technology and comprehensive feature set 
             can transform your job search and accelerate your career growth.
           </p>
@@ -169,17 +146,17 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {features.map((feature, index) => (
-              <Card key={index} className="p-8 animate-fadeIn" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card key={index} className="p-8 bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
                   <div className="flex items-start gap-4">
                     <div className="text-4xl">{feature.icon}</div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
-                      <p className="text-gray-600 mb-4">{feature.description}</p>
+                      <h3 className="text-2xl font-semibold mb-3 text-gray-100">{feature.title}</h3>
+                      <p className="text-gray-400 mb-4">{feature.description}</p>
                       <ul className="space-y-2">
                         {feature.details.map((detail, detailIndex) => (
-                          <li key={detailIndex} className="flex items-center gap-2 text-sm text-gray-700">
-                            <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <li key={detailIndex} className="flex items-center gap-2 text-sm text-gray-300">
+                            <svg className="w-4 h-4 text-[#419D78] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                             {detail}
@@ -196,24 +173,24 @@ export default function FeaturesPage() {
       </section>
 
       {/* Use Cases */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Perfect for Every Career Stage</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-100 mb-4">Perfect for Every Career Stage</h2>
+            <p className="text-lg text-gray-400">
               Whether you're just starting out or leading a team, our AI adapts to your unique situation
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {useCases.map((useCase, index) => (
-              <Card key={index} className="p-6">
+              <Card key={index} className="p-6 bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
                   <div className="flex items-start gap-4">
                     <div className="text-3xl">{useCase.icon}</div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2">{useCase.title}</h3>
-                      <p className="text-gray-600">{useCase.description}</p>
+                      <h3 className="text-xl font-semibold mb-2 text-gray-100">{useCase.title}</h3>
+                      <p className="text-gray-400">{useCase.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -227,15 +204,15 @@ export default function FeaturesPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Seamless Integrations</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-100 mb-4">Seamless Integrations</h2>
+            <p className="text-lg text-gray-400">
               Connect with your favorite job search platforms and productivity tools
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {integrations.map((integration, index) => (
-              <Card key={index} className="p-6 text-center">
+              <Card key={index} className="p-6 text-center bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
                   <Image
                     src={integration.logo}
@@ -244,8 +221,8 @@ export default function FeaturesPage() {
                     height={60}
                     className="rounded-lg mx-auto mb-4"
                   />
-                  <h3 className="font-semibold mb-2">{integration.name}</h3>
-                  <p className="text-sm text-gray-600">{integration.description}</p>
+                  <h3 className="font-semibold mb-2 text-gray-100">{integration.name}</h3>
+                  <p className="text-sm text-gray-400">{integration.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -254,16 +231,16 @@ export default function FeaturesPage() {
       </section>
 
       {/* Demo Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl font-bold text-gray-100 mb-6">
             See It in Action
           </h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-lg text-gray-400 mb-8">
             Watch how our AI transforms a simple job description into a compelling, 
             personalized cover letter in seconds.
           </p>
-          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+          <div className="bg-[#1a1a1a] rounded-2xl shadow-2xl p-8 mb-8 border border-gray-800">
             <div className="aspect-video bg-gradient-to-br from-[#419D78] to-[#37876A] rounded-lg flex items-center justify-center">
               <div className="text-white text-center">
                 <div className="text-6xl mb-4">▶️</div>
@@ -277,7 +254,7 @@ export default function FeaturesPage() {
               Try Interactive Demo
             </Button>
             <Link href="/auth/signin">
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                 Start Free Trial
               </Button>
             </Link>
@@ -303,52 +280,9 @@ export default function FeaturesPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/Neoterik-Genesis.png"
-                  alt="Neoterik.ai Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-lg"
-                />
-                <span className="text-xl font-bold">Neoterik.ai</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered career tools to help you land your dream job.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Neoterik.ai. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Neoterik.ai. All rights reserved.</p>
         </div>
       </footer>
     </div>

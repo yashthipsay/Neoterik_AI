@@ -1,8 +1,9 @@
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request, Depends
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request, Depends, Response
 from pydantic import BaseModel, HttpUrl
 from supabase_client import supabase, verify_jwt_token, get_current_user
 from models_supabase import UserIn, DocumentIn
 import re
+from fpdf import FPDF
 from pathlib import Path
 import shutil
 import tempfile
@@ -504,3 +505,44 @@ async def get_github(user_id: str = Query(...), current_user: dict = Depends(get
 async def root():
     """Root endpoint for API status check"""
     return {"status": "online", "service": "Job URL Detector API"}
+
+class DownloadRequest(BaseModel):
+    fileType: str
+    baseFilename: str
+    coverLetterText: str
+
+# The new endpoint for generating and downloading files
+@app.post("/download-cover-letter")
+async def download_cover_letter(request: DownloadRequest):
+    """
+    Generates a file (PDF or TXT) on the server and returns it for download.
+    """
+    filename = f"{request.baseFilename}.{request.fileType}"
+    
+    if request.fileType == 'pdf':
+        # --- PDF Generation using FPDF2 ---
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", size=11)
+        
+        # Use multi_cell for automatic line breaks and text wrapping
+        pdf.multi_cell(0, 5, request.coverLetterText)
+        
+        # Generate the PDF content as bytes
+        pdf_content_bytes = pdf.output(dest='S').encode('latin-1')
+        
+        return Response(
+            content=pdf_content_bytes,
+            media_type='application/pdf',
+            headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+        )
+
+    elif request.fileType == 'txt':
+        # --- TXT File Generation ---
+        return Response(
+            content=request.coverLetterText,
+            media_type='text/plain',
+            headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+        )
+    
+    return {"error": "Unsupported file type"}, 400

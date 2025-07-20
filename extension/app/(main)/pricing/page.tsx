@@ -97,53 +97,30 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Navigation */}
-      {/* <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/Neoterik-Genesis.png"
-                alt="Neoterik.ai Logo"
-                width={40}
-                height={40}
-                className="rounded-lg"
-              />
-              <span className="text-xl font-bold text-gray-900">Neoterik.ai</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
-              <Link href="/features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
-              <Link href="/auth/signin">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
+    <div className="min-h-screen bg-[#111111] text-gray-300">
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative text-center py-24 sm:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Subtle background glow for atmosphere */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-gradient-to-t from-[#419D78]/10 to-transparent blur-3xl -z-0"></div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-50 tracking-tight">
             Simple, Transparent
-            <span className="bg-gradient-to-r from-[#419D78] to-[#E0A458] bg-clip-text text-transparent"> Pricing</span>
+            <span className="bg-gradient-to-r from-[#419D78] to-[#6ddaa8] bg-clip-text text-transparent block mt-2"> Pricing</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-8 mb-8">
             Choose the perfect plan for your career goals. All plans include our core AI features 
             and come with a 7-day free trial.
           </p>
           
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
-            <span className={`font-medium ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
+            <span className={`font-medium ${billingCycle === 'monthly' ? 'text-gray-100' : 'text-gray-500'}`}>
               Monthly
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#419D78] focus:ring-offset-2"
+              className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-[#419D78] focus:ring-offset-2"
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -151,11 +128,11 @@ export default function PricingPage() {
                 }`}
               />
             </button>
-            <span className={`font-medium ${billingCycle === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}>
+            <span className={`font-medium ${billingCycle === 'yearly' ? 'text-gray-100' : 'text-gray-500'}`}>
               Yearly
             </span>
             {billingCycle === 'yearly' && (
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              <span className="bg-[#419D78] text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
                 Save 17%
               </span>
             )}
@@ -179,11 +156,11 @@ export default function PricingPage() {
       </section>
 
       {/* Features Comparison */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Compare All Features</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-100 mb-4">Compare All Features</h2>
+            <p className="text-lg text-gray-400">
               See exactly what's included in each plan
             </p>
           </div>
@@ -191,49 +168,49 @@ export default function PricingPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-4 px-6 font-semibold text-gray-900">Features</th>
-                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Starter</th>
-                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Professional</th>
-                  <th className="text-center py-4 px-6 font-semibold text-gray-900">Enterprise</th>
+                <tr className="border-b-2 border-gray-700">
+                  <th className="text-left py-4 px-6 font-semibold text-gray-100">Features</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-100">Starter</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-100">Professional</th>
+                  <th className="text-center py-4 px-6 font-semibold text-gray-100">Enterprise</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-700">
                 <tr>
-                  <td className="py-4 px-6 font-medium">Cover letters per month</td>
-                  <td className="py-4 px-6 text-center">10</td>
-                  <td className="py-4 px-6 text-center">50</td>
-                  <td className="py-4 px-6 text-center">Unlimited</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">Cover letters per month</td>
+                  <td className="py-4 px-6 text-center text-gray-400">10</td>
+                  <td className="py-4 px-6 text-center text-gray-400">50</td>
+                  <td className="py-4 px-6 text-center text-gray-400">Unlimited</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium">AI personalization</td>
-                  <td className="py-4 px-6 text-center">✓</td>
-                  <td className="py-4 px-6 text-center">✓</td>
-                  <td className="py-4 px-6 text-center">✓</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">AI personalization</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium">Premium templates</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">✓</td>
-                  <td className="py-4 px-6 text-center">✓</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">Premium templates</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium">Success analytics</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">✓</td>
-                  <td className="py-4 px-6 text-center">✓</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">Success analytics</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium">API access</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">✓</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">API access</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-medium">Team management</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">-</td>
-                  <td className="py-4 px-6 text-center">✓</td>
+                  <td className="py-4 px-6 font-medium text-gray-300">Team management</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-gray-600">-</td>
+                  <td className="py-4 px-6 text-center text-[#419D78]">✓</td>
                 </tr>
               </tbody>
             </table>
@@ -245,18 +222,18 @@ export default function PricingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-100 mb-4">Frequently Asked Questions</h2>
+            <p className="text-lg text-gray-400">
               Everything you need to know about our pricing and features
             </p>
           </div>
           
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <Card key={index} className="p-6">
+              <Card key={index} className="p-6 bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
-                  <h3 className="text-lg font-semibold mb-3">{faq.question}</h3>
-                  <p className="text-gray-600">{faq.answer}</p>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-100">{faq.question}</h3>
+                  <p className="text-gray-400">{faq.answer}</p>
                 </CardContent>
               </Card>
             ))}
@@ -265,28 +242,28 @@ export default function PricingPage() {
       </section>
 
       {/* Trust Indicators */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Trusted by Professionals Worldwide</h2>
+            <h2 className="text-2xl font-bold text-gray-100 mb-4">Trusted by Professionals Worldwide</h2>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center opacity-60">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-700">SOC 2</div>
-              <div className="text-sm text-gray-600">Compliant</div>
+              <div className="text-2xl font-bold text-gray-300">SOC 2</div>
+              <div className="text-sm text-gray-500">Compliant</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-700">GDPR</div>
-              <div className="text-sm text-gray-600">Compliant</div>
+              <div className="text-2xl font-bold text-gray-300">GDPR</div>
+              <div className="text-sm text-gray-500">Compliant</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-700">256-bit</div>
-              <div className="text-sm text-gray-600">Encryption</div>
+              <div className="text-2xl font-bold text-gray-300">256-bit</div>
+              <div className="text-sm text-gray-500">Encryption</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-700">99.9%</div>
-              <div className="text-sm text-gray-600">Uptime</div>
+              <div className="text-2xl font-bold text-gray-300">99.9%</div>
+              <div className="text-sm text-gray-500">Uptime</div>
             </div>
           </div>
         </div>
@@ -315,52 +292,9 @@ export default function PricingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/Neoterik-Genesis.png"
-                  alt="Neoterik.ai Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-lg"
-                />
-                <span className="text-xl font-bold">Neoterik.ai</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered career tools to help you land your dream job.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Neoterik.ai. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Neoterik.ai. All rights reserved.</p>
         </div>
       </footer>
     </div>

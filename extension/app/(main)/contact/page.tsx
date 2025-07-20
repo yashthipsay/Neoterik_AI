@@ -81,42 +81,18 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Navigation */}
-      {/* <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/Neoterik-Genesis.png"
-                alt="Neoterik.ai Logo"
-                width={40}
-                height={40}
-                className="rounded-lg"
-              />
-              <span className="text-xl font-bold text-gray-900">Neoterik.ai</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
-              <Link href="/features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
-              <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</Link>
-              <Link href="/auth/signin">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
+    <div className="min-h-screen bg-[#111111] text-gray-300">
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative text-center py-24 sm:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Subtle background glow for atmosphere */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-gradient-to-t from-[#419D78]/10 to-transparent blur-3xl -z-0"></div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-50 tracking-tight">
             Get in
-            <span className="bg-gradient-to-r from-[#419D78] to-[#E0A458] bg-clip-text text-transparent"> Touch</span>
+            <span className="bg-gradient-to-r from-[#419D78] to-[#6ddaa8] bg-clip-text text-transparent block mt-2"> Touch</span>
           </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-8">
             Have questions about Neoterik.ai? We're here to help. Reach out to our team 
             and we'll get back to you as soon as possible.
           </p>
@@ -128,11 +104,11 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((info, index) => (
-              <Card key={index} className="text-center p-6">
+              <Card key={index} className="text-center p-6 bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
                   <div className="text-4xl mb-4">{info.icon}</div>
-                  <h3 className="text-lg font-semibold mb-2">{info.title}</h3>
-                  <p className="text-gray-600 text-sm mb-3">{info.description}</p>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-100">{info.title}</h3>
+                  <p className="text-gray-400 text-sm mb-3">{info.description}</p>
                   <p className="font-medium text-[#419D78]">{info.contact}</p>
                 </CardContent>
               </Card>
@@ -146,9 +122,9 @@ export default function ContactPage() {
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Form */}
-            <Card className="p-8">
+            <Card className="p-8 bg-[#1a1a1a] border border-gray-800">
               <CardContent>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
+                <h2 className="text-2xl font-bold text-gray-100 mb-6">Send us a message</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
@@ -200,50 +176,50 @@ export default function ContactPage() {
             {/* Additional Info */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Let's start a conversation</h2>
-                <p className="text-gray-600 mb-6">
+                <h2 className="text-2xl font-bold text-gray-100 mb-4">Let's start a conversation</h2>
+                <p className="text-gray-400 mb-6">
                   We're always excited to hear from our users and potential customers. 
                   Whether you have questions about our features, need technical support, 
                   or want to explore partnership opportunities, we're here to help.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-600 text-sm">✓</span>
+                    <div className="w-8 h-8 bg-[#419D78]/20 rounded-full flex items-center justify-center">
+                      <span className="text-[#419D78] text-sm">✓</span>
                     </div>
-                    <span className="text-gray-700">Response within 24 hours</span>
+                    <span className="text-gray-300">Response within 24 hours</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-600 text-sm">✓</span>
+                    <div className="w-8 h-8 bg-[#419D78]/20 rounded-full flex items-center justify-center">
+                      <span className="text-[#419D78] text-sm">✓</span>
                     </div>
-                    <span className="text-gray-700">Dedicated support team</span>
+                    <span className="text-gray-300">Dedicated support team</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-600 text-sm">✓</span>
+                    <div className="w-8 h-8 bg-[#419D78]/20 rounded-full flex items-center justify-center">
+                      <span className="text-[#419D78] text-sm">✓</span>
                     </div>
-                    <span className="text-gray-700">Personalized assistance</span>
+                    <span className="text-gray-300">Personalized assistance</span>
                   </div>
                 </div>
               </div>
 
               {/* Office Hours */}
-              <Card className="p-6">
+              <Card className="p-6 bg-[#1a1a1a] border border-gray-800">
                 <CardContent>
-                  <h3 className="text-lg font-semibold mb-4">Office Hours</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-100">Office Hours</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Monday - Friday</span>
-                      <span className="font-medium">9:00 AM - 6:00 PM PST</span>
+                      <span className="text-gray-400">Monday - Friday</span>
+                      <span className="font-medium text-gray-300">9:00 AM - 6:00 PM PST</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Saturday</span>
-                      <span className="font-medium">10:00 AM - 4:00 PM PST</span>
+                      <span className="text-gray-400">Saturday</span>
+                      <span className="font-medium text-gray-300">10:00 AM - 4:00 PM PST</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Sunday</span>
-                      <span className="font-medium">Closed</span>
+                      <span className="text-gray-400">Sunday</span>
+                      <span className="font-medium text-gray-300">Closed</span>
                     </div>
                   </div>
                 </CardContent>
@@ -254,30 +230,30 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Quick Answers</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-100 mb-4">Quick Answers</h2>
+            <p className="text-lg text-gray-400">
               Find answers to commonly asked questions
             </p>
           </div>
           
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <Card key={index} className="p-6">
+              <Card key={index} className="p-6 bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <CardContent>
-                  <h3 className="text-lg font-semibold mb-3">{faq.question}</h3>
-                  <p className="text-gray-600">{faq.answer}</p>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-100">{faq.question}</h3>
+                  <p className="text-gray-400">{faq.answer}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
           
           <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Can't find what you're looking for?</p>
+            <p className="text-gray-400 mb-4">Can't find what you're looking for?</p>
             <Link href="/help">
-              <Button variant="outline">
+              <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                 Visit Help Center
               </Button>
             </Link>
@@ -303,52 +279,9 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/Neoterik-Genesis.png"
-                  alt="Neoterik.ai Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-lg"
-                />
-                <span className="text-xl font-bold">Neoterik.ai</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered career tools to help you land your dream job.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Neoterik.ai. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Neoterik.ai. All rights reserved.</p>
         </div>
       </footer>
     </div>

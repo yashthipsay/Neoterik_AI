@@ -20,7 +20,7 @@ SAMPLE_RESUME_PATH = BASE_DIR / "sample_resume" / "Parag_cv.pdf"
 
 # Initialize the agent
 resume_agent = Agent(
-    model="gemini-2.5-flash",
+    model="gemini-1.5-flash",
     deps_type=str,
     system_prompt=(
         "You are a resume parsing expert. Extract structured information from resumes based on the provided format. "

@@ -23,35 +23,20 @@ function notifyLoginStatusChanged() {
 
 // === Sign Out Handler ===
 function handleSignOut() {
-	console.log("[Extension] Initiating sign out...");
-	// Open signout in a new tab to clear NextAuth cookies
-	chrome.tabs.create(
-		{ url: "http://localhost:3000/api/auth/signout?callbackUrl=/" },
-		(tab) => {
-			// Wait a moment, then clear extension storage and reload home page
-			setTimeout(() => {
-				chrome.storage.local.clear(() => {
+    console.log("[Extension] Opening sign out page with callback URL...");
 
-                    console.log("[Extension] Sign out complete, storage cleared");
-                    
-                    // Notify popup that signout is complete
-                    chrome.runtime.sendMessage({ action: "signOutComplete" })
-                        .catch(() => {
-                            // Popup might be closed, that's OK
-                        });
+    // 1. Clear local extension storage immediately.
+    chrome.storage.local.clear(() => {
+        console.log("[Extension] Local storage cleared.");
+        notifyLoginStatusChanged();
+    });
 
-					notifyLoginStatusChanged();
-					chrome.tabs.update(tab.id, {
-						url: "http://localhost:3000",
-						active: true,
-					});
-					console.log(
-						"[Extension] Sign out complete, storage cleared, home page opened."
-					);
-				});
-			}, 1500); // Give NextAuth time to clear cookies
-		}
-	);
+    // 2. Open the sign-out page with a callbackUrl to ensure proper redirection.
+    // This tells NextAuth where to go after a successful sign-out.
+    chrome.tabs.create({
+        url: "http://localhost:3000/api/auth/signout?callbackUrl=http://localhost:3000",
+        active: true,
+    });
 }
 
 // === Auth Callback Handler ===

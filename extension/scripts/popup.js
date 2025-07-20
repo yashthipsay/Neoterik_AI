@@ -349,15 +349,26 @@ function generateTxt(filename, text) {
     URL.revokeObjectURL(url);
 }
 
+let originalWidth = "420px";
+let originalHeight = "600px";
+
 /**
  * Displays the full cover letter in a large modal view.
  */
 function viewLargeCoverLetter() {
     const previewElement = document.getElementById("cover-letter-preview");
-    // Checks that the preview element exists and is not showing the placeholder text [cite: 154]
+    // Checks that the preview element exists and is not showing the placeholder text
     if (previewElement && !previewElement.querySelector("strong")) {
+        // Store original dimensions before expanding
+        originalWidth = document.body.style.width || "420px";
+        originalHeight = document.body.style.height || "600px";
+        
+        // Expand popup size
+        document.body.style.width = "680px";
+        document.body.style.height = "720px";
+        
         const text = previewElement.innerText;
-        document.getElementById("large-modal-content").innerText = text; // Use innerText to preserve line breaks
+        document.getElementById("large-modal-content").innerText = text;
         document.getElementById("large-modal").style.display = "flex";
     } else {
         alert("Please generate a cover letter first.");
@@ -369,6 +380,10 @@ function viewLargeCoverLetter() {
  */
 function closeLargeModal() {
     document.getElementById("large-modal").style.display = "none";
+    
+    // Restore original popup dimensions
+    document.body.style.width = originalWidth;
+    document.body.style.height = originalHeight;
 }
 
 function checkAuthState() {

@@ -528,9 +528,10 @@ async def download_cover_letter(request: DownloadRequest):
         # Use multi_cell for automatic line breaks and text wrapping
         pdf.multi_cell(0, 5, request.coverLetterText)
         
-        # Generate the PDF content as bytes
-        pdf_content_bytes = pdf.output(dest='S').encode('latin-1')
-        
+        # Generate the PDF content as bytes (fpdf2 now returns bytearray)
+        raw = pdf.output(dest='S')
+        pdf_content_bytes = bytes(raw)  # cast bytearray → bytes
+
         return Response(
             content=pdf_content_bytes,
             media_type='application/pdf',

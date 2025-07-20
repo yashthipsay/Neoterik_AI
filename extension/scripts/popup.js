@@ -357,22 +357,54 @@ let originalHeight = "600px";
  */
 function viewLargeCoverLetter() {
     const previewElement = document.getElementById("cover-letter-preview");
-    // Checks that the preview element exists and is not showing the placeholder text
-    if (previewElement && !previewElement.querySelector("strong")) {
-        // Store original dimensions before expanding
-        originalWidth = document.body.style.width || "420px";
-        originalHeight = document.body.style.height || "600px";
-        
-        // Expand popup size
+    
+    // Prevent multiple animations and check for valid content
+    if (isAnimating || !previewElement || previewElement.querySelector("strong")) {
+        if (!previewElement || previewElement.querySelector("strong")) {
+            alert("Please generate a cover letter first.");
+        }
+        return;
+    }
+    
+    isAnimating = true;
+    
+    // Store original dimensions
+    originalWidth = document.body.style.width || "420px";
+    originalHeight = document.body.style.height || "600px";
+    
+    // Add transition styles to body
+    document.body.style.transition = "width 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+    
+    // Prepare modal content
+    const text = previewElement.innerText;
+    const modalContent = document.getElementById("large-modal-content");
+    const modal = document.getElementById("large-modal");
+    
+    modalContent.innerText = text;
+    
+    // Show modal with initial opacity 0
+    modal.style.display = "flex";
+    modal.style.opacity = "0";
+    modal.style.transition = "opacity 0.3s ease-in-out";
+    
+    // Start expansion animation
+    requestAnimationFrame(() => {
+        // Expand popup size with smooth transition
         document.body.style.width = "680px";
         document.body.style.height = "720px";
         
-        const text = previewElement.innerText;
-        document.getElementById("large-modal-content").innerText = text;
-        document.getElementById("large-modal").style.display = "flex";
-    } else {
-        alert("Please generate a cover letter first.");
-    }
+        // Fade in modal after a slight delay to sync with resize
+        setTimeout(() => {
+            modal.style.opacity = "1";
+        }, 150);
+        
+        // Complete animation
+        setTimeout(() => {
+            isAnimating = false;
+            // Remove transition after animation completes for better performance
+            document.body.style.transition = "";
+        }, 450);
+    });
 }
 
 /**

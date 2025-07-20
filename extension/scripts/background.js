@@ -31,6 +31,15 @@ function handleSignOut() {
 			// Wait a moment, then clear extension storage and reload home page
 			setTimeout(() => {
 				chrome.storage.local.clear(() => {
+					
+                    console.log("[Extension] Sign out complete, storage cleared");
+                    
+                    // Notify popup that signout is complete
+                    chrome.runtime.sendMessage({ action: "signOutComplete" })
+                        .catch(() => {
+                            // Popup might be closed, that's OK
+                        });
+
 					notifyLoginStatusChanged();
 					chrome.tabs.update(tab.id, {
 						url: "http://localhost:3000",

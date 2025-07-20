@@ -121,6 +121,11 @@ function setupEventListeners() {
 				updateUI(data.isLoggedIn, data.user);
 			});
 		}
+        // Add this new handler
+        if (message.action === "signOutComplete") {
+            updateUI(false, null);
+            clearGenerateTabFields();
+        }
 		if (message.action === "coverLetterGenerated") {
 			showCoverLetterPreview(message.coverLetter);
 			switchTab("preview");
@@ -210,9 +215,16 @@ function handleSignIn() {
 }
 
 function handleSignOut() {
+
+    chrome.storage.local.clear(() => {
+        // reset UI AFTER store is wiped
+        updateUI(false, null);
+        clearGenerateTabFields();
+        document.getElementById("cover-letter-preview").innerHTML = "";
+    });
+
 	// Send signOut message to background for tightly coupled sign-out
 	chrome.runtime.sendMessage({ action: "signOut" }, () => {
-		updateUI(false, null);
 		document.getElementById("welcome-state")?.classList.remove("hidden");
 		document
 			.getElementById("signin-btn-header")

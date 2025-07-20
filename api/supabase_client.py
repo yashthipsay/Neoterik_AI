@@ -76,7 +76,7 @@ async def get_current_user(token_data: dict = Depends(verify_jwt_token)):
     
     try:
         # Fetch user from Supabase
-        result = supabase.table("users").select("*").eq("id", user_id).single().execute()
+        result = supabase.table("users").select("*").eq("id", user_id).maybe_single().execute()
         if not result.data:
             raise HTTPException(status_code=404, detail="User not found")
         return result.data

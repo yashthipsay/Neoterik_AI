@@ -1,5 +1,7 @@
 // popup.js - Cleaned and Enhanced
 
+const API_BASE_URL = "http://localhost:8000";
+
 document.addEventListener("DOMContentLoaded", () => {
 	console.log("✅ Popup loaded");
 	initializeUI();
@@ -65,6 +67,30 @@ function setupEventListeners() {
 	document
 		.getElementById("do-something-link")
 		?.addEventListener("click", doSomething);
+    document
+        .getElementById("upload-redirect-btn")
+        ?.addEventListener("click", () => {
+            chrome.tabs.create({ url: "http://localhost:3000/profile" });
+        });
+
+    // NEW: Event listeners for the new preview buttons
+    document.getElementById("copy-btn")?.addEventListener("click", handleCopy);
+    document.getElementById("edit-btn")?.addEventListener("click", handleEdit);
+    document.getElementById("save-btn")?.addEventListener("click", handleSave); 
+    document.getElementById("view-large-btn")?.addEventListener("click", viewLargeCoverLetter);
+    document.getElementById("close-large-modal-btn")?.addEventListener("click", closeLargeModal);
+    // NEW: Add listener to close modal on background click
+    document.getElementById("large-modal")?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById("large-modal")) {
+            closeLargeModal();
+        }
+    });
+
+    // NEW: Listeners for the new "Save As" modal buttons
+    document.getElementById("confirm-save-btn")?.addEventListener("click", handleConfirmSave);
+    document.getElementById("cancel-save-btn")?.addEventListener("click", () => {
+        document.getElementById("save-as-modal").style.display = 'none';
+    });
 
 	// Redirect to profile page when user profile is clicked
 	document.getElementById("user-info")?.addEventListener("click", () => {
@@ -116,6 +142,11 @@ function setupEventListeners() {
 				updateUI(data.isLoggedIn, data.user);
 			});
 		}
+        // Add this new handler
+        if (message.action === "signOutComplete") {
+            updateUI(false, null);
+            clearGenerateTabFields();
+        }
 		if (message.action === "coverLetterGenerated") {
 			showCoverLetterPreview(message.coverLetter);
 			switchTab("preview");
@@ -138,6 +169,206 @@ function switchTab(tabId) {
 		.forEach((el) => el.classList.add("hidden"));
 	document.getElementById(`${tabId}-tab`)?.classList.remove("hidden");
 	if (tabId !== "generate") setLoadingState(false);
+}
+
+/**
+ * Copies the cover letter text to the clipboard and provides user feedback.
+ */
+function handleCopy() {
+    const textToCopy = document.getElementById("cover-letter-preview")?.innerText;
+    const copyBtn = document.getElementById("copy-btn");
+
+    if (textToCopy && copyBtn) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            copyBtn.textContent = "✅ Copied!";
+            copyBtn.style.color = "var(--success-color)";
+            setTimeout(() => {
+                copyBtn.textContent = "📋 Copy";
+                copyBtn.style.color = "var(--secondary-color)";
+            }, 2000);
+        }).catch(err => {
+            console.error("Failed to copy text: ", err);
+            alert("Failed to copy text.");
+        });
+    }
+}
+
+/**
+ * Switches back to the 'generate' tab so the user can edit the inputs.
+ */
+function handleEdit() {
+    // The `populateFieldsFromGraph` function ensures the inputs are filled
+    // with the data that generated the letter.
+    showGenerateTabAndPopulate();
+}
+
+function handleSave() {
+    const coverLetterText = document.getElementById("cover-letter-preview")?.innerText;
+    if (!coverLetterText || coverLetterText.includes("No Cover Letter Yet")) {
+        alert("Please generate a cover letter first.");
+        return;
+    }
+    document.getElementById("save-as-modal").style.display = 'flex';
+}
+
+/**
+ * Handles the final save action after the user confirms the file type.
+ */
+/**
+ * Handles the final save action by calling the backend to generate the file.
+ * This is the new, more robust implementation.
+ */
+async function handleConfirmSave() {
+    const saveBtn = document.getElementById("save-btn");
+    const confirmBtn = document.getElementById("confirm-save-btn");
+    const coverLetterText = document.getElementById("cover-letter-preview")?.innerText;
+    const fileType = document.getElementById("file-type-select").value;
+
+    saveBtn.disabled = true;
+    confirmBtn.disabled = true;
+    saveBtn.textContent = "Preparing...";
+
+    document.getElementById("save-as-modal").style.display = 'none';
+
+    try {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        const { currentJobPage } = await chrome.storage.local.get(["currentJobPage"]);
+        const jobData = currentJobPage?.jobData;
+
+        const safeCompanyName = jobData?.company_name?.replace(/[\\/:*?"<>|]/g, '') || 'Company';
+        const safeJobTitle = jobData?.job_title?.replace(/[\\/:*?"<>|]/g, '') || 'Job';
+        const baseFilename = `Cover Letter - ${safeJobTitle} at ${safeCompanyName}`;
+
+        // Call the backend to generate the file
+        const response = await fetch(`${API_BASE_URL}/download-cover-letter`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                fileType: fileType,
+                baseFilename: baseFilename,
+                coverLetterText: coverLetterText
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        // Get the filename from the response header if available, otherwise create it
+        const disposition = response.headers.get('Content-Disposition');
+        let downloadFilename = `${baseFilename}.${fileType}`; // fallback filename
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+                downloadFilename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        // Create a blob from the response and trigger download
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = downloadFilename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        
+        saveBtn.textContent = "✅ Saved!";
+
+    } catch (error) {
+        console.error("Failed to download file from backend:", error);
+        alert("An error occurred while preparing your file. Please ensure the backend server is running and try again.");
+        saveBtn.textContent = "💾 Save";
+    } finally {
+        setTimeout(() => {
+            saveBtn.disabled = false;
+            confirmBtn.disabled = false;
+            if (saveBtn.textContent !== "💾 Save") {
+                saveBtn.textContent = "💾 Save";
+            }
+        }, 2500);
+    }
+}
+
+/**
+ * Generates and downloads a PDF file using jsPDF.
+ * MODIFIED: Added checks to ensure the library is loaded and the input is valid.
+ */
+function generatePdf(filename, text) {
+    // 1. Check if jsPDF library is loaded
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        // This provides a much more specific and helpful error message.
+        throw new Error("jsPDF library not found. Please check the script tag in index.html.");
+    }
+
+    // 2. Check for valid input text
+    if (typeof text !== 'string' || !text.trim()) {
+        throw new Error("Cannot generate PDF from empty or invalid text.");
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Set document properties
+    doc.setProperties({
+        title: filename
+    });
+
+    // Set font styles
+    const margin = 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const usableWidth = pageWidth - (2 * margin);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+
+    // Split text into lines that fit the page width
+    const lines = doc.splitTextToSize(text, usableWidth);
+    doc.text(lines, margin, margin);
+
+    // Trigger the download
+    doc.save(`${filename}.pdf`);
+}
+
+/**
+ * Generates and downloads a .txt file.
+ */
+function generateTxt(filename, text) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Displays the full cover letter in a large modal view.
+ */
+function viewLargeCoverLetter() {
+    const previewElement = document.getElementById("cover-letter-preview");
+    // Checks that the preview element exists and is not showing the placeholder text [cite: 154]
+    if (previewElement && !previewElement.querySelector("strong")) {
+        const text = previewElement.innerText;
+        document.getElementById("large-modal-content").innerText = text; // Use innerText to preserve line breaks
+        document.getElementById("large-modal").style.display = "flex";
+    } else {
+        alert("Please generate a cover letter first.");
+    }
+}
+
+/**
+ * Closes the large modal view.
+ */
+function closeLargeModal() {
+    document.getElementById("large-modal").style.display = "none";
 }
 
 function checkAuthState() {
@@ -167,6 +398,10 @@ function updateUI(isLoggedIn, user) {
 		.getElementById("generate-tab")
 		?.classList.toggle("hidden", !isLoggedIn);
 	document.getElementById("loading-indicator")?.classList.add("hidden");
+    document
+        .getElementById("upload-status-section")  // Add this line
+        ?.classList.toggle("hidden", !isLoggedIn);
+    document.getElementById("loading-indicator")?.classList.add("hidden");
 
 	if (isLoggedIn && user) {
 		document.getElementById("user-name").textContent =
@@ -176,6 +411,11 @@ function updateUI(isLoggedIn, user) {
 			avatar.src = user.image;
 			avatar.style.display = "block";
 		}
+
+        // Check upload status when user is logged in
+        if (user.id) {
+            checkUploadStatus(user.id);
+        }
 	}
 }
 
@@ -196,9 +436,16 @@ function handleSignIn() {
 }
 
 function handleSignOut() {
+
+    chrome.storage.local.clear(() => {
+        // reset UI AFTER store is wiped
+        updateUI(false, null);
+        clearGenerateTabFields();
+        document.getElementById("cover-letter-preview").innerHTML = "";
+    });
+
 	// Send signOut message to background for tightly coupled sign-out
 	chrome.runtime.sendMessage({ action: "signOut" }, () => {
-		updateUI(false, null);
 		document.getElementById("welcome-state")?.classList.remove("hidden");
 		document
 			.getElementById("signin-btn-header")
@@ -519,4 +766,72 @@ function clearGenerateTabFields() {
 		const field = document.querySelector(id);
 		if (field) field.value = "";
 	});
+}
+
+async function checkUploadStatus(userId) {
+    console.log("🔍 Checking upload status for user:", userId);
+    
+    try {
+        // Get auth token
+        const { authToken } = await chrome.storage.local.get("authToken");
+        const headers = authToken ? { "Authorization": `Bearer ${authToken}` } : {};
+        
+        // Check resume status
+        const resumeResponse = await fetch(`http://localhost:8000/get-document?user_id=${userId}&type=resume`, {
+            headers
+        });
+        const resumeData = await resumeResponse.json();
+        
+        // Check GitHub status  
+        const githubResponse = await fetch(`http://localhost:8000/get-github?user_id=${userId}`, {
+            headers
+        });
+        const githubData = await githubResponse.json();
+        
+        // Update UI
+        updateUploadStatusUI(resumeData, githubData);
+        
+    } catch (error) {
+        console.error("❌ Error checking upload status:", error);
+        updateUploadStatusUI({}, {});
+    }
+}
+
+function updateUploadStatusUI(resumeData, githubData) {
+    const resumeIndicator = document.getElementById("resume-status-indicator");
+    const githubIndicator = document.getElementById("github-status-indicator");
+    const uploadBtn = document.getElementById("upload-redirect-btn");
+    
+    // Update resume status
+    if (resumeData.filename) {
+        resumeIndicator.textContent = "✅ Uploaded";
+        resumeIndicator.className = "status-indicator status-success";
+        resumeIndicator.style.color = "#10B981";
+    } else {
+        resumeIndicator.textContent = "❌ Not uploaded";
+        resumeIndicator.className = "status-indicator";
+        resumeIndicator.style.color = "#EF4444";
+    }
+    
+    // Update GitHub status
+    if (githubData.github_username) {
+        githubIndicator.textContent = "✅ Added";
+        githubIndicator.className = "status-indicator status-success";
+        githubIndicator.style.color = "#10B981";
+    } else {
+        githubIndicator.textContent = "❌ Not added";
+        githubIndicator.className = "status-indicator";
+        githubIndicator.style.color = "#EF4444";
+    }
+    
+    // Show/hide upload button based on status
+    const bothUploaded = resumeData.filename && githubData.github_username;
+    if (bothUploaded) {
+        uploadBtn.style.display = "none";
+    } else {
+        uploadBtn.style.display = "block";
+        uploadBtn.textContent = resumeData.filename ? "Add GitHub Username" : 
+                               githubData.github_username ? "Upload Resume" : 
+                               "Go to Profile to Upload";
+    }
 }

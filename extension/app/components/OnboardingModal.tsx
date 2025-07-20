@@ -84,34 +84,35 @@ export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: (
     };
 
     return (
+            return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <Card className="w-full max-w-md animate-fade-in relative">
+            <Card className="w-full max-w-md animate-fade-in relative bg-[#1a1a1a] border-gray-800">
                 {/* Close button */}
                 {onClose && (
                     <button
                         aria-label="Close"
                         onClick={onClose}
                         type="button"
-                        className="relative right-4 ml-90 mt-2 top-4 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow hover:bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-700 transition-all focus:outline-none"
+                        className="relative right-4 ml-90 mt-2 top-4 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-[#2a2a2a] shadow hover:bg-gray-700 border border-gray-700 text-gray-400 hover:text-gray-200 transition-all focus:outline-none"
                         style={{ lineHeight: 1, fontSize: '1.5rem', fontWeight: 700 }}
                     >
                         <span style={{ position: 'relative', top: '-1px' }}>&times;</span>
                     </button>
                 )}
                 <CardHeader>
-                    <CardTitle>Welcome! Complete Your Profile</CardTitle>
+                    <CardTitle className="text-gray-100">Welcome! Complete Your Profile</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-6 text-center text-gray-600 text-sm">
+                    <div className="mb-6 text-center text-gray-400 text-sm">
                         To get started, upload your resume (required) and optionally add your GitHub username. This helps us personalize your cover letter experience!
                     </div>
                     <div className="mb-6">
-                        <label className="block mb-2 font-medium">Upload Resume (PDF)</label>
+                        <label className="block mb-2 font-medium text-gray-300">Upload Resume (PDF)</label>
                         <input
                             type="file"
                             accept="application/pdf"
                             onChange={e => setResumeFile(e.target.files?.[0] || null)}
-                            className="mb-2 w-full border rounded px-2 py-1"
+                            className="mb-2 w-full border border-gray-700 bg-[#2a2a2a] text-gray-300 rounded px-2 py-1 focus:border-[#419D78] focus:outline-none"
                             disabled={resumeUploaded}
                         />
                         <Button onClick={handleResumeUpload} disabled={!resumeFile || loading || resumeUploaded} className="w-full">
@@ -119,12 +120,12 @@ export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: (
                         </Button>
                     </div>
                     <div className="mb-6">
-                        <label className="block mb-2 font-medium">GitHub Username (optional)</label>
+                        <label className="block mb-2 font-medium text-gray-300">GitHub Username (optional)</label>
                         <input
                             type="text"
                             value={githubUsername}
                             onChange={e => setGithubUsername(e.target.value)}
-                            className="w-full border rounded px-2 py-1"
+                            className="w-full border border-gray-700 bg-[#2a2a2a] text-gray-300 rounded px-2 py-1 focus:border-[#419D78] focus:outline-none"
                             placeholder="e.g. johndoe"
                             disabled={githubSubmitted}
                         />
@@ -132,9 +133,9 @@ export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: (
                             {loading && !githubSubmitted ? 'Submitting...' : githubSubmitted ? 'Submitted!' : 'Submit GitHub'}
                         </Button>
                     </div>
-                    {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+                    {error && <div className="text-red-400 text-sm mb-2">{error}</div>}
                     {resumeUploaded && (
-                        <div className="text-green-600 text-sm mb-2">Resume parsed successfully! You’re ready to generate your cover letter.</div>
+                        <div className="text-green-400 text-sm mb-2">Resume parsed successfully! You're ready to generate your cover letter.</div>
                     )}
                     <Button onClick={onComplete} disabled={!resumeUploaded} className="w-full mt-2">
                         Continue
@@ -142,5 +143,6 @@ export function OnboardingModal({ onComplete, userId, onClose }: { onComplete: (
                 </CardContent>
             </Card>
         </div>
+    );
     );
 }

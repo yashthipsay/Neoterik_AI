@@ -32,8 +32,8 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={cn(
-        'relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 transition-all duration-300 overflow-hidden',
-        hover && 'hover:shadow-xl hover:-translate-y-1',
+        'relative bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-800 transition-all duration-300 overflow-hidden',
+        hover && 'hover:shadow-xl hover:-translate-y-1 dark:hover:border-[#419D78]/50',
         premium && 'bg-gradient-to-br from-purple-500 to-blue-600 text-white',
         parametric && 'border-[#419D78]/20',
         className
@@ -93,8 +93,8 @@ export const CardTitle: React.FC<CardTitleProps> = ({
 }) => {
   return (
     <h3 className={cn(
-      'text-lg font-semibold text-gray-900 relative',
-      parametric && 'text-[#2D3047] font-bold tracking-wide',
+      'text-lg font-semibold text-gray-900 dark:text-gray-100 relative',
+      parametric && 'text-[#2D3047] dark:text-gray-100 font-bold tracking-wide',
       className
     )}>
       {parametric && (
@@ -112,7 +112,7 @@ interface CardContentProps {
 
 export const CardContent: React.FC<CardContentProps> = ({ children, className }) => {
   return (
-    <div className={cn('text-gray-600', className)}>
+    <div className={cn('text-gray-600 dark:text-gray-400', className)}>
       {children}
     </div>
   );

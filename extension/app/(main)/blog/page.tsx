@@ -3,8 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent } from '../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Card, CardContent } from '../../components/ui/Card';
 
 export default function BlogPage() {
   const featuredPost = {
@@ -85,42 +85,18 @@ export default function BlogPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Navigation */}
-      {/* <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/Neoterik-Genesis.png"
-                alt="Neoterik.ai Logo"
-                width={40}
-                height={40}
-                className="rounded-lg"
-              />
-              <span className="text-xl font-bold text-gray-900">Neoterik.ai</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
-              <Link href="/features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
-              <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
-              <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</Link>
-              <Link href="/auth/signin">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
+    <div className="min-h-screen bg-[#111111] text-gray-300">
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative text-center py-24 sm:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Subtle background glow for atmosphere */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-gradient-to-t from-[#419D78]/10 to-transparent blur-3xl -z-0"></div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-50 tracking-tight">
             Career Insights &
-            <span className="bg-gradient-to-r from-[#419D78] to-[#E0A458] bg-clip-text text-transparent"> Expert Advice</span>
+            <span className="bg-gradient-to-r from-[#419D78] to-[#6ddaa8] bg-clip-text text-transparent block mt-2"> Expert Advice</span>
           </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-8">
             Stay ahead in your career with actionable insights, industry trends, 
             and expert tips from our team of career professionals.
           </p>
@@ -130,7 +106,7 @@ export default function BlogPage() {
       {/* Featured Post */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden bg-[#1a1a1a] border border-gray-800">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               <div className="relative h-64 lg:h-auto">
                 <Image
@@ -145,20 +121,20 @@ export default function BlogPage() {
                   <span className="bg-[#419D78] text-white px-3 py-1 rounded-full text-sm font-medium">
                     Featured
                   </span>
-                  <span className="text-sm text-gray-500">{featuredPost.category}</span>
+                  <span className="text-sm text-gray-400">{featuredPost.category}</span>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                <h2 className="text-3xl font-bold text-gray-100 mb-4">
                   {featuredPost.title}
                 </h2>
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-gray-400 mb-6 leading-relaxed">
                   {featuredPost.excerpt}
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                    <div className="w-10 h-10 bg-gray-700 rounded-full"></div>
                     <div>
-                      <div className="font-medium text-gray-900">{featuredPost.author}</div>
-                      <div className="text-sm text-gray-500">{featuredPost.date} • {featuredPost.readTime}</div>
+                      <div className="font-medium text-gray-200">{featuredPost.author}</div>
+                      <div className="text-sm text-gray-400">{featuredPost.date} • {featuredPost.readTime}</div>
                     </div>
                   </div>
                   <Button>Read More</Button>
@@ -179,7 +155,7 @@ export default function BlogPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   index === 0
                     ? 'bg-[#419D78] text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    : 'bg-[#1a1a1a] text-gray-400 hover:bg-gray-800 hover:text-gray-100 border border-gray-800'
                 }`}
               >
                 {category}
@@ -194,26 +170,26 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map((post, index) => (
-              <Card key={index} className="blog-card">
+              <Card key={index} className="blog-card bg-[#1a1a1a] border border-gray-800 hover:border-[#419D78] transition-colors duration-300">
                 <div className="relative h-48">
                   <Image
                     src={post.image}
                     alt={post.title}
                     fill
-                    className="blog-image"
+                    className="blog-image object-cover rounded-t-lg"
                   />
                 </div>
-                <div className="blog-content">
+                <div className="blog-content p-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-medium text-[#419D78] bg-green-50 px-2 py-1 rounded">
+                    <span className="text-xs font-medium text-[#419D78] bg-[#419D78]/20 px-2 py-1 rounded">
                       {post.category}
                     </span>
                   </div>
-                  <h3 className="blog-title">{post.title}</h3>
-                  <p className="blog-excerpt">{post.excerpt}</p>
-                  <div className="blog-meta">
+                  <h3 className="blog-title text-lg font-semibold mb-2 text-gray-100">{post.title}</h3>
+                  <p className="blog-excerpt text-gray-400 text-sm mb-4 leading-relaxed">{post.excerpt}</p>
+                  <div className="blog-meta flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                      <div className="w-6 h-6 bg-gray-700 rounded-full"></div>
                       <span>{post.author}</span>
                     </div>
                     <span>{post.date} • {post.readTime}</span>
@@ -226,12 +202,12 @@ export default function BlogPage() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black/20">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-100 mb-4">
             Stay Updated with Career Insights
           </h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-lg text-gray-400 mb-8">
             Get the latest career tips, industry trends, and job search strategies 
             delivered to your inbox every week.
           </p>
@@ -239,7 +215,7 @@ export default function BlogPage() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none"
+              className="flex-1 px-4 py-3 border border-gray-700 bg-[#1a1a1a] text-gray-300 rounded-lg focus:ring-2 focus:ring-[#419D78] focus:border-[#419D78] outline-none placeholder-gray-500"
             />
             <Button className="whitespace-nowrap">
               Subscribe
@@ -270,52 +246,9 @@ export default function BlogPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/Neoterik-Genesis.png"
-                  alt="Neoterik.ai Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-lg"
-                />
-                <span className="text-xl font-bold">Neoterik.ai</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered career tools to help you land your dream job.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Careers</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Neoterik.ai. All rights reserved.</p>
-          </div>
+      <footer className="border-t border-gray-800 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Neoterik.ai. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -23,73 +23,78 @@ function notifyLoginStatusChanged() {
 
 // === Sign Out Handler ===
 function handleSignOut() {
-	console.log("[Extension] Initiating sign out...");
-	// Open signout in a new tab to clear NextAuth cookies
-	chrome.tabs.create(
-		{ url: "http://localhost:3000/api/auth/signout?callbackUrl=/" },
-		(tab) => {
-			// Wait a moment, then clear extension storage and reload home page
-			setTimeout(() => {
-				chrome.storage.local.clear(() => {
-					notifyLoginStatusChanged();
-					chrome.tabs.update(tab.id, {
-						url: "http://localhost:3000",
-						active: true,
-					});
-					console.log(
-						"[Extension] Sign out complete, storage cleared, home page opened."
-					);
-				});
-			}, 1500); // Give NextAuth time to clear cookies
-		}
-	);
+    console.log("[Extension] Opening sign out page with callback URL...");
+
+    // 1. Clear local extension storage immediately.
+    chrome.storage.local.clear(() => {
+        console.log("[Extension] Local storage cleared.");
+        notifyLoginStatusChanged();
+    });
+
+    // 2. Open the sign-out page with a callbackUrl to ensure proper redirection.
+    // This tells NextAuth where to go after a successful sign-out.
+    chrome.tabs.create({
+        url: "http://localhost:3000/api/auth/signout?callbackUrl=http://localhost:3000",
+        active: true,
+    });
 }
 
 // === Auth Callback Handler ===
 const handledAuthTabs = new Set();
 async function handleAuthCallback(tabId, url) {
-	if (handledAuthTabs.has(tabId)) return;
-	handledAuthTabs.add(tabId);
+    if (handledAuthTabs.has(tabId)) return;
+    handledAuthTabs.add(tabId);
 
-	try {
-		const response = await fetch("http://localhost:3000/api/auth/session", {
-			method: "GET",
-			headers: { Accept: "application/json" },
-			credentials: "include",
-		});
+    try {
+        const response = await fetch("http://localhost:3000/api/auth/session", {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            credentials: "include",
+        });
 
-		if (response.ok) {
-			const session = await response.json();
-			if (session && session.user) {
-				await chrome.storage.local.set({
-					isLoggedIn: true,
-					user: session.user,
-					userId: session.user.id,
-    				authToken: session.accessToken
-				});
-				console.log("🔑 Session result from server:", session);
-				notifyLoginStatusChanged();
-				setTimeout(() => {
-					chrome.tabs.remove(tabId).catch((err) => {
-						if (
-							err &&
-							err.message &&
-							err.message.includes("No tab with id")
-						) {
-							// Silently ignore this error
-							return;
-						}
-						// Log other errors
-						console.warn("chrome.tabs.remove error:", err);
-					});
-				}, 1000);
-			}
-		} else {
-			console.error("Auth callback failed to fetch session");
-		}
-	} catch (error) {
-		console.error("Error during auth callback:", error);
-	}
+        if (response.ok) {
+            const session = await response.json();
+            if (session && session.user) {
+                // 1. Ensure user is registered in our backend
+                const userPayload = {
+                    id: session.user.id,
+                    email: session.user.email || "",
+                    name: session.user.name || "",
+                    avatar_url: session.user.image || "",
+                    github_username: session.user.github_username || ""
+                };
+                try {
+                    const regRes = await fetch(`${API_BASE_URL}/register-user`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(userPayload),
+                    });
+                    if (!regRes.ok) {
+                        console.warn("register-user failed:", await regRes.text());
+                    }
+                } catch (err) {
+                    console.warn("Error calling register-user:", err);
+                }
+
+                // 2. Store session + token locally
+                await chrome.storage.local.set({
+                    isLoggedIn: true,
+                    user: session.user,
+                    userId: session.user.id,
+                    authToken: session.accessToken
+                });
+                console.log("🔑 Session result from server:", session);
+                notifyLoginStatusChanged();
+                setTimeout(() => {
+                    chrome.tabs.remove(tabId).catch(/*...*/);
+                }, 1000);
+            }
+        } else {
+            console.error("Auth callback failed to fetch session");
+        }
+    } catch (error) {
+        console.error("Error during auth callback:", error);
+    }
 }
 
 function shouldProceedWithDetection(url, callback) {
@@ -251,6 +256,34 @@ async function handleGenerateCoverLetter(data) {
 	}
 }
 
+// NEW: Handler to save the cover letter to the database
+async function handleSaveCoverLetter(data, sendResponse) {
+    console.log("[Background] Received saveCoverLetter message with data:", data);
+    try {
+        const { authToken } = await chrome.storage.local.get("authToken");
+        const res = await fetch(`${API_BASE_URL}/save-cover-letter`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+            console.log("[Background] Cover letter saved successfully.");
+            sendResponse({ success: true });
+        } else {
+            const errorResult = await res.json();
+            console.error("[Background] Failed to save cover letter:", errorResult);
+            sendResponse({ success: false, error: errorResult.detail || "Server error" });
+        }
+    } catch (err) {
+        console.error("[Background] Network error during save:", err);
+        sendResponse({ success: false, error: err.message || "Network error" });
+    }
+}
+
 // Add a global flag for agent running
 let isAgentRunning = false;
 
@@ -259,12 +292,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === "generateCoverLetter") {
 		console.log("[Background] Received generateCoverLetter message");
 		handleGenerateCoverLetter(request.data);
-		return true;
+		return true; // Indicates an async response
 	}
 
-	if (request.action === "removeBanner") {
-		const banner = document.getElementById("neoterik-job-detected");
-		if (banner) banner.remove();
+
+	if (request.action === "signOut") {
+		handleSignOut();
+		sendResponse({ success: true });
+		return true;
 	}
 
 	const tabId = sender.tab?.id;
@@ -274,11 +309,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		return false;
 	}
 
-	// === Listen for signOut action ===
-	if (request.action === "signOut") {
-		handleSignOut();
-		sendResponse({ success: true });
-		return true;
+	// The rest of the actions that DO require a tabId can proceed.
+	if (request.action === "removeBanner") {
+		const banner = document.getElementById("neoterik-job-detected");
+		if (banner) banner.remove();
 	}
 
 	if (request.action === "checkUrl") {

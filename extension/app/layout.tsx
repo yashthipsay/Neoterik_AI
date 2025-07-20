@@ -1,7 +1,7 @@
- import './globals.css';
+import './globals.css';
 import { Metadata } from 'next';
 import { Providers } from "./providers";
-import { Navbar } from './components/Navbar';
+
 export const metadata: Metadata = {
   title: 'Neoterik.ai Cover Letter Assistant',
   description: 'AI-powered cover letter generator that helps you craft personalized cover letters based on job descriptions.',
@@ -10,17 +10,16 @@ export const metadata: Metadata = {
   }
 };
 
+// This is the true root layout - keep it minimal.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <Providers>
-          <Navbar />
-          {children}</Providers>
+    <html lang="en" className="dark">
+      <body className="bg-[#111111] text-gray-300">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

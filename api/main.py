@@ -19,6 +19,7 @@ import asyncio
 from fastapi.responses import JSONResponse
 from fastapi import Query
 from datetime import datetime
+from celery_worker import run_unified_workflow_task
 
 app = FastAPI(
     title="Job URL Detector API",
@@ -437,33 +438,36 @@ async def generate_cover_letter(
         }
     }
 
-    # Build and run the workflow
+    # Start the Celery task to run the unified workflow
     try:
-        graph = build_graph()
-        print(f"[API] Starting workflow for user_id={input.user_id}")
-        result = await graph.ainvoke(initial_state)
-        cover_letter = result["context"]["cover_letter"]
-        print(f"[API] Generated cover letter for user_id={input.user_id}")
+        task = run_unified_workflow_task.delay(initial_state)
+        print(f"[API] Started Celery task {task.id} for user_id={current_user['id']}")
     except Exception as e:
         import traceback
-        print(f"Error in cover letter workflow: {e}")
+        print(f"Celery task error in /generate-cover-letter: {e}")
         print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Error generating cover letter.")
+        raise HTTPException(status_code=500, detail="Failed to start workflow task.")
+    
+    return {"task_id": task.id, "status": "Workflow started successfully. Check task status later."}
+    
 
-    if isinstance(cover_letter, str):
-        return {
-            "cover_letter": cover_letter,
-            "summary": None,
-            "used_highlights": None,
-            "used_github_info": None,
-        }
-    else:
-        return {
-            "cover_letter": cover_letter.get("cover_letter"),
-            "summary": cover_letter.get("summary"),
-            "used_highlights": cover_letter.get("used_highlights"),
-            "used_github_info": cover_letter.get("used_github_info"),
-        }
+@app.get("/tasks/{task_id}")
+async def get_task_status(task_id: str):
+    """
+    Retrieve Celery task status and result so background.js can poll /tasks/{task_id}.
+    """
+    task = run_unified_workflow_task.AsyncResult(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    status = task.status
+    # Always return status; include result on success, error on failure
+    if status == "FAILURE":
+        return {"status": status, "error": str(task.result)}
+    if status == "SUCCESS":
+        return {"status": status, "result": task.result}
+    
+    return {"status": status}
 
 @app.get("/get-document")
 async def get_document(user_id: str = Query(...), type: str = Query(...), current_user: dict = Depends(get_current_user)):

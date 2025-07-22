@@ -108,6 +108,59 @@ function shouldProceedWithDetection(url, callback) {
 	});
 }
 
+function pollTaskStatus(taskId) {
+	const interval = setInterval(async () => {
+		try{
+            const { authToken } = await chrome.storage.local.get("authToken"); 
+            const res = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+                 headers: {
+                    "Authorization": `Bearer ${authToken}`
+                }
+            });
+			const data = await res.json();
+
+			if (data.status === 'SUCCESS') {
+                clearInterval(interval);
+                // The task is complete. The result is in data.result
+                const finalResult = data.result;
+
+                const { jobSession } = await chrome.storage.local.get("jobSession");
+                
+                // Update storage with the final cover letter
+                await chrome.storage.local.set({
+                    jobSession: {
+                        ...jobSession,
+                        isLocked: false,
+                        isCoverLetterGenerated: true,
+                        isCoverLetterGenerating: false,
+                        coverLetter: finalResult.cover_letter?.cover_letter, // Access nested property
+                        coverLetterError: null,
+                    },
+                });
+
+                // Send the final cover letter back to the popup
+                chrome.runtime.sendMessage({
+                    action: "coverLetterGenerated",
+                    coverLetter: finalResult.cover_letter?.cover_letter,
+                });
+			} else if (data.status === "FAILURE") {
+                clearInterval(interval);
+                chrome.runtime.sendMessage({
+                    action: "coverLetterError",
+                    error: "Failed to generate cover letter on the server.",
+                });
+            }
+		} catch (error) {
+            clearInterval(interval);
+            console.error("Error polling task status:", error);
+            chrome.runtime.sendMessage({
+                action: "coverLetterError",
+                error: "Network error while checking status.",
+            });
+        }
+	}, 3000)
+}
+
 // === Core Job Page Detection ===
 // Track cleanup timeouts per session
 let sessionCleanupTimeout = null;
@@ -198,47 +251,15 @@ async function handleGenerateCoverLetter(data) {
 			},
 			body: JSON.stringify(payload),
 		});
-		const result = await res.json();
-		if (res.ok && result.cover_letter) {
-			await chrome.storage.local.set({
-				jobSession: {
-					jobUrl: jobSession.jobUrl,
-					isJobDetected: false,
-					isAgentInProgress: false,
-					isAgentFinished: false,
-					isLocked: false,
-					isCoverLetterGenerated: true,
-					isCoverLetterGenerating: false,
-					isUserConfirmed: null,
-					coverLetter: result.cover_letter,
-					coverLetterError: null,
-					timestamp: Date.now(),
-				},
-				currentJobPage: {
-					...(currentJobPage || {}),
-					coverLetter: result.cover_letter,
-				},
-			});
-			chrome.runtime.sendMessage({
-				action: "coverLetterGenerated",
-				coverLetter: result.cover_letter,
-			});
-		} else {
-			await chrome.storage.local.set({
-				jobSession: {
-					...jobSession,
-					isLocked: false,
-					isCoverLetterGenerating: false,
-					isCoverLetterGenerated: false,
-					coverLetterError:
-						result.error || "Failed to generate cover letter",
-				},
-			});
-			chrome.runtime.sendMessage({
-				action: "coverLetterError",
-				error: result.error || "Failed to generate cover letter",
-			});
-		}
+        if (!res.ok) {
+             const errorResult = await res.json();
+            throw new Error(errorResult.detail || "Failed to start the generation task.");
+        }
+
+        const taskInfo = await res.json();
+        
+        // 2. Start polling for the result using the task ID
+        pollTaskStatus(taskInfo.task_id);
 	} catch (err) {
 		await chrome.storage.local.set({
 			jobSession: {

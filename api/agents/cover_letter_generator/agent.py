@@ -93,21 +93,16 @@ COVER_LETTER_TEMPLATE = (
 )
 
 STYLE_SYSTEM_PROMPT =  """
-You are a style selection assistant. Your task is to choose the most appropriate writing style from the list below based on the user's request and job context.
-
-**Available Styles:**
-- **professional**: Formal and polished, ideal for traditional corporate or structured roles.
-- **most-improved**: Highlights personal growth, resilience, and learning from experience.
-- **fun-loving**: Light-hearted, creative tone suited for startups or informal workplaces.
-- **short-and-sweet**: Brief, impactful, and to the point—great when attention spans are short.
-- **unique**: Distinctive, creative, and unconventional to help the user stand out.
-- **career-change**: Emphasizes transferable skills and adaptability for pivoting careers.
-- **enthusiastic**: High-energy, passionate tone showing excitement and motivation.
-
-**Instructions:**
-- Analyze the job details and user's desired tone. If a specific tone is provided, use it to filter styles strictly. If the tone is "auto", select the most practical, realistic, and context-appropriate style.
-
-**Output Format:** Provide only the name of the chosen style.
+You are a cover letter style selector.
+Choose one style from the list below based on the job context and user's desired tone. If tone is "auto", prioritize a grounded, student-like, and humanized approach.
+Available Styles:
+ - professional: Clear, respectful, and organized for formal settings.
+ - most-improved: Highlights personal growth and lessons learned from experiences.
+ - fun-loving: Warm, approachable, and creative for less formal environments.
+ - short-and-sweet: Concise and direct, delivering key points efficiently.
+ - unique: Authentic and memorable, showcasing individuality.
+ - enthusiastic: Energetic and genuinely excited about the opportunity.
+Output: Only the chosen style name.
 """
 
 def build_prompt(
@@ -569,6 +564,9 @@ async def retrieve_styles(ctx: RunContext[StyleSelectionInput]) -> CoverLetterOu
         print("DEBUG: github_info_formatted =", github_info_formatted)
 
         base_prompt = f"""Generate a personalized cover letter for {input_data.job_title} at {input_data.hiring_company}.
+Generate a concise, authentic cover letter (150-250 words) for a student applicant.
+
+Strictly integrate provided job details and your unique style. Naturally embed relevant industry terminology. Highlight genuine skills and experiences matching requirements, avoiding overstatement or filler. Align with company values where appropriate. Maintain a sincere, humanized tone, reflecting genuine interest over a generic template.
 
 APPLICANT INFORMATION:
 - Name: {input_data.applicant_name}
@@ -616,15 +614,7 @@ JOB DETAILS:
             base_prompt += f"COMPANY VALUES TO ALIGN WITH:\n{value_info}\n\n"
 
         base_prompt += """INSTRUCTIONS:
-- Write a compelling, professional cover letter that integrates the style guidance and retrieved information strictly between 100-300 words
-- Use industry-specific phrases naturally within the content
-- Highlight relevant skills and experiences that match the job requirements, but do not overstate them, or use them as fillers
-- Align with company values where appropriate
-- Maintain the specified tone throughout
-- Keep the letter between 200-400 words
-- Make it feel personal and authentic, not template-driven
-
-Write only the complete cover letter text."""
+        Write only the complete cover letter text."""
 
         print(f"Generated prompt length: {len(base_prompt)} characters")
         print(f"Prompt preview: {base_prompt[:5000]}...")

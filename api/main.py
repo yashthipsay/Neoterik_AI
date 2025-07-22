@@ -19,7 +19,7 @@ import asyncio
 from fastapi.responses import JSONResponse
 from fastapi import Query
 from datetime import datetime
-from celery_worker import run_unified_workflow_task
+from celery_worker import run_unified_workflow_task, run_job_research_task
 
 app = FastAPI(
     title="Job URL Detector API",
@@ -165,9 +165,14 @@ async def check_url(data: URLCheckRequest):
 # Endpoint to run the full job research graph
 @app.post("/run-agent")
 async def run_agent_api(data: URLCheckRequest):
+    """
+    Receives a URL and starts the company research task in the background.
+    """
     try:
-        parsed_output = await run_job_research(data.url)  # full graph
-        return parsed_output.model_dump()
+        # Dispatch the Celery task to run the job research graph
+        task = run_job_research_task.apply_async(args=[data.url])
+        print(f"Dispatched company research task {task.id} to queue.")
+        return {"task_id": task.id, "status": "Processing"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -455,18 +460,22 @@ async def generate_cover_letter(
 async def get_task_status(task_id: str):
     """
     Retrieve Celery task status and result so background.js can poll /tasks/{task_id}.
+    Updated to handle both cover letter and company research tasks.
     """
-    task = run_unified_workflow_task.AsyncResult(task_id)
-    if task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
+    # Try to get the task as a cover letter task first
+    cover_letter_task = run_unified_workflow_task.AsyncResult(task_id)
+    # Try to get the task as a company research task
+    company_research_task = run_job_research_task.AsyncResult(task_id)
+
+    # Try to get the task as a cover letter task first
+    task = cover_letter_task if cover_letter_task.status != "PENDING" else company_research_task
     
     status = task.status
-    # Always return status; include result on success, error on failure
+    # Return status; include result or error when available
     if status == "FAILURE":
         return {"status": status, "error": str(task.result)}
     if status == "SUCCESS":
         return {"status": status, "result": task.result}
-    
     return {"status": status}
 
 @app.get("/get-document")

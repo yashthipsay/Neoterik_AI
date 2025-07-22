@@ -156,7 +156,45 @@ function setupEventListeners() {
 			showError(message.error || "Failed to generate cover letter");
 			setLoadingState(false, "");
 		}
+		if (message.action === "agentFinished") {
+			setAgentProgressState(false);
+			// If research data is provided, populate the fields
+			if (message.researchData) {
+				populateFieldsFromResearchData(message.researchData);
+			}
+			populateFieldsFromGraph();
+		}
+		if (message.action === "agentError") {
+			setAgentProgressState(false);
+			showError(message.error || "Agent failed");
+		}
 	});
+}
+
+// Add a new function to populate fields from the research data
+function populateFieldsFromResearchData(researchData) {
+    if (!researchData) return;
+    
+    // Map the research data to form fields
+    const fieldMappings = {
+        "#company_name": researchData.company_name || "",
+        "#job_title": researchData.job_title || "",
+        "#job_description": researchData.job_description || "",
+        "#company_summary": researchData.company_summary || "",
+        "#company_vision": researchData.company_vision || "",
+        "#additional_notes": researchData.additional_notes || "",
+        "#preferred_skills": researchData.skillset ? researchData.skillset.join(", ") : "",
+    };
+
+    // Populate the fields
+    Object.entries(fieldMappings).forEach(([selector, value]) => {
+        const field = document.querySelector(selector);
+        if (field && value) {
+            field.value = value;
+        }
+    });
+    
+    console.log("📝 Populated fields with research data:", researchData);
 }
 
 function switchTab(tabId) {
@@ -473,7 +511,7 @@ function handleSignIn() {
 	const width = 600,
 		height = 700;
 	chrome.windows.create({
-		url: "http://localhost:3000/auth/signin",
+		url: "http://localhost:3000/auth/signin?source=extension",
 		type: "popup",
 		width,
 		height,

@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## Docker instructions
+
+docker run -d -p 5672:5672 -p 15672:15672 --name my-rabbitmq rabbitmq:3-management
+
+# The -P flag specifies the execution pool.
+# Concurrency can be set to a high number, like 1000.
+celery -A celery_worker.celery_app worker --loglevel=info --concurrency=1000 -P eventlet

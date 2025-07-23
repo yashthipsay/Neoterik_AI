@@ -36,10 +36,102 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
-## Docker instructions
+# Celery and RabbitMQ Setup Guide
 
-docker run -d -p 5672:5672 -p 15672:15672 --name my-rabbitmq rabbitmq:3-management
+This guide walks you through setting up the asynchronous task processing system used in this project. It includes Celery for task management, RabbitMQ as the message broker, and Eventlet for handling I/O-bound operations efficiently.
 
-# The -P flag specifies the execution pool.
-# Concurrency can be set to a high number, like 1000.
-celery -A celery_worker.celery_app worker --loglevel=info --concurrency=1000 -P eventlet
+---
+
+## 🚀 Step 1: Install Dependencies
+
+Activate your Python virtual environment:
+
+```bash
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
+```
+
+Install Celery and Eventlet:
+
+```bash
+pip install "celery[rabbitmq,eventlet]"
+```
+
+> This installs Celery, RabbitMQ support, and Eventlet. Eventlet is ideal for our I/O-heavy AI and web scraping workloads.
+
+---
+
+## 🐇 Step 2: Set Up RabbitMQ with Docker
+
+### 1. Install Docker
+
+If Docker isn't already installed, download and install it from [Get Docker](https://www.docker.com/get-started/).
+
+### 2. Run RabbitMQ Container
+
+First pull the official rabbitmq image: 
+
+```bash
+docker pull rabbitmq:3-management
+```
+
+Launch RabbitMQ (with management UI) using Docker:
+
+```bash
+docker run -d \
+  --hostname my-rabbit \
+  --name neoterik-rabbitmq \
+  -p 5672:5672 \
+  -p 15672:15672 \
+  rabbitmq:3-management
+```
+
+**What this does:**
+
+* `-d`: Runs the container in the background.
+* `--name neoterik-rabbitmq`: Gives the container a memorable name.
+* `-p 5672:5672`: Exposes RabbitMQ's messaging port.
+* `-p 15672:15672`: Exposes the RabbitMQ management dashboard.
+
+📍 Access the RabbitMQ UI at [http://localhost:15672](http://localhost:15672) with login:
+
+* **Username:** `guest`
+* **Password:** `guest`
+
+---
+
+## ⚙️ Step 3: Start the Multi-Queue Workers
+
+Use Celery to start workers that listen to both task queues: `default` and `company-research-queue`.
+
+Run this command in a new terminal (after activating your virtual environment):
+
+```bash
+celery -A celery_worker.celery_app worker \
+  --loglevel=info \
+  -Q default,company-research-queue \
+  --concurrency=1000 \
+  -P eventlet
+```
+
+### Command Breakdown:
+
+* `-A celery_worker.celery_app`: Target the Celery app instance.
+* `worker`: Starts the Celery worker process.
+* `--loglevel=info`: Enables task logs in the terminal.
+* `-Q default,company-research-queue`: Ensures tasks from both queues are consumed.
+* `--concurrency=1000`: High concurrency for Eventlet's lightweight threads.
+* `-P eventlet`: Uses Eventlet as the concurrency backend.
+
+---
+
+## ✅ System Ready
+
+Your asynchronous task processing system is now fully operational! 🎉
+
+Celery workers will continuously listen for tasks dispatched by the FastAPI backend and execute them efficiently.
+
+---
+
+*If you encounter issues, ensure your virtual environment is activated and Docker is running.*

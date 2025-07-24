@@ -84,7 +84,7 @@ def parse_llm_output(output: str) -> CompanyResearchOutput:
 
 # 🤖 Agent Setup
 # llm = ChatGroq(model="deepseek-r1-distill-llama-70b", temperature=0.1)
-llm = ChatGoogleGenerativeAI(model='gemini-1.5-flash', google_api_key="AIzaSyANJ3NXIcSwHrcXMjFGueLNEEJh_pgFz70")
+llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', google_api_key="AIzaSyANJ3NXIcSwHrcXMjFGueLNEEJh_pgFz70")
 search_tool = TavilySearchResults(max_results=5)
 
 react_agent = create_react_agent(llm, tools=[search_tool], prompt="""

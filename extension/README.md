@@ -111,7 +111,6 @@ Run this command in a new terminal (after activating your virtual environment):
 celery -A celery_worker.celery_app worker \
   --loglevel=info \
   -Q default,company-research-queue \
-  --concurrency=1000 \
   -P eventlet
 ```
 

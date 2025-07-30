@@ -108,10 +108,7 @@ Use Celery to start workers that listen to both task queues: `default` and `comp
 Run this command in a new terminal (after activating your virtual environment):
 
 ```bash
-celery -A celery_worker.celery_app worker \
-  --loglevel=info \
-  -Q default,company-research-queue \
-  -P eventlet
+celery -A celery_worker.celery_app worker --loglevel=info -Q default,company-research-queue --concurrency=4
 ```
 
 ### Command Breakdown:
